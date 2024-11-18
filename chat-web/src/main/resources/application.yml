@@ -1,11 +1,11 @@
 app:
-  name: Multi-module Demo
-  description: Seed multi-module project
+  name: EDC-Chat-App
+  description: EDC based chat application
   version: 1
   port: ${APP_PORT:8080}
   security:
     enabled: ${SECURITY_ENABLE:true}
-    realm: ${KEYCLOAK_REALM_NAME:SWD}
+    realm: ${KEYCLOAK_REALM_NAME:edc-chat}
     clientId: ${KEYCLOAK_CLIENT_ID:pb_backend}
     roleClientId: ${KEYCLOAK_ROLE_CLIENT_ID:pv_backend}
     auth-server-url: ${KEYCLOAK_AUTH_URL:http://localhost:28080}
@@ -14,12 +14,20 @@ app:
     refresh-token-url: ${KEYCLOAK_TOKEN_URL}
     corsOrigins: "*"
   database:
-    host: ${DB_HOST:localhost}
-    port: ${DB_PORT:15432}
-    name: ${DB_NAME:multi-module-demo}
-    username: ${DB_USER:root}
-    password: ${DB_PASSWORD:root}
-    useSSL: ${USE_SSL:false}
+    postgres:
+      host: ${DB_HOST:localhost}
+      port: ${DB_PORT:15432}
+      name: ${DB_NAME:chat}
+      username: ${DB_USER:root}
+      password: ${DB_PASSWORD:root}
+      useSSL: ${USE_SSL:false}
+    mongodb:
+      host: ${MONGO_HOST:localhost}
+      port: ${MONGO_PORT:27017}
+      database: ${MONGO_DB_NAME:chat}
+      username: ${MONGO_USER:root}
+      password: ${MONGO_PASSWORD:root}
+      authMechanism: SCRAM-SHA-1
   swagger:
     clientId: ${KEYCLOAK_CLIENT_ID:swd_public_client}
   multipart:
@@ -59,6 +67,8 @@ management:
   health:
     db:
       enabled: true
+    mongo:
+      enabled: true
     diskspace:
       enabled: false
     livenessstate:
@@ -94,10 +104,13 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: false
   datasource:
-    url: jdbc:postgresql://${app.database.host}:${app.database.port}/${app.database.name}?useSSL=${app.database.useSSL}
-    username: ${app.database.username}
-    password: ${app.database.password}
+    url: jdbc:postgresql://${app.database.postgres.host}:${app.database.postgres.port}/${app.database.postgres.name}?useSSL=${app.database.postgres.useSSL}
+    username: ${app.database.postgres.username}
+    password: ${app.database.postgres.password}
     driverClassName: org.postgresql.Driver
+  data:
+    mongodb:
+      uri: mongodb://${app.database.mongodb.username}:${app.database.mongodb.password}@${app.database.mongodb.host}:${app.database.mongodb.port}/${app.database.mongodb.database}?authSource=admin&authMechanism=${app.database.mongodb.authMechanism}
   security:
     oauth2:
       resourceserver:

@@ -10,6 +10,16 @@ services:
     volumes:
       - mydb:/var/lib/postgresql/data
       - ./dev/create_keycloak_db.sh:/docker-entrypoint-initdb.d/create_second_db.sh
+  mongodb:
+    image: 'mongo:latest'
+    environment:
+      - 'MONGO_INITDB_DATABASE=mydatabase'
+      - 'MONGO_INITDB_ROOT_PASSWORD=secret'
+      - 'MONGO_INITDB_ROOT_USERNAME=root'
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb:/data/db
 
   keycloak:
     healthcheck:
@@ -38,4 +48,5 @@ services:
 
 volumes:
   mydb:
+  mongodb:
   keycloak-data:
