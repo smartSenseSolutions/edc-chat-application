@@ -1,0 +1,41 @@
+services:
+  database:
+    image: 'postgres:16.2'
+    ports:
+      - '15432:5432'
+    environment:
+      - 'POSTGRES_USER=root'
+      - 'POSTGRES_DB=mydatabase'
+      - 'POSTGRES_PASSWORD=password'
+    volumes:
+      - mydb:/var/lib/postgresql/data
+      - ./dev/create_keycloak_db.sh:/docker-entrypoint-initdb.d/create_second_db.sh
+
+  keycloak:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:28080/auth/"]
+      interval: 5s
+      timeout: 2s
+      retries: 15
+    pid: "host"
+    depends_on:
+      - database
+    volumes:
+      - keycloak-data:/opt/keycloak/data/
+      - ./dev/SWD_local_realm.json:/opt/keycloak/data/import/miw_test_realm_local.json
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      DB_VENDOR: postgres
+      DB_ADDR: database
+      DB_DATABASE: auth
+      DB_USER: root
+      DB_PASSWORD: password
+    image: quay.io/keycloak/keycloak:24.0.2
+    entrypoint: ["/opt/keycloak/bin/kc.sh", "start-dev", "--import-realm"]
+    ports:
+      - "28080:8080"
+
+volumes:
+  mydb:
+  keycloak-data:

@@ -1,0 +1,20 @@
+app:
+  security:
+    enabled: true
+    auth-url: ${app.security.auth-server-url}/realms/${app.security.realm}/protocol/openid-connect/auth
+    token-url: ${app.security.auth-server-url}/realms/${app.security.realm}/protocol/openid-connect/token
+    refresh-token-url: ${app.security.token-url}
+    corsOrigins: "*"
+  container:
+    keycloak: true
+    postgres: true
+
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          #Issuer-uri indicates the iss claims from jwt token
+          issuer-uri: ${app.security.auth-server-url}/realms/${app.security.realm}
+          jwk-set-uri: ${app.security.auth-server-url}/realms/${app.security.realm}/protocol/openid-connect/certs

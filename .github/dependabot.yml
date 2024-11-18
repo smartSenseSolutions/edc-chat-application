@@ -1,0 +1,47 @@
+version: 2
+updates:
+    # Maintain dependencies for Maven
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gradle"
+    directory: "/ss-api"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gradle"
+    directory: "/ss-dao"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gradle"
+    directory: "/ss-service-impl"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gradle"
+    directory: "/ss-service"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+  - package-ecosystem: "gradle"
+    directory: "/ss-web"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+    # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+    # Maintain dependencies for Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

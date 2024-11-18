@@ -1,0 +1,41 @@
+plugins {
+    id 'java-library'
+    id 'jacoco'
+    id 'maven-publish'
+}
+
+
+dependencies {
+    api project(":chat-dao")
+}
+
+jar {
+    enabled = true
+    archiveClassifier = ''
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom("org.testcontainers:testcontainers-bom:${testContainerVersion}")
+    }
+}
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/smartSenseSolutions/spring-boot-multi-module-boiler-plate"
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from components.java
+            groupId = 'ss.mod.demo.service'
+            version = '0.1'
+        }
+    }
+}

@@ -1,0 +1,122 @@
+app:
+  name: Multi-module Demo
+  description: Seed multi-module project
+  version: 1
+  port: ${APP_PORT:8080}
+  security:
+    enabled: ${SECURITY_ENABLE:true}
+    realm: ${KEYCLOAK_REALM_NAME:SWD}
+    clientId: ${KEYCLOAK_CLIENT_ID:pb_backend}
+    roleClientId: ${KEYCLOAK_ROLE_CLIENT_ID:pv_backend}
+    auth-server-url: ${KEYCLOAK_AUTH_URL:http://localhost:28080}
+    auth-url: ${app.security.auth-server-url}/realms/${app.security.realm}/protocol/openid-connect/auth
+    token-url: ${app.security.auth-server-url}/realms/${app.security.realm}/protocol/openid-connect/token
+    refresh-token-url: ${KEYCLOAK_TOKEN_URL}
+    corsOrigins: "*"
+  database:
+    host: ${DB_HOST:localhost}
+    port: ${DB_PORT:15432}
+    name: ${DB_NAME:multi-module-demo}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    useSSL: ${USE_SSL:false}
+  swagger:
+    clientId: ${KEYCLOAK_CLIENT_ID:swd_public_client}
+  multipart:
+    maxFileSize: ${MULTIPART_MAX_FILE_SIZE:50MB}
+    maxRequestSize: ${MULTIPART_MAX_REQUEST_SIZE:51MB}
+  retry:
+    connectionTimeoutMillis: ${RETRY_CONNECTION_TIMEOUT_MILLI:200}
+    readTimeoutMillis: ${RETRY_READ_TIMEOUT_MILLI:500}
+    maxIdleConnections: ${RETRY_MAX_IDLE_CONNECTION:10}
+    keepAliveDurationMinutes: ${RETRY_ALIVE_DURATION_MIN:5}
+    maxRetryAttempt: ${RETRY_MAX_ATTEMPT:5}
+    retryInterval: ${RETRY_INTERVAL_MILLI:2000}
+
+server:
+  port: ${app.port}
+  shutdown: graceful
+  servlet:
+    contextPath: /api/app
+  compression:
+    enabled: true
+    min-response-size: 1024
+#Add message path for i18n support
+
+springdoc:
+  swagger-ui:
+    oauth:
+      clientId: ${app.swagger.clientId}
+    disable-swagger-default-url: true
+    path: /ui/swagger-ui
+    show-common-extensions: true
+    csrf:
+      enabled: true
+  api-docs:
+    path: /docs/api-docs
+
+management:
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: false
+    livenessstate:
+      enabled: true
+    ping:
+      enabled: false
+    readinessstate:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      showDetails: ALWAYS
+
+logging:
+  level:
+    root: INFO
+
+messages:
+  bundle:
+    path: classpath:i18n/messages
+
+spring:
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: public
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+  datasource:
+    url: jdbc:postgresql://${app.database.host}:${app.database.port}/${app.database.name}?useSSL=${app.database.useSSL}
+    username: ${app.database.username}
+    password: ${app.database.password}
+    driverClassName: org.postgresql.Driver
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          #Issuer-uri indicates the iss claims from jwt token
+          issuer-uri: ${app.security.auth-server-url}/realms/${app.security.realm}
+          jwk-set-uri: ${app.security.auth-server-url}/realms/${app.security.realm}/protocol/openid-connect/certs
+  servlet:
+    multipart:
+      max-file-size: ${app.multipart.maxFileSize}
+      max-request-size: ${app.multipart.maxRequestSize}
+  liquibase:
+    change-log: classpath:/db/changelog/changelog-master.xml
+
+feign:
+  default:
+    connectionTimeoutMillis: ${app.retry.connectionTimeoutMillis}
+    readTimeoutMillis: ${app.retry.readTimeoutMillis}
+    maxIdleConnections: ${app.retry.maxIdleConnections}
+    keepAliveDurationMinutes: ${app.retry.keepAliveDurationMinutes}
+    maxRetryAttempt: ${app.retry.maxRetryAttempt}
+    retryInterval: ${app.retry.retryInterval}
