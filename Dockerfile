@@ -1,4 +1,4 @@
-FROM gradle:8.10.2-jdk21-alpine AS build
+FROM gradle:8.11.0-jdk21-alpine AS build
 COPY --chown=gradle:gradle . /home/app
 WORKDIR /home/app
 RUN gradle clean build --no-daemon -i -x test -x javadoc
