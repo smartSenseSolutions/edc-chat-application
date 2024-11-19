@@ -15,9 +15,11 @@
  */
 package com.smartsense.dao.repository;
 
+import com.smartsense.dao.entity.UserMaster;
 import com.smartsensesolutions.commons.dao.base.BaseRepository;
 import org.springframework.stereotype.Repository;
-import com.smartsense.dao.entity.UserMaster;
+
+import java.util.UUID;
 
 /**
  * Database operation related to {@link UserMaster}
@@ -26,6 +28,7 @@ import com.smartsense.dao.entity.UserMaster;
  * @since 14th feb 2024
  */
 @Repository
-public interface UserMasterRepository extends BaseRepository<UserMaster, String> {
-    boolean existsByName(String name);
+public interface UserMasterRepository extends BaseRepository<UserMaster, UUID> {
+
+    boolean existsByFirstName(String name);
 }

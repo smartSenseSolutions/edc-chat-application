@@ -95,6 +95,8 @@ spring:
   threads:
     virtual:
       enabled: true
+  main:
+    allow-bean-definition-overriding: true
   jpa:
     hibernate:
       ddl-auto: update

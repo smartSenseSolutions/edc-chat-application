@@ -27,10 +27,20 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ContURI {
-    //Test Resource
+    //User Management
     public static final String USER = "/common/user";
     public static final String USER_WITH_ID = "/common/user/{userId}";
     public static final String USER_FILTER = "/common/user/filter";
+
+    // EDC Register
+    public static final String EDC_CREATE = "common/edc/create";
+    public static final String EDC_UPDATE = "common/edc/update";
+    public static final String EDC_FILTER = "common/edc/filter";
+    public static final String GET_EDC = "common/edc/{edcId}";
+    public static final String GET_EDC_USER = "/common/user/edc/{userId}";
+
+    // Chat
+    public static final String CHAT_REGISTER = "common/chat";
 
     //Context
     public static final String CONTEXT_AUTHENTICATED_ALL = "/common/**";

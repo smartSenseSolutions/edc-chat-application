@@ -15,6 +15,17 @@
  */
 package com.smartsense.web.resource;
 
+import com.smartsense.api.constant.ContField;
+import com.smartsense.api.constant.ContMessage;
+import com.smartsense.api.constant.ContURI;
+import com.smartsense.api.model.request.UserRequest;
+import com.smartsense.api.model.response.PageResponse;
+import com.smartsense.api.model.response.ResponseBody;
+import com.smartsense.api.model.response.UserResponse;
+import com.smartsense.service.UserManagementService;
+import com.smartsense.web.apidocs.UserManagementResourceApiDocs.Common500;
+import com.smartsense.web.apidocs.UserManagementResourceApiDocs.CreateUserApiDocs;
+import com.smartsense.web.apidocs.UserManagementResourceApiDocs.GetUserDetails;
 import com.smartsensesolutions.commons.dao.filter.FilterRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -26,16 +37,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.smartsense.api.constant.ContField;
-import com.smartsense.api.constant.ContMessage;
-import com.smartsense.api.constant.ContURI;
-import com.smartsense.api.model.request.UserRequest;
-import com.smartsense.api.model.response.PageResponse;
-import com.smartsense.api.model.response.ResponseBody;
-import com.smartsense.api.model.response.UserResponse;
-import com.smartsense.service.UserManagementService;
-import com.smartsense.web.apidocs.UserManagementResourceApiDocs.Common500;
-import com.smartsense.web.apidocs.UserManagementResourceApiDocs.CreateUserApiDocs;
+
+import java.util.UUID;
 
 /**
  * Provide endpoint related to User management
@@ -57,9 +60,10 @@ public class UserManagementResource extends BaseResource {
         return ResponseBody.of(resolveMessage(ContMessage.USER_CREATED), user);
     }
 
+    @GetUserDetails
     @Operation(summary = "Get User")
     @GetMapping(value = ContURI.USER_WITH_ID, produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserResponse getUser(@PathVariable(ContField.USER_ID) String userId) {
+    public UserResponse getUser(@PathVariable(ContField.USER_ID) UUID userId) {
         return userManagementService.getUserById(userId);
     }
 

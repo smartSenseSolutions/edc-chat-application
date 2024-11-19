@@ -15,15 +15,19 @@
  */
 package com.smartsense.service.entity;
 
-import com.smartsensesolutions.commons.dao.base.BaseRepository;
-import com.smartsensesolutions.commons.dao.specification.SpecificationUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.smartsense.api.constant.ContMessage;
 import com.smartsense.api.model.request.UserRequest;
 import com.smartsense.api.utils.Validate;
 import com.smartsense.dao.entity.UserMaster;
 import com.smartsense.dao.repository.UserMasterRepository;
+import com.smartsensesolutions.commons.dao.base.BaseRepository;
+import com.smartsensesolutions.commons.dao.specification.SpecificationUtil;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.UUID;
 
 /**
  * User master entity Service
@@ -33,7 +37,8 @@ import com.smartsense.dao.repository.UserMasterRepository;
  */
 
 @Service
-public class UserMasterService extends BaseEntityService<UserMaster, String> {
+@Slf4j
+public class UserMasterService extends BaseEntityService<UserMaster, UUID> {
 
     @Autowired
     private UserMasterRepository userMasterRepository;
@@ -42,13 +47,28 @@ public class UserMasterService extends BaseEntityService<UserMaster, String> {
     private SpecificationUtil<UserMaster> specificationUtil;
 
     public UserMaster createUser(UserRequest userRequest) {
-        Validate.isTrue(userMasterRepository.existsByName(userRequest.name())).launch(ContMessage.VALIDATE_USER_CREATE_NAME_EXIST);
+        Validate.isTrue(userMasterRepository.existsByFirstName(userRequest.firstName())).launch(ContMessage.VALIDATE_USER_CREATE_NAME_EXIST);
         return create(toType(userRequest, UserMaster.class));
     }
 
     @Override
-    protected BaseRepository<UserMaster, String> getRepository() {
+    protected BaseRepository<UserMaster, UUID> getRepository() {
         return userMasterRepository;
     }
 
+    public UserMaster getUser(UUID userId) {
+        UserMaster userMaster = userMasterRepository.findById(userId).orElse(null);
+        Validate.isTrue(Objects.isNull(userMaster)).launch("User not present for given userId: " + userId);
+        return userMaster;
+    }
+
+    // public UserMaster getUser(EDCRegisterRequest request) {
+    //     UserMaster referenceById = getRepository().getReferenceById(request.userId());
+    //     Validate.isTrue(referenceById!= null).launch(ContMessage.VALIDATE_USER_NOT_FOUND);
+    //     UserMaster userMaster = userMasterRepository.findById(request.userId()).get();
+    //     if (userMaster == null) {
+    //         log.error("User not found for given userId: {}", request.userId());
+    //         throw new IllegalArgumentException("User not found");
+    //     }
+    // }
 }

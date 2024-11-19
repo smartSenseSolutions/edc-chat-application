@@ -30,5 +30,8 @@ public final class ContMessage {
 
     public static final String SOMETHING_WENT_WRONG = "something.went.wrong";
     public static final String USER_CREATED = "user.created.successfully";
+    public static final String EDC_CREATED = "edc.created.successfully";
+    public static final String CHAT_CREATED = "chat.created.successfully";
     public static final String VALIDATE_USER_CREATE_NAME_EXIST = "validate.user.create.name.exist";
+    public static final String VALIDATE_EDC_CREATE_URL_EXIST = "validate.edc.create.url.exist";
 }

@@ -15,22 +15,18 @@
  */
 package com.smartsense.api.model.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import com.smartsense.api.model.BaseModel;
+import jakarta.validation.constraints.NotEmpty;
+
 
 /**
- * User request
+ * Create a new {@code UserRequest} with the given first name, last name, and email.
  *
- * @param name    name of user
- * @param age     age of user
- * @param city    city of user
- * @param country country of city
- * @author Sunil Kanzar
- * @since 14th feb 2024
+ * @param firstName the user's first name (must not be empty)
+ * @param lastName  the user's last name (must not be empty)
+ * @param email     the user's email (must not be empty)
  */
-public record UserRequest(@NotEmpty(message = "{please.enter.user.name}") String name,
-                          @Min(value = 18, message = "{you.are.under.age}") Integer age,
-                          @NotEmpty(message = "{please.enter.city}") String city,
-                          @NotEmpty(message = "{please.enter.county}") String country) implements BaseModel {
+public record UserRequest(@NotEmpty(message = "{please.enter.user.first.name}") String firstName,
+                          String lastName,
+                          @NotEmpty(message = "{please.enter.email}") String email) implements BaseModel {
 }
