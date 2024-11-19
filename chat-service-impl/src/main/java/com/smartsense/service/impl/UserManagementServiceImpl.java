@@ -15,11 +15,6 @@
  */
 package com.smartsense.service.impl;
 
-import com.smartsensesolutions.commons.dao.filter.FilterRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import com.smartsense.api.model.request.UserRequest;
 import com.smartsense.api.model.response.PageResponse;
 import com.smartsense.api.model.response.UserResponse;
@@ -27,6 +22,13 @@ import com.smartsense.dao.entity.UserMaster;
 import com.smartsense.service.UserManagementService;
 import com.smartsense.service.entity.BaseService;
 import com.smartsense.service.entity.UserMasterService;
+import com.smartsensesolutions.commons.dao.filter.FilterRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 /**
  * User management service Implementation
@@ -42,7 +44,7 @@ public class UserManagementServiceImpl extends BaseService implements UserManage
     private final UserMasterService userMasterService;
 
     @Override
-    public UserResponse getUserById(String id) {
+    public UserResponse getUserById(UUID id) {
         return toType(userMasterService.get(id), UserResponse.class);
     }
 

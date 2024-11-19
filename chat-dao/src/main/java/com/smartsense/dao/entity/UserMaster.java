@@ -18,6 +18,7 @@ package com.smartsense.dao.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -25,7 +26,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
+
+import java.util.UUID;
 
 /**
  * UserMaster Represent user
@@ -43,19 +45,20 @@ import org.hibernate.annotations.GenericGenerator;
 public class UserMaster extends BaseAuditEntity {
 
     @Id
-    @GeneratedValue(generator = "uuid2")
-    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, updatable = false, insertable = false)
+    private UUID id = UUID.randomUUID();
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(name = "age")
-    private Integer age;
+    @Column(name = "last_name")
+    private String lastName;
 
-    @Column(name = "city")
-    private String city;
+    @Column(name = "email")
+    private String email;
 
-    @Column(name = "country")
-    private String country;
+    public UserMaster(String id) {
+        this.id = UUID.fromString(id);
+    }
 }

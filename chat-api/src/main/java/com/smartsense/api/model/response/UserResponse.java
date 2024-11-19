@@ -18,9 +18,10 @@ package com.smartsense.api.model.response;
 
 import com.smartsense.api.model.BaseModel;
 
-public record UserResponse(String id,
-                           String name,
-                           Integer age,
-                           String city,
-                           String country) implements BaseModel {
+import java.util.UUID;
+
+public record UserResponse(UUID id,
+                           String firstName,
+                           String lastName,
+                           String email) implements BaseModel {
 }

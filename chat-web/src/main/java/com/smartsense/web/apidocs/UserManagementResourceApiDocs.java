@@ -40,8 +40,8 @@ public class UserManagementResourceApiDocs {
                                        "message": "Invalid request content.",
                                        "status": 400,
                                        "errorParams": {
-                                         "age": [
-                                           "You are underage"
+                                         "firstName": [
+                                           "Please Enter first name"
                                          ]
                                        }
                                     }
@@ -51,15 +51,14 @@ public class UserManagementResourceApiDocs {
                     @Content(examples = {
                             @ExampleObject(name = "User Detail", value = """
                                      {
-                                        "message": "User Created successfully",
-                                        "body": {
-                                          "id": "248b97f0-6f3a-4f56-af04-c0da600125b1",
-                                          "name": "Name Surname",
-                                          "age": 19,
-                                          "city": "Some City",
-                                          "country": "Some Country"
-                                        }
-                                      }
+                                         "message": "User Created successfully",
+                                         "body": {
+                                           "id": "9c745cb5-a5cd-41be-acbf-e7f739b8bfd7",
+                                           "firstName": "Bhautik",
+                                           "lastName": "Sakhiya",
+                                           "email": "bhautik@gmail.com"
+                                         }
+                                       }
                                     """)
                     })
             }) })
@@ -80,5 +79,22 @@ public class UserManagementResourceApiDocs {
                                     """)
                     }) }) })
     public @interface Common500 {
+    }
+
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @Retention(RetentionPolicy.RUNTIME)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get User by userId", content = {
+                    @Content(examples = {
+                            @ExampleObject(name = "User Detail", value = """
+                                    {
+                                      "id": "9c745cb5-a5cd-41be-acbf-e7f739b8bfd7",
+                                      "firstName": "Bhautik",
+                                      "lastName": "Sakhiya",
+                                      "email": "bhautik@gmail.com"
+                                    }  
+                                    """)
+                    }) }) })
+    public @interface GetUserDetails {
     }
 }
