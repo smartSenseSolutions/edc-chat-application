@@ -1,25 +1,32 @@
 package com.smartsense.dao.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "chat_master")
+@AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "chat_master")
 public class ChatMaster extends BaseAuditEntity {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id", nullable = false, updatable = false, insertable = false)
+    private UUID id = UUID.randomUUID();
     private UUID senderId;
     private UUID receiverId;
     private String message;

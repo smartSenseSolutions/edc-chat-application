@@ -58,7 +58,6 @@ public class UserMaster extends BaseAuditEntity {
     @Column(name = "email")
     private String email;
 
-    public UserMaster(String id) {
-        this.id = UUID.fromString(id);
-    }
+    @Column(name = "bpn")
+    private String bpn;
 }

@@ -23,5 +23,6 @@ import java.util.UUID;
 public record UserResponse(UUID id,
                            String firstName,
                            String lastName,
-                           String email) implements BaseModel {
+                           String email,
+                           String bpn) implements BaseModel {
 }

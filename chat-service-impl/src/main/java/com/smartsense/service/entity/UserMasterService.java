@@ -29,13 +29,6 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * User master entity Service
- *
- * @author Sunil Kanzar
- * @since 14th feb 2024
- */
-
 @Service
 @Slf4j
 public class UserMasterService extends BaseEntityService<UserMaster, UUID> {
@@ -61,14 +54,4 @@ public class UserMasterService extends BaseEntityService<UserMaster, UUID> {
         Validate.isTrue(Objects.isNull(userMaster)).launch("User not present for given userId: " + userId);
         return userMaster;
     }
-
-    // public UserMaster getUser(EDCRegisterRequest request) {
-    //     UserMaster referenceById = getRepository().getReferenceById(request.userId());
-    //     Validate.isTrue(referenceById!= null).launch(ContMessage.VALIDATE_USER_NOT_FOUND);
-    //     UserMaster userMaster = userMasterRepository.findById(request.userId()).get();
-    //     if (userMaster == null) {
-    //         log.error("User not found for given userId: {}", request.userId());
-    //         throw new IllegalArgumentException("User not found");
-    //     }
-    // }
 }

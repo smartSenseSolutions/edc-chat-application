@@ -28,5 +28,6 @@ import jakarta.validation.constraints.NotEmpty;
  */
 public record UserRequest(@NotEmpty(message = "{please.enter.user.first.name}") String firstName,
                           String lastName,
-                          @NotEmpty(message = "{please.enter.email}") String email) implements BaseModel {
+                          @NotEmpty(message = "{please.enter.email}") String email,
+                          String bpn) implements BaseModel {
 }
