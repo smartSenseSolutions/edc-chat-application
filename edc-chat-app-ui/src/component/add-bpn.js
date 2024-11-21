@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -19,12 +20,10 @@ const AddBpn = () => {
     const requestData = { ...formData, bpn }; // Include BPN in the request body
 
     try {
-      const response = await fetch("https://api.example.com/add-partner", {
-        method: "POST",
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/partners`,JSON.stringify(requestData), {
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
+        }
       });
 
       if (response.status === 200) {
@@ -68,8 +67,8 @@ const AddBpn = () => {
             type="text"
             name="bpn"
             className="form-control"
-            value={bpn || ""}
-            disabled
+            value={formData.bpn}
+            onChange={handleInputChange}
           />
         </div>
         <div className="mb-3">
