@@ -29,12 +29,12 @@ public class BusinessPartnerResource {
         return config;
     }
 
-    @PostMapping(value = "/api/partners", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/partners", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public BusinessPartnerResponse createBusinessPartner(@RequestBody BusinessPartnerRequest request) {
         return businessPartnerService.createBusinessPartner(request);
     }
 
-    @GetMapping(value = "/api/partners", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/partners", produces = APPLICATION_JSON_VALUE)
     public BpnResponse getBusinessPartner(@RequestParam(required = false) String name) {
         return StringUtils.hasText(name) ? businessPartnerService.getBusinessPartner(name) : businessPartnerService.getAllBusinessPartners();
     }
