@@ -3,7 +3,6 @@ chat:
     authCode: password
     assetId: edc-chat-app
 
-
 spring:
   application:
     name: EDC based chat application
@@ -11,8 +10,9 @@ spring:
     virtual:
       enabled: true
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate.default_schema: public
     show-sql: true
@@ -24,3 +24,16 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yaml
 
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    path: /ui/swagger-ui
+    show-common-extensions: true
+    csrf:
+      enabled: true
+#  api-docs:
+#    path: /docs/api-docs
+
+logging:
+  level:
+    root: INFO
