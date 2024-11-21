@@ -29,13 +29,21 @@ public class BusinessPartnerService extends BaseService<BusinessPartner, UUID> {
 
 
     public BusinessPartnerResponse createBusinessPartner(BusinessPartnerRequest request) {
-        log.info("Creating BusinessPartner. name: {}", request.name());
-        BusinessPartner businessPartner = BusinessPartner.builder()
-                .name(request.name())
-                .edcUrl(request.edcUrl())
-                .bpn(request.bpn())
-                .build();
-        return mapper.convertValue(businessPartnerRepository.save(businessPartner), BusinessPartnerResponse.class);
+        BusinessPartner partner = businessPartnerRepository.findByNameOrBpn(request.name(), request.bpn());
+        if (Objects.nonNull(partner)) {
+            log.info("Updating BusinessPartner for bpn: {}", request.bpn());
+            partner.setName(request.name());
+            partner.setEdcUrl(request.edcUrl());
+            partner.setBpn(request.bpn());
+        } else {
+            log.info("Creating BusinessPartner. name: {}", request.name());
+            partner = BusinessPartner.builder()
+                    .name(request.name())
+                    .edcUrl(request.edcUrl())
+                    .bpn(request.bpn())
+                    .build();
+        }
+        return mapper.convertValue(businessPartnerRepository.save(partner), BusinessPartnerResponse.class);
     }
 
     public BpnResponse getBusinessPartner(String name) {

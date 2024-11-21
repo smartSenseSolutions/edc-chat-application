@@ -2,16 +2,23 @@ server:
   port: 8080
 
 chat:
-  bpn:
-  assetUrl:
+  name: ${CHAT_APP_NAME:EDC based chat application}
+  bpn: ${CHAT_APP_BPN:BPNL000000000001}
+  assetUrl: ${CHAT_APP_ASSET_URL:http://localhost:9192}
+  datasource:
+    host: ${CHAT_DB_HOST:localhost}
+    port: ${CHAT_DB_PORT:5432}
+    database: ${CHAT_DB_NAME:chat_app}
+    schema: ${CHAT_DB_SCHEMA:public}
+    username: ${CHAT_DB_USER:root}
+    password: ${CHAT_DB_PASSWORD:root}
   edc:
-    authCode: password
-    assetId: edc-chat-app
-    edcUrl: http://localhost:9192
-
+    authCode: ${CHAT_AUTH_CODE:password}
+    assetId: ${CHAT_ASSET_ID:edc-chat-app}
+    edcUrl: ${CHAT_EDC_URL:http://localhost:9192}
 spring:
   application:
-    name: EDC based chat application
+    name: ${chat.name}
   threads:
     virtual:
       enabled: true
@@ -20,12 +27,12 @@ spring:
     hibernate:
       ddl-auto: none
     properties:
-      hibernate.default_schema: public
+      hibernate.default_schema: ${chat.datasource.schema}
     show-sql: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/chat_app
-    username: postgres
-    password: 123456
+    url: jdbc:postgresql://${chat.datasource.host}:${chat.datasource.port}/${chat.datasource.database}
+    username: ${chat.datasource.username:root}
+    password: ${chat.datasource.password:root}
     driver-class-name: org.postgresql.Driver
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yaml
