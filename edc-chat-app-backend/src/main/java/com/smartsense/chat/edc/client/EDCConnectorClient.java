@@ -1,0 +1,44 @@
+package com.smartsense.chat.edc.client;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.*;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+@FeignClient(name = "edc", url = "http://localhost:8182")
+public interface EDCConnectorClient {
+
+    @PostMapping(value = "/management/v2/catalog/request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    Map<String, Object> queryCatalog(URI baseUri,
+                                     @RequestBody Map<String, Object> request,
+                                     @RequestHeader("X-Api-Key") String auth);
+
+    @PostMapping(value = "/management/v2/edrs", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    Map<String, Object> initNegotiation(URI baseUri,
+                                        @RequestBody Map<String, Object> request,
+                                        @RequestHeader("X-Api-Key") String auth);
+
+    @GetMapping(value = "/management/v2/contractnegotiations/{negotiationId}", produces = APPLICATION_JSON_VALUE)
+    Map<String, Object> getAgreement(URI baseUri,
+                                     @PathVariable("negotiationId") String negotiationId,
+                                     @RequestHeader("X-Api-Key") String auth);
+
+
+    @PostMapping(value = "/management/v2/edrs/request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    List<Map<String, Object>> initTransferProcess(URI baseUri,
+                                                  @RequestBody Map<String, Object> request,
+                                                  @RequestHeader("X-Api-Key") String auth);
+
+    @GetMapping(value = "management/v2/edrs/{transferProcessId}/dataaddress", produces = APPLICATION_JSON_VALUE)
+    Map<String, Object> getAuthCodeAndPublicUrl(URI baseUri,
+                                                @PathVariable("transferProcessId") String transferProcessId,
+                                                @RequestHeader("X-Api-Key") String auth);
+
+    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    Map<String, Object> sendMessage(URI baseUri, @RequestBody String message, @RequestHeader("Authorization") String authorization);
+
+}

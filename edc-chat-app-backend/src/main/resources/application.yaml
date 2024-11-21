@@ -1,0 +1,26 @@
+chat:
+  edc:
+    authCode: password
+    assetId: edc-chat-app
+
+
+spring:
+  application:
+    name: EDC based chat application
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate.default_schema: public
+    show-sql: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/chat_app
+    username: postgres
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:db/changelog/changelog-master.yaml
+
