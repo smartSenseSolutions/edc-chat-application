@@ -30,7 +30,7 @@ public class ContractNegotiationService {
         try {
             log.info("Starting negotiation process with bpnl {}, dspUrl {} and offerId {}", receiverBpnL, receiverDspUrl, offerId);
             Map<String, Object> negotiationRequest = prepareNegotiationRequest(receiverDspUrl, receiverBpnL, offerId);
-            log.info("Negotiation initiated for offerId {}", negotiationRequest, offerId);
+            log.info("Negotiation initiated for offerId {}", offerId);
             Map<String, Object> negotiationResponse = edc.initNegotiation(edcConfigurations.edcUri(), negotiationRequest, edcConfigurations.authCode());
             String negotiationId = negotiationResponse.get("@id").toString();
             log.info("Contract negotiation process done for offerId {} with negotiationId {}", offerId, negotiationId);
