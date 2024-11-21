@@ -134,6 +134,15 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleConflictException(ConflictException ex) {
+        String errorMsg = ExceptionUtils.getMessage(ex);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, errorMsg);
+        problemDetail.setTitle(errorMsg);
+        problemDetail.setProperty(ContField.TIMESTAMP, System.currentTimeMillis());
+        return problemDetail;
+    }
+
     private Map<String, String> handleValidationError(List<FieldError> fieldErrors) {
         Map<String, String> messages = new HashMap<>();
         fieldErrors.forEach(fieldError -> messages.put(fieldError.getField(), fieldError.getDefaultMessage()));
