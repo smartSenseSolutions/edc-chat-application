@@ -8,4 +8,6 @@ import java.util.UUID;
 
 @Repository
 public interface BusinessPartnerRepository extends JpaRepository<BusinessPartner, UUID> {
+
+    BusinessPartner findByBpn(String bpn);
 }

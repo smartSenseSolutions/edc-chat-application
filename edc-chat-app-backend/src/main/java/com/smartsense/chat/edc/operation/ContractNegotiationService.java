@@ -1,4 +1,64 @@
 package com.smartsense.chat.edc.operation;
 
+import com.smartsense.chat.edc.client.EDCConnectorClient;
+import com.smartsense.chat.edc.settings.EDCConfigurations;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class ContractNegotiationService {
+    private final EDCConnectorClient edc;
+    private final EDCConfigurations edcConfigurations;
+
+    private static List<Object> prepareNegotiationContext() {
+        List<Object> context = new ArrayList<>();
+        context.add("https://w3id.org/tractusx/policy/v1.0.0");
+        context.add("http://www.w3.org/ns/odrl.jsonld");
+        context.add(Map.of("edc", "https://w3id.org/edc/v0.0.1/ns/"));
+        return context;
+    }
+
+    public String initNegotiation(String receiverDspUrl, String receiverBpnL, String offerId) {
+        try {
+            log.info("Starting negotiation process with bpnl {}, dspUrl {} and offerId {}", receiverBpnL, receiverDspUrl, offerId);
+            Map<String, Object> negotiationRequest = prepareNegotiationRequest(receiverDspUrl, receiverBpnL, offerId);
+            Map<String, Object> negotiationResponse = edc.initNegotiation(edcConfigurations.edcUri(), negotiationRequest, edcConfigurations.authCode());
+            String negotiationId = negotiationResponse.get("@id").toString();
+            log.info("Contract negotiation process done for offerId {} with negotiationId {}", offerId, negotiationId);
+            return negotiationId;
+        } catch (Exception ex) {
+            log.error("Error occurred while negotiating the contract offer {} with dspUrl {} and bpnl {}.", offerId, receiverDspUrl, receiverBpnL);
+            return null;
+        }
+
+    }
+
+    private Map<String, Object> prepareNegotiationRequest(String receiverDspUrl, String receiverBpnL, String offerId) {
+        Map<String, Object> negotiationRequest = new HashMap<>();
+        negotiationRequest.put("@context", prepareNegotiationContext());
+        negotiationRequest.put("@type", "ContractRequest");
+        negotiationRequest.put("edc:counterPartyAddress", receiverDspUrl);
+        negotiationRequest.put("edc:protocol", "ContractRequest");
+        negotiationRequest.put("edc:counterPartyId", receiverBpnL);
+        negotiationRequest.put("edc:policy", prepareNegotiationPolicy(receiverBpnL, offerId));
+        return negotiationRequest;
+    }
+
+    private Map<String, Object> prepareNegotiationPolicy(String receiverBpnL, String offerId) {
+        Map<String, Object> negotiationPolicy = new HashMap<>();
+        negotiationPolicy.put("@id", offerId);
+        negotiationPolicy.put("@type", "Offer");
+        negotiationPolicy.put("permission", List.of(Map.of("action", "use")));
+        negotiationPolicy.put("target", edcConfigurations.assetId());
+        negotiationPolicy.put("assigner", receiverBpnL);
+        return negotiationPolicy;
+    }
 }

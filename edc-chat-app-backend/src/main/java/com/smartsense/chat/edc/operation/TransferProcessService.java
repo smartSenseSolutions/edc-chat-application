@@ -1,12 +1,11 @@
 package com.smartsense.chat.edc.operation;
 
 import com.smartsense.chat.edc.client.EDCConnectorClient;
+import com.smartsense.chat.edc.settings.EDCConfigurations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,17 +16,16 @@ import java.util.Map;
 public class TransferProcessService {
 
     private final EDCConnectorClient edc;
-    @Value("${edc.auth.code:password}")
-    private String authCode;
+    private final EDCConfigurations edcConfigurations;
 
-    public String initiateTransfer(URI edcUri, String agreementId) {
+    public String initiateTransfer(String agreementId) {
         try {
             log.info("Initiate transfer process for agreement Id {}", agreementId);
 
             // prepare transfer request
             Map<String, Object> transferRequest = prepareTransferRequest(agreementId);
             // initiate the transfer process
-            List<Map<String, Object>> transferResponse = edc.initTransferProcess(edcUri, transferRequest, authCode);
+            List<Map<String, Object>> transferResponse = edc.initTransferProcess(edcConfigurations.edcUri(), transferRequest, edcConfigurations.authCode());
             log.info("Received transfer response -> {}", transferResponse);
 
             // get the transfer process id from response

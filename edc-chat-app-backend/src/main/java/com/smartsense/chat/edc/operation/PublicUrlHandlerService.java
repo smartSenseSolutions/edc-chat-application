@@ -2,10 +2,10 @@ package com.smartsense.chat.edc.operation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
+import com.smartsense.chat.edc.settings.EDCConfigurations;
 import com.smartsense.chat.utils.request.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
@@ -17,13 +17,12 @@ import java.util.Map;
 public class PublicUrlHandlerService {
     private final EDCConnectorClient edc;
     private final ObjectMapper mapper;
-    @Value("${edc.auth.code:password}")
-    private String authCode;
+    private final EDCConfigurations edcConfigurations;
 
-    public void getAuthCodeAndPublicUrl(URI edcUri, String transferProcessId, ChatMessage message) {
+    public void getAuthCodeAndPublicUrl(String transferProcessId, ChatMessage message) {
         try {
             log.info("Initiate to get auth code based on transfer process id " + transferProcessId);
-            Map<String, Object> response = edc.getAuthCodeAndPublicUrl(edcUri, transferProcessId, authCode);
+            Map<String, Object> response = edc.getAuthCodeAndPublicUrl(edcConfigurations.edcUri(), transferProcessId, edcConfigurations.authCode());
             log.info("Auth code and public url response -> {}", response);
 
             // Retrieve public path and authorization code

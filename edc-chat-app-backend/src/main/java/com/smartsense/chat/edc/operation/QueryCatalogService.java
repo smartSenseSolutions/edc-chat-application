@@ -3,12 +3,11 @@ package com.smartsense.chat.edc.operation;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.EDCConfigurations;
 import com.smartsense.chat.service.BusinessPartnerService;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,15 +21,20 @@ public class QueryCatalogService {
     private final BusinessPartnerService partnerService;
     private final EDCConnectorClient edc;
 
-    public void QueryCatalog(@NotNull String bpn) {
-        log.info("Creating Query Catalog process started...");
-        // TODO fetching edcUrl by bpn
-        String edcUrl = partnerService.getBusinessPartnerByBpn(bpn);
-        Map<String, Object> request = prepareQueryCatalog(edcUrl, bpn, configurations.assetId());
-        Map<String, Object> response = edc.queryCatalog(URI.create(edcUrl), request, configurations.authCode());
-        log.info("Response of catalog creation: {}", response);
-
-        // TODO handle and process response
+    public String queryCatalog(String receiverDspUrl, String receiverBpnl) {
+        try {
+            log.info("Creating Query Catalog process started...");
+            Map<String, Object> response = edc.queryCatalog(configurations.edcUri(), prepareQueryCatalog(receiverDspUrl, receiverBpnl, configurations.assetId()), configurations.authCode());
+            JSONObject catalogResponse = new JSONObject(response);
+            String offerId = catalogResponse.getJSONObject("dcat:dataset")
+                    .getJSONObject("odrl:hasPolicy")
+                    .getString("@id");
+            log.info("Received offerId {}.", offerId);
+            return offerId;
+        } catch (Exception ex) {
+            log.error("Error occurred while fetching the catalog for receiverDsp {} and Bpnl {}", receiverDspUrl, receiverBpnl);
+            return null;
+        }
     }
 
     private Map<String, Object> prepareQueryCatalog(String counterPartyAddress, String counterPartyId, String assetId) {
