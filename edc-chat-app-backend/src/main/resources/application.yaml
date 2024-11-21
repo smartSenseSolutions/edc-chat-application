@@ -2,20 +2,21 @@ server:
   port: 8080
 
 chat:
-  name: ${CHAT_APP_NAME:EDC based chat application}
-  bpn: ${CHAT_APP_BPN:BPNL000000000001}
-  assetUrl: ${CHAT_APP_ASSET_URL:http://localhost:9192}
+  name: EDC based chat application
+  bpn: BPNL000000000001
+  assetUrl: http://localhost:9192
   datasource:
-    host: ${CHAT_DB_HOST:localhost}
-    port: ${CHAT_DB_PORT:5432}
-    database: ${CHAT_DB_NAME:chat_app}
-    schema: ${CHAT_DB_SCHEMA:public}
-    username: ${CHAT_DB_USER:root}
-    password: ${CHAT_DB_PASSWORD:root}
+    host: localhost
+    port: 5432
+    database: chat_app
+    schema: public
+    username: root
+    password: root
   edc:
-    authCode: ${CHAT_AUTH_CODE:password}
-    assetId: ${CHAT_ASSET_ID:edc-chat-app}
-    edcUrl: ${CHAT_EDC_URL:http://localhost:9192}
+    authCode: password
+    assetId: edc-chat-app
+    edcUrl: http://localhost:9192
+
 spring:
   application:
     name: ${chat.name}
@@ -31,8 +32,8 @@ spring:
     show-sql: true
   datasource:
     url: jdbc:postgresql://${chat.datasource.host}:${chat.datasource.port}/${chat.datasource.database}
-    username: ${chat.datasource.username:root}
-    password: ${chat.datasource.password:root}
+    username: ${chat.datasource.username}
+    password: ${chat.datasource.password}
     driver-class-name: org.postgresql.Driver
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yaml
@@ -44,8 +45,6 @@ springdoc:
     show-common-extensions: true
     csrf:
       enabled: true
-#  api-docs:
-#    path: /docs/api-docs
 
 logging:
   level:
