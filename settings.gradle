@@ -1,7 +1,0 @@
-rootProject.name = 'edc-chat'
-
-include "chat-api"
-include "chat-dao"
-include "chat-service"
-include "chat-service-impl"
-include "chat-web"
