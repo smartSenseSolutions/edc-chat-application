@@ -30,6 +30,7 @@ public class ContractNegotiationService {
         try {
             log.info("Starting negotiation process with bpnl {}, dspUrl {} and offerId {}", receiverBpnL, receiverDspUrl, offerId);
             Map<String, Object> negotiationRequest = prepareNegotiationRequest(receiverDspUrl, receiverBpnL, offerId);
+            log.info("Negotiation initiated for offerId {}", negotiationRequest, offerId);
             Map<String, Object> negotiationResponse = edc.initNegotiation(edcConfigurations.edcUri(), negotiationRequest, edcConfigurations.authCode());
             String negotiationId = negotiationResponse.get("@id").toString();
             log.info("Contract negotiation process done for offerId {} with negotiationId {}", offerId, negotiationId);
@@ -46,9 +47,10 @@ public class ContractNegotiationService {
         negotiationRequest.put("@context", prepareNegotiationContext());
         negotiationRequest.put("@type", "ContractRequest");
         negotiationRequest.put("edc:counterPartyAddress", receiverDspUrl);
-        negotiationRequest.put("edc:protocol", "ContractRequest");
+        negotiationRequest.put("edc:protocol", "dataspace-protocol-http");
         negotiationRequest.put("edc:counterPartyId", receiverBpnL);
         negotiationRequest.put("edc:policy", prepareNegotiationPolicy(receiverBpnL, offerId));
+        log.info("Negotiation request looks like: {}", negotiationRequest);
         return negotiationRequest;
     }
 

@@ -17,16 +17,21 @@ import java.util.Map;
 @Slf4j
 public class QueryCatalogService {
 
-    private final EDCConfigurations configurations;
+    private final EDCConfigurations edcConfigurations;
     private final BusinessPartnerService partnerService;
     private final EDCConnectorClient edc;
 
     public String queryCatalog(String receiverDspUrl, String receiverBpnl) {
         try {
             log.info("Creating Query Catalog process started...");
-            Map<String, Object> response = edc.queryCatalog(configurations.edcUri(), prepareQueryCatalog(receiverDspUrl, receiverBpnl, configurations.assetId()), configurations.authCode());
+            Map<String, Object> response = edc.queryCatalog(edcConfigurations.edcUri(), prepareQueryCatalog(receiverDspUrl, receiverBpnl, edcConfigurations.assetId()), edcConfigurations.authCode());
             JSONObject catalogResponse = new JSONObject(response);
-            String offerId = catalogResponse.getJSONObject("dcat:dataset")
+            JSONObject dataSet = catalogResponse.getJSONObject("dcat:dataset");
+            if (dataSet.isEmpty()) {
+                log.info("No data set found for the assetId {} from dsp {}", edcConfigurations.assetId(), receiverDspUrl);
+                return null;
+            }
+            String offerId = dataSet
                     .getJSONObject("odrl:hasPolicy")
                     .getString("@id");
             log.info("Received offerId {}.", offerId);

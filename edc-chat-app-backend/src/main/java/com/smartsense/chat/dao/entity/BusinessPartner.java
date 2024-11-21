@@ -27,7 +27,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "raw_data_master")
+@Table(name = "business_partner")
 public class BusinessPartner implements BaseEntity {
 
     @Id

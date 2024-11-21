@@ -1,7 +1,11 @@
+server:
+  port: 8090
+
 chat:
   edc:
     authCode: password
     assetId: edc-chat-app
+    edcUrl: http://localhost:9192
 
 spring:
   application:

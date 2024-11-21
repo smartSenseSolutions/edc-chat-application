@@ -5,8 +5,6 @@ import com.smartsense.chat.edc.settings.EDCConfigurations;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
@@ -27,6 +25,7 @@ public class AgreementFetcherService {
                 Thread.sleep(5_000);
                 log.info("Fetching agreement for negotiationId {}", negotiationId);
                 agreementResponse = edc.getAgreement(edcConfigurations.edcUri(), negotiationId, edcConfigurations.authCode());
+                log.info("AgreementResponse: {}", agreementResponse);
                 if (!agreementResponse.get("state").toString().equals("FINALIZED")) {
                     count++;
                     continue;
@@ -34,9 +33,7 @@ public class AgreementFetcherService {
                 agreementId = agreementResponse.get("contractAgreementId").toString();
                 log.info("Negotiation {} is successfully done and agreementId is {}", negotiationId, agreementId);
                 log.info("Fetching agreement for negotiationId {} is completed successfully.", negotiationId);
-            } while ((!CollectionUtils.isEmpty(agreementResponse) && agreementResponse.get("state").equals("FINALIZED")) ||
-                    StringUtils.hasText(agreementId) ||
-                    count == 3);
+            } while (!agreementResponse.get("state").equals("FINALIZED") && count <= 3);
             return agreementId;
         } catch (Exception ex) {
             log.error("Error occurred while getting agreement information for negotiationId {}", negotiationId, ex);
