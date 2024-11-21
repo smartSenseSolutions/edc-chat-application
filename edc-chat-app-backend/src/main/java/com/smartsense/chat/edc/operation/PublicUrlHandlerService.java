@@ -2,7 +2,7 @@ package com.smartsense.chat.edc.operation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
-import com.smartsense.chat.edc.settings.EDCConfigurations;
+import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.utils.request.ChatMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +17,12 @@ import java.util.Map;
 public class PublicUrlHandlerService {
     private final EDCConnectorClient edc;
     private final ObjectMapper mapper;
-    private final EDCConfigurations edcConfigurations;
+    private final AppConfig config;
 
     public void getAuthCodeAndPublicUrl(String transferProcessId, ChatMessage message) {
         try {
             log.info("Initiate to get auth code based on transfer process id " + transferProcessId);
-            Map<String, Object> response = edc.getAuthCodeAndPublicUrl(edcConfigurations.edcUri(), transferProcessId, edcConfigurations.authCode());
+            Map<String, Object> response = edc.getAuthCodeAndPublicUrl(config.edc().edcUri(), transferProcessId, config.edc().authCode());
             log.info("Auth code and public url response -> {}", response);
 
             // Retrieve public path and authorization code

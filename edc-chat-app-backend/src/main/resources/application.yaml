@@ -1,7 +1,9 @@
 server:
-  port: 8090
+  port: 8080
 
 chat:
+  bpn:
+  assetUrl:
   edc:
     authCode: password
     assetId: edc-chat-app
