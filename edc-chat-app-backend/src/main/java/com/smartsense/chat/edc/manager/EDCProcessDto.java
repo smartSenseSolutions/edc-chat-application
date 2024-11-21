@@ -1,0 +1,22 @@
+package com.smartsense.chat.edc.manager;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class EDCProcessDto {
+
+    private String bpn;
+    private String dspUrl;
+    private String offerId;
+    private String negotiationId;
+    private String agreementId;
+    private String transferProcessId;
+}

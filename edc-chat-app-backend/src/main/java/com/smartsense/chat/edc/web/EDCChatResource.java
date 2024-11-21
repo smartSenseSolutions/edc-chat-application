@@ -19,4 +19,10 @@ public class EDCChatResource {
         edcService.initProcess(chatMessage);
         return Map.of("message", "Send message process has been started, please check the logs for more details.");
     }
+
+    @PostMapping("/chat/receive")
+    public Map<String, String> receiveMessage(@RequestBody ChatMessage message) {
+        
+        return Map.of("message", "Message had been received successfully.");
+    }
 }

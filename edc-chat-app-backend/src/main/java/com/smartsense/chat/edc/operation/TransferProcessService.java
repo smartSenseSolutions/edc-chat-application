@@ -25,6 +25,7 @@ public class TransferProcessService {
             // prepare transfer request
             Map<String, Object> transferRequest = prepareTransferRequest(agreementId);
             // initiate the transfer process
+            Thread.sleep(5_000);
             List<Map<String, Object>> transferResponse = edc.initTransferProcess(edcConfigurations.edcUri(), transferRequest, edcConfigurations.authCode());
             log.info("Received transfer response -> {}", transferResponse);
 

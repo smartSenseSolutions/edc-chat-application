@@ -1,6 +1,7 @@
 package com.smartsense.chat.edc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartsense.chat.edc.manager.EDCProcessDto;
+import com.smartsense.chat.edc.manager.ProcessManagerService;
 import com.smartsense.chat.edc.operation.AgreementFetcherService;
 import com.smartsense.chat.edc.operation.ContractNegotiationService;
 import com.smartsense.chat.edc.operation.PublicUrlHandlerService;
@@ -9,24 +10,18 @@ import com.smartsense.chat.edc.operation.TransferProcessService;
 import com.smartsense.chat.service.BusinessPartnerService;
 import com.smartsense.chat.utils.request.ChatMessage;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EDCService {
 
-    private final ObjectMapper mapper;
     private final BusinessPartnerService partnerService;
     private final QueryCatalogService queryCatalogService;
     private final ContractNegotiationService contractNegotiationService;
@@ -34,18 +29,20 @@ public class EDCService {
     private final TransferProcessService transferProcessService;
     private final PublicUrlHandlerService publicUrlHandlerService;
 
-    @SneakyThrows
-    @EventListener(ApplicationReadyEvent.class)
-    public void initProcess() {
-        ChatMessage message = new ChatMessage("BPNL000000000000",
-                "BPNL000000000001",
-                new JSONObject(Map.of("Hello", "My dear dost..")).toString(),
-                UUID.randomUUID().toString());
-        System.out.println(mapper.writeValueAsString(message));
-    }
+    private final ProcessManagerService managerService;
+    private final ProcessManagerService processManagerService;
 
     @Async
     public void initProcess(ChatMessage chatMessage) {
+
+        EDCProcessDto processDto = processManagerService.getProcess(chatMessage.receiverBpn());
+
+        if (Objects.nonNull(processDto) && StringUtils.hasText(processDto.getTransferProcessId())) {
+            // Sent the message to public url
+            publicUrlHandlerService.getAuthCodeAndPublicUrl(processDto.getTransferProcessId(), chatMessage);
+            return;
+        }
+
         String receiverBpnl = chatMessage.receiverBpn();
         String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
         // Query the catalog for chat asset
@@ -74,6 +71,19 @@ public class EDCService {
         }
         // Sent the message to public url
         publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, chatMessage);
+
+        prepareProcessDto(receiverBpnl, receiverDspUrl, offerId, agreementId, transferProcessId, negotiationId);
+    }
+
+    private void prepareProcessDto(String receiverBpnl, String receiverDspUrl, String offerId, String agreementId, String transferProcessId, String negotiationId) {
+        managerService.put(receiverBpnl, EDCProcessDto.builder()
+                .bpn(receiverBpnl)
+                .dspUrl(receiverDspUrl)
+                .offerId(offerId)
+                .negotiationId(negotiationId)
+                .agreementId(agreementId)
+                .transferProcessId(transferProcessId)
+                .build());
     }
 
 
