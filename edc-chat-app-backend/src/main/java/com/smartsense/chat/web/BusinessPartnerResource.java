@@ -44,5 +44,8 @@ public class BusinessPartnerResource {
     public BpnResponse getBusinessPartner(@RequestParam(required = false) String name) {
         return StringUtils.hasText(name) ? businessPartnerService.getBusinessPartner(name) : businessPartnerService.getAllBusinessPartners();
     }
+
+
+
 }
 

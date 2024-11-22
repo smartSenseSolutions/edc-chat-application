@@ -1,16 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 const Chat = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const webSocketRef = useRef(null);
 
-    const [messages, setMessages] = useState([]); // Chat messages
+    const [messages, setMessages] = useState(""); // Chat messages
     const [newMessage, setNewMessage] = useState(""); // Current message to send
     const [error, setError] = useState(null); // Error messages
 
     const { bpn, selectedValue } = location.state || {};
+
+
+
+
+    const [receiver, setReceiver] = useState("");
+    const [client, setClient] = useState(null);
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         if (!bpn || !selectedValue) {
@@ -23,31 +31,23 @@ const Chat = () => {
             console.log("selected values ->" + selectedValue);
         }
 
-        const wsUrl = "wss://example.com/chat"; // Replace with your WebSocket URL
-
         // WebSocket connection with BPN in headers (via query string)
-        const socket = new WebSocket(`${wsUrl}?bpn=${bpn}`);
+        const socket = new SockJS("http://localhost:8081/chat");
+        const stompClient = new Client({
+            webSocketFactory: () => socket,
+            debug: console.log,
+            onConnect: () => {
+                console.log("Connected to WebSocket");
+                stompClient.subscribe("/user/queue/messages", (msg) => {
+                    const newMessage = JSON.parse(msg.body);
+                    setMessages((prev) => [...prev, newMessage]);
+                });
+            },
+        });
+        stompClient.activate();
+        setClient(stompClient);
 
-        webSocketRef.current = socket;
-
-        // WebSocket event handlers
-        socket.onopen = () => console.log("WebSocket connected!");
-
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data); // Assuming JSON messages
-            setMessages((prevMessages) => [...prevMessages, { sender: data.sender, text: data.message }]);
-        };
-
-        socket.onerror = () => setError("WebSocket connection error");
-
-        socket.onclose = () => console.log("WebSocket closed");
-
-        // Cleanup WebSocket on component unmount
-        return () => {
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.close();
-            }
-        };
+        return () => stompClient.deactivate();
     }, [bpn]);
 
     const handleSendMessage = () => {
@@ -63,6 +63,22 @@ const Chat = () => {
             setError("WebSocket is not connected");
         }
     };
+
+    const sendMessage = () => {
+        if (client && receiver) {
+            client.publish({
+                destination: "/app/privateMessage",
+                body: JSON.stringify({
+                    senderBpn: "BPNL000000000000", 
+                    receiverBpn:"BPNL000000000001",
+                    message: message,
+                    messageId:"1",
+                }),
+            });
+            setMessage("");
+        }
+    };
+    
 
     return (
         <div className="container mt-5">
@@ -95,10 +111,10 @@ const Chat = () => {
                 <input
                     type="text"
                     className="form-control me-2"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    value={messages}
+                    onChange={(e) => setMessage(e.target.value)}
                 />
-                <button className="btn btn-primary" onClick={handleSendMessage}>
+                <button className="btn btn-primary" onClick={sendMessage}>
                     Send
                 </button>
             </div>

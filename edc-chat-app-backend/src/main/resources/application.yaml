@@ -1,9 +1,9 @@
 server:
-  port: 8080
+  port: 8082
 
 chat:
   name: EDC based chat application
-  bpn: BPNL000000000001
+  bpn: BPNL000000000000
   assetUrl: http://localhost:9192
   datasource:
     host: localhost
@@ -14,7 +14,7 @@ chat:
     password: root
   edc:
     authCode: password
-    assetId: edc-chat-app
+    assetId: asset_2
     edcUrl: http://localhost:9192
 
 spring:
