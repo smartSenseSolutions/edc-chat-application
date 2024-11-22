@@ -1,7 +1,7 @@
 package com.smartsense.chat.edc.operation;
 
 import com.smartsense.chat.edc.client.EDCConnectorClient;
-import com.smartsense.chat.edc.settings.EDCConfigurations;
+import com.smartsense.chat.edc.settings.AppConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class TransferProcessService {
 
     private final EDCConnectorClient edc;
-    private final EDCConfigurations edcConfigurations;
+    private final AppConfig config;
 
     public String initiateTransfer(String agreementId) {
         try {
@@ -26,7 +26,7 @@ public class TransferProcessService {
             Map<String, Object> transferRequest = prepareTransferRequest(agreementId);
             // initiate the transfer process
             Thread.sleep(5_000);
-            List<Map<String, Object>> transferResponse = edc.initTransferProcess(edcConfigurations.edcUri(), transferRequest, edcConfigurations.authCode());
+            List<Map<String, Object>> transferResponse = edc.initTransferProcess(config.edc().edcUri(), transferRequest, config.edc().authCode());
             log.info("Received transfer response -> {}", transferResponse);
 
             // get the transfer process id from response

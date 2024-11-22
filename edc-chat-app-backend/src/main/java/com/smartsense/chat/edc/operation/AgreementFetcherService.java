@@ -1,7 +1,7 @@
 package com.smartsense.chat.edc.operation;
 
 import com.smartsense.chat.edc.client.EDCConnectorClient;
-import com.smartsense.chat.edc.settings.EDCConfigurations;
+import com.smartsense.chat.edc.settings.AppConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class AgreementFetcherService {
 
     private final EDCConnectorClient edc;
-    private final EDCConfigurations edcConfigurations;
+    private final AppConfig config;
 
     public String getAgreement(String negotiationId) {
         try {
@@ -24,7 +24,9 @@ public class AgreementFetcherService {
             do {
                 Thread.sleep(5_000);
                 log.info("Fetching agreement for negotiationId {}", negotiationId);
-                agreementResponse = edc.getAgreement(edcConfigurations.edcUri(), negotiationId, edcConfigurations.authCode());
+                agreementResponse = edc.getAgreement(config.edc().edcUri(),
+                        negotiationId,
+                        config.edc().authCode());
                 log.info("AgreementResponse: {}", agreementResponse);
                 if (!agreementResponse.get("state").toString().equals("FINALIZED")) {
                     count++;

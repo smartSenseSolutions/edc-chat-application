@@ -1,3 +1,4 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -6,7 +7,7 @@ const AddBpn = () => {
   const navigate = useNavigate();
 
   const { bpn } = location.state || {}; // Get BPN from navigation state
-  const [formData, setFormData] = useState({ name: "", edcUrl: "", bpn: "" });
+  const [formData, setFormData] = useState({ name: "", edcUrl: "", partnerBpn: "" });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -16,17 +17,14 @@ const AddBpn = () => {
   };
 
   const handleSave = async () => {
-    const requestData = { ...formData, bpn }; // Include BPN in the request body
+    const requestData = { ...formData }; // Include BPN in the request body
 
     try {
-      const response = await fetch("https://api.example.com/add-partner", {
-        method: "POST",
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/partners`,JSON.stringify(requestData), {
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
+        }
       });
-
       if (response.status === 200) {
         setSuccess("Business partner added successfully!");
         setTimeout(() => navigate("/"), 2000); // Redirect to Screen1 after success
@@ -34,7 +32,11 @@ const AddBpn = () => {
         setError("Failed to save business partner. Please try again.");
       }
     } catch (err) {
-      setError("Network error: Unable to save business partner.");
+      if(err.response.status == 409 || err.response.status == 400){
+        setError(err.response.data.title)
+      }else{
+        setError("Network error: Unable to save business partner.");
+      }
     }
   };
 
@@ -68,8 +70,8 @@ const AddBpn = () => {
             type="text"
             name="bpn"
             className="form-control"
-            value={bpn || ""}
-            disabled
+            value={formData.partnerBpn}
+            onChange={handleInputChange}
           />
         </div>
         <div className="mb-3">

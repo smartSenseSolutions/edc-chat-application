@@ -1,8 +1,7 @@
 package com.smartsense.chat.edc.operation;
 
 import com.smartsense.chat.edc.client.EDCConnectorClient;
-import com.smartsense.chat.edc.settings.EDCConfigurations;
-import com.smartsense.chat.service.BusinessPartnerService;
+import com.smartsense.chat.edc.settings.AppConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -17,18 +16,17 @@ import java.util.Map;
 @Slf4j
 public class QueryCatalogService {
 
-    private final EDCConfigurations edcConfigurations;
-    private final BusinessPartnerService partnerService;
+    private final AppConfig config;
     private final EDCConnectorClient edc;
 
     public String queryCatalog(String receiverDspUrl, String receiverBpnl) {
         try {
             log.info("Creating Query Catalog process started...");
-            Map<String, Object> response = edc.queryCatalog(edcConfigurations.edcUri(), prepareQueryCatalog(receiverDspUrl, receiverBpnl, edcConfigurations.assetId()), edcConfigurations.authCode());
+            Map<String, Object> response = edc.queryCatalog(config.edc().edcUri(), prepareQueryCatalog(receiverDspUrl, receiverBpnl, config.edc().assetId()), config.edc().authCode());
             JSONObject catalogResponse = new JSONObject(response);
             JSONObject dataSet = catalogResponse.getJSONObject("dcat:dataset");
             if (dataSet.isEmpty()) {
-                log.info("No data set found for the assetId {} from dsp {}", edcConfigurations.assetId(), receiverDspUrl);
+                log.info("No data set found for the assetId {} from dsp {}", config.edc().assetId(), receiverDspUrl);
                 return null;
             }
             String offerId = dataSet

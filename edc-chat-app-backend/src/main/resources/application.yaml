@@ -1,7 +1,17 @@
 server:
-  port: 8090
+  port: 8080
 
 chat:
+  name: EDC based chat application
+  bpn: BPNL000000000001
+  assetUrl: http://localhost:9192
+  datasource:
+    host: localhost
+    port: 5432
+    database: chat_app
+    schema: public
+    username: root
+    password: root
   edc:
     authCode: password
     assetId: edc-chat-app
@@ -9,7 +19,7 @@ chat:
 
 spring:
   application:
-    name: EDC based chat application
+    name: ${chat.name}
   threads:
     virtual:
       enabled: true
@@ -18,12 +28,12 @@ spring:
     hibernate:
       ddl-auto: none
     properties:
-      hibernate.default_schema: public
+      hibernate.default_schema: ${chat.datasource.schema}
     show-sql: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/chat_app
-    username: postgres
-    password: 123456
+    url: jdbc:postgresql://${chat.datasource.host}:${chat.datasource.port}/${chat.datasource.database}
+    username: ${chat.datasource.username}
+    password: ${chat.datasource.password}
     driver-class-name: org.postgresql.Driver
   liquibase:
     change-log: classpath:db/changelog/changelog-master.yaml
@@ -35,8 +45,6 @@ springdoc:
     show-common-extensions: true
     csrf:
       enabled: true
-#  api-docs:
-#    path: /docs/api-docs
 
 logging:
   level:

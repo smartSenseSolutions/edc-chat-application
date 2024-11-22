@@ -1,7 +1,7 @@
 package com.smartsense.chat.edc.operation;
 
 import com.smartsense.chat.edc.client.EDCConnectorClient;
-import com.smartsense.chat.edc.settings.EDCConfigurations;
+import com.smartsense.chat.edc.settings.AppConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Slf4j
 public class ContractNegotiationService {
     private final EDCConnectorClient edc;
-    private final EDCConfigurations edcConfigurations;
+    private final AppConfig config;
 
     private static List<Object> prepareNegotiationContext() {
         List<Object> context = new ArrayList<>();
@@ -31,7 +31,7 @@ public class ContractNegotiationService {
             log.info("Starting negotiation process with bpnl {}, dspUrl {} and offerId {}", receiverBpnL, receiverDspUrl, offerId);
             Map<String, Object> negotiationRequest = prepareNegotiationRequest(receiverDspUrl, receiverBpnL, offerId);
             log.info("Negotiation initiated for offerId {}", offerId);
-            Map<String, Object> negotiationResponse = edc.initNegotiation(edcConfigurations.edcUri(), negotiationRequest, edcConfigurations.authCode());
+            Map<String, Object> negotiationResponse = edc.initNegotiation(config.edc().edcUri(), negotiationRequest, config.edc().authCode());
             String negotiationId = negotiationResponse.get("@id").toString();
             log.info("Contract negotiation process done for offerId {} with negotiationId {}", offerId, negotiationId);
             return negotiationId;
@@ -59,7 +59,7 @@ public class ContractNegotiationService {
         negotiationPolicy.put("@id", offerId);
         negotiationPolicy.put("@type", "Offer");
         negotiationPolicy.put("permission", List.of(Map.of("action", "use")));
-        negotiationPolicy.put("target", edcConfigurations.assetId());
+        negotiationPolicy.put("target", config.edc().assetId());
         negotiationPolicy.put("assigner", receiverBpnL);
         return negotiationPolicy;
     }

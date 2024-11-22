@@ -68,8 +68,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(com.smartsense.chat.utils.exception.BadDataException.class)
     ProblemDetail handleBadDataException(com.smartsense.chat.utils.exception.BadDataException e) {
         String errorMsg = ExceptionUtils.getMessage(e);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMsg);
-        problemDetail.setTitle(errorMsg);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problemDetail.setTitle(e.getMessage());
         problemDetail.setProperty(ContField.TIMESTAMP, System.currentTimeMillis());
         return problemDetail;
     }
@@ -130,6 +130,14 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail;
         problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ExceptionUtils.getMessage(e));
         problemDetail.setTitle(ExceptionUtils.getMessage(e));
+        problemDetail.setProperty(ContField.TIMESTAMP, System.currentTimeMillis());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleConflictException(ConflictException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle(ex.getMessage());
         problemDetail.setProperty(ContField.TIMESTAMP, System.currentTimeMillis());
         return problemDetail;
     }
