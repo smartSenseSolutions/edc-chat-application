@@ -1,0 +1,125 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres_multi_db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_MULTIPLE_DATABASES: sender-edc,receiver-edc,sender-backend,receiver-backend
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./env/postgres/create_database.sh:/docker-entrypoint-initdb.d/create_databases.sh
+    ports:
+      - "5432:5432"
+    restart: no
+    networks:
+      - edc-network
+
+  senderControlplane:
+    image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.2
+    container_name: sender-controlplane
+    ports:
+      - "8191:8191"
+      - "8192:8192"
+      - "8194:8194"
+      - "8195:8195"
+    volumes:
+      - ./env/smartsense/edc.properties:/app/configuration.properties
+    environment:
+      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
+    depends_on:
+      - postgres
+      - wallet-stub
+    networks:
+      - edc-network
+
+  senderDataplane:
+    image: tractusx/edc-dataplane-hashicorp-vault:0.7.2
+    container_name: sender-dataplane
+    ports:
+      - "8196:8196"
+    volumes:
+      - ./env/smartsense/edc.properties:/app/configuration.properties
+    environment:
+      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
+    depends_on:
+      - postgres
+      - wallet-stub
+    networks:
+      - edc-network
+
+  receiverControlplane:
+    image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.2
+    container_name: receiver-controlplane
+    ports:
+      - "9191:9191"
+      - "9192:9192"
+      - "9194:9194"
+      - "9195:9195"
+    volumes:
+      - ./env/cofinityx/edc.properties:/app/configuration.properties
+    environment:
+      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
+    depends_on:
+      - postgres
+      - wallet-stub
+    networks:
+      - edc-network
+
+  receiverDataplane:
+    image: tractusx/edc-dataplane-hashicorp-vault:0.7.2
+    container_name: receiver-dataplane
+    ports:
+      - "9196:8196"
+    volumes:
+      - ./env/cofinityx/edc.properties:/app/configuration.properties
+    environment:
+      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
+    depends_on:
+      - postgres
+      - wallet-stub
+    networks:
+      - edc-network
+
+  vault:
+    container_name: vault
+    image: vault:1.13.3
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "root-token"
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - edc-network
+
+  vault-prepopulate:
+    image: alpine/curl
+    depends_on:
+      - vault
+    volumes:
+      - ./env/vault/prepopulate_vault.sh:/usr/local/bin/prepopulate_vault.sh
+    command: [ "sh", "-c", "/usr/local/bin/prepopulate_vault.sh" ]
+    networks:
+      - edc-network
+
+  wallet-stub:
+    image: tractusx/ssi-dim-wallet-stub:0.0.3
+    container_name: wallet-stub
+    environment:
+      - SERVER_PORT=80
+      - BASE_WALLET_BPN=BPNL0000TRACTUSX
+      - DID_HOST=wallet-stub
+      - STUB_URL=http://wallet-stub
+    ports:
+      - "80:80"
+    networks:
+      - edc-network
+
+networks:
+  edc-network:
+
+volumes:
+  postgres_data:
