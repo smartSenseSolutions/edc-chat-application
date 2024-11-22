@@ -20,7 +20,7 @@ public class AssetCreationService {
 
     private final EDCConnectorClient edc;
     private final AppConfig config;
-    @Value("${spring.application.host}")
+    @Value("${spring.application.host:http://localhost:8080}")
     private String host;
 
 
@@ -31,7 +31,7 @@ public class AssetCreationService {
     }
 
     private Map<String, Object> prepareAssetCreationRequest() {
-        String baseUrl = String.format(host + RECEIVE_CHAT);
+        String baseUrl = host.concat(RECEIVE_CHAT);
         Map<String, Object> assetCreation = new HashMap<>();
         assetCreation.put("@context", Map.of("edc", "https://w3id.org/edc/v0.0.1/ns/",
                 "cx-common", "https://w3id.org/catenax/ontology/common#",
