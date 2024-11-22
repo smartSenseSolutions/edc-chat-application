@@ -1,7 +1,9 @@
 package com.smartsense.chat.edc.operation;
 
+import com.smartsense.chat.dao.entity.EdcProcessState;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
+import com.smartsense.chat.service.EdcProcessStateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,9 @@ public class AgreementFetcherService {
 
     private final EDCConnectorClient edc;
     private final AppConfig config;
+    private final EdcProcessStateService edcProcessStateService;
 
-    public String getAgreement(String negotiationId) {
+    public String getAgreement(String negotiationId, EdcProcessState edcProcessState) {
         try {
             int count = 1;
             Map<String, Object> agreementResponse = null;
@@ -38,6 +41,8 @@ public class AgreementFetcherService {
             } while (!agreementResponse.get("state").equals("FINALIZED") && count <= 3);
             return agreementId;
         } catch (Exception ex) {
+            edcProcessState.setErrorDetail(String.format("Error occurred while getting agreement information for negotiationId %s and exception is %s", negotiationId, ex.getMessage()));
+            edcProcessStateService.create(edcProcessState);
             log.error("Error occurred while getting agreement information for negotiationId {}", negotiationId, ex);
             return null;
         }

@@ -1,7 +1,9 @@
 package com.smartsense.chat.edc.operation;
 
+import com.smartsense.chat.dao.entity.EdcProcessState;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
+import com.smartsense.chat.service.EdcProcessStateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -18,8 +20,9 @@ public class QueryCatalogService {
 
     private final AppConfig config;
     private final EDCConnectorClient edc;
+    private final EdcProcessStateService edcProcessStateService;
 
-    public String queryCatalog(String receiverDspUrl, String receiverBpnl) {
+    public String queryCatalog(String receiverDspUrl, String receiverBpnl, EdcProcessState edcProcessState) {
         try {
             log.info("Creating Query Catalog process started...");
             Map<String, Object> response = edc.queryCatalog(config.edc().edcUri(), prepareQueryCatalog(receiverDspUrl, receiverBpnl, config.edc().assetId()), config.edc().authCode());
@@ -35,6 +38,8 @@ public class QueryCatalogService {
             log.info("Received offerId {}.", offerId);
             return offerId;
         } catch (Exception ex) {
+            edcProcessState.setErrorDetail(String.format("Error occurred while fetching the catalog for receiverDsp %s and Bpnl %s and exception is %s", receiverDspUrl, receiverBpnl, ex.getMessage()));
+            edcProcessStateService.create(edcProcessState);
             log.error("Error occurred while fetching the catalog for receiverDsp {} and Bpnl {}", receiverDspUrl, receiverBpnl);
             return null;
         }
