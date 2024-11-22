@@ -3,6 +3,7 @@ package com.smartsense.chat.web.apidocs;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
@@ -32,30 +33,62 @@ public class EDCChatApiDocs {
                                       }
                                     """)
                     })
-            }) })
+            })})
     public @interface EDCChatReceive {
     }
 
-    @Target(ElementType.METHOD)
+
+    @Target({ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(description = "Sent Chat message", summary = "Sent Chat message")
+    @Operation(description = "Send Chat message to selected partner", summary = "Send Chat message to selected partner")
+    @RequestBody(content = {
+            @Content(examples = {
+                    @ExampleObject(value = """
+                                                        {
+                                                            "message": "Hi there! How are you?",
+                                                            "receiverBpn": "BPNL000000000TATA"
+                                                        }
+                            """, description = "Send message to selected partner", name = "send message to selected partner")
+            })
+    })
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Sent Chat message", content = {
+            @ApiResponse(responseCode = "200", description = "Chat response", content = {
                     @Content(examples = {
-                            @ExampleObject(name = "Business Partner created", value = """
-                                     {
-                                        "message": "User Created successfully",
-                                        "body": {
-                                          "id": "248b97f0-6f3a-4f56-af04-c0da600125b1",
-                                          "name": "Name Surname",
-                                          "age": 19,
-                                          "city": "Some City",
-                                          "country": "Some Country"
-                                        }
-                                      }
+                            @ExampleObject(name = "Chat Response", value = """
+                                    {
+                                              "receiver": "BPNL000000000001",
+                                              "sender": "BPNL000000000TATA",
+                                              "content": "Hello!",
+                                              "timestamp": 1700654400
+                                          }
+                                     """)
+                    })})})
+    public @interface Chat {
+    }
+
+    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(description = "Get Chat history", summary = "Get Chat history")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get Chat history", content = {
+                    @Content(examples = {
+                            @ExampleObject(name = "Get Chat history", value = """
+                                    [
+                                         {
+                                             "receiver": "BPNL000000000001",
+                                             "sender": "BPNL000000000TATA",
+                                             "content": "Hello!",
+                                             "timestamp": 1700654400
+                                         },
+                                         {
+                                             "receiver": "BPNL000000000TATA",
+                                             "sender": "BPNL000000000001",
+                                             "content": "Hello! How can I help you?",
+                                             "timestamp": 1700654400
+                                         }
+                                     ]
                                     """)
-                    })
-            }) })
-    public @interface EDCChatSent {
+                    })})})
+    public @interface GetChatHistory {
     }
 }

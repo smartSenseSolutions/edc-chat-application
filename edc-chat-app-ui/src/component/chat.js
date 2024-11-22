@@ -13,13 +13,31 @@ const Chat = () => {
     const [newMessage, setNewMessage] = useState(""); // Current message to send
     const [error, setError] = useState(null); // Error messages
 
-    const { bpn, selectedValue } = location.state || {};
+    const { bpn: selfBpn, selectedValue: partnerBpn } = location.state || {};
+
+    useEffect(() => {
+        //validate partner BPN is selected
+        if (!selfBpn || !partnerBpn) {
+            setError("BPN is missing. Redirecting to home...");
+            setTimeout(() => navigate("/"), 3000);
+            return;
+        } else {
+            console.log("bpn -> " + selfBpn);
+            console.log("selected values ->" + partnerBpn);
+        }
+
+        //get chat history
+        getChatHistory();
+
+        //connect to WS for message transfer
+        connectWs();
+    }, [selfBpn]);
 
     const connectWs = () => {
         const wsUrl = "wss://example.com/chat"; // Replace with your WebSocket URL
 
         // WebSocket connection with BPN in headers (via query string)
-        const socket = new WebSocket(`${wsUrl}?bpn=${bpn}`);
+        const socket = new WebSocket(`${wsUrl}?bpn=${selfBpn}&partnerBpn=${partnerBpn}`);
 
         webSocketRef.current = socket;
 
@@ -47,14 +65,17 @@ const Chat = () => {
         // Scroll chat window to bottom
         const lastMessage = chatContainerRef.current?.lastElementChild;
         if (lastMessage) {
-            lastMessage.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                lastMessage.scrollIntoView({ behavior: "smooth" });
+            }, 10);
         }
     };
     const getChatHistory = async () => {
         try {
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/chat/history`);
+            const response = await axios.get(
+                `${process.env.REACT_APP_API_BASE_URL}/chat/history?partnerBpn=${partnerBpn}`
+            );
             if (response.status === 200) {
-                debugger;
                 const data = await response.data;
                 setChatHistory(data);
                 scrollToBottom();
@@ -66,54 +87,44 @@ const Chat = () => {
         }
     };
 
-    useEffect(() => {
-        //validate partner BPN is selected
-        if (!bpn || !selectedValue) {
-            debugger;
-            setError("BPN is missing. Redirecting to home...");
-            setTimeout(() => navigate("/"), 3000);
-            return;
-        } else {
-            console.log("bpn -> " + bpn);
-            console.log("selected values ->" + selectedValue);
-        }
-
-        //get chat history
-        getChatHistory();
-        connectWs();
-    }, [bpn]);
-
     const handleSendMessage = () => {
-        //push
-        const message = {
-            timestamp: Math.floor(Date.now() / 1000), // Current time in seconds
-            content: newMessage,
-            sender: bpn,
-            receiver: selectedValue,
+        //send message to backend
+        const chatRequest = {
+            message: newMessage,
+            receiverBpn: partnerBpn,
         };
-        setMessages((prevMessages) => [
-            ...prevMessages,
-            { sender: bpn, text: message.content, timestamp: message.timestamp },
-        ]);
+        const response = axios
+            .post(`${process.env.REACT_APP_API_BASE_URL}/chat`, JSON.stringify(chatRequest), {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            .then((response) => {
+                console.log(response.data);
+                if (response.status === 200) {
+                    const message = {
+                        timestamp: Math.floor(Date.now() / 1000), // Current time in seconds
+                        content: newMessage,
+                        sender: selfBpn,
+                        receiver: partnerBpn,
+                    };
+                    setMessages((prevMessages) => [
+                        ...prevMessages,
+                        { sender: selfBpn, text: message.content, timestamp: message.timestamp },
+                    ]);
 
-        //TODO push message to backend, this should be first
-        if (webSocketRef.current && webSocketRef.current.readyState === WebSocket.OPEN) {
-            const message = {
-                sender: "user", // Customize as needed
-                message: newMessage,
-            };
-            webSocketRef.current.send(JSON.stringify(message));
-            setMessages((prevMessages) => [...prevMessages, { sender: "You", text: newMessage }]);
-            setNewMessage(""); // Clear input field
-        } else {
-            setError("WebSocket is not connected");
-        }
+                    // Clear the input field
+                    setNewMessage("");
 
-        // Clear the input field
-        setNewMessage("");
-
-        // Scroll chat window to bottom
-        scrollToBottom();
+                    // Scroll chat window to bottom
+                    scrollToBottom();
+                } else {
+                    setError("Failed to send message");
+                } // Print the response in the console
+            })
+            .catch((error) => {
+                setError("Network error: Failed to send message.");
+            });
     };
 
     const handleKeyDown = (e) => {
@@ -129,22 +140,23 @@ const Chat = () => {
             <h1 className="text-center">Welcome to EDC Chat</h1>
 
             {/* Display BPN */}
-            {bpn && (
-                <div className="alert alert-info">
-                    <strong>Your BPN: {bpn}</strong>
-                </div>
-            )}
+            <div className="d-flex justify-content-between alert alert-info">
+                {selfBpn && (
+                    <div className="text-start">
+                        <strong>Your BPN: {selfBpn}</strong>
+                    </div>
+                )}
 
-            {bpn && (
-                <div className="alert alert-info">
-                    <strong>Partner BPN: {selectedValue}</strong>
-                </div>
-            )}
-
-            <div className="card p-3 mb-3" style={{ height: "300px", overflowY: "auto" }} ref={chatContainerRef}>
+                {partnerBpn && (
+                    <div className="text-end">
+                        <strong>Partner BPN: {partnerBpn}</strong>
+                    </div>
+                )}
+            </div>
+            <div className="card p-3 mb-3" style={{ height: "400px", overflowY: "auto" }} ref={chatContainerRef}>
                 {[...chatHistory, ...messages].map((msg, index) => {
                     // Determine if the message is sent by the current user
-                    const isCurrentUser = msg.sender === bpn;
+                    const isCurrentUser = msg.sender === selfBpn;
 
                     // Format the timestamp (assumes `timestamp` is in seconds)
                     const formattedTimestamp = new Date(msg.timestamp * 1000).toLocaleString();

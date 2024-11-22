@@ -1,5 +1,6 @@
 package com.smartsense.chat.edc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsense.chat.edc.manager.EDCProcessDto;
 import com.smartsense.chat.edc.manager.ProcessManagerService;
 import com.smartsense.chat.edc.operation.AgreementFetcherService;
@@ -9,13 +10,17 @@ import com.smartsense.chat.edc.operation.QueryCatalogService;
 import com.smartsense.chat.edc.operation.TransferProcessService;
 import com.smartsense.chat.service.BusinessPartnerService;
 import com.smartsense.chat.utils.request.ChatMessage;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +33,61 @@ public class EDCService {
     private final AgreementFetcherService agreementService;
     private final TransferProcessService transferProcessService;
     private final PublicUrlHandlerService publicUrlHandlerService;
+    private final ObjectMapper mapper;
 
     private final ProcessManagerService managerService;
     private final ProcessManagerService processManagerService;
+
+    @SneakyThrows
+    public List<Map> getChatHistory(String partnerBpn) {
+        String history = """
+                [
+                    {
+                        "receiver": "BPNL000000000001",
+                        "sender": "BPNL000000000TATA",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000TATA",
+                        "sender": "BPNL000000000001",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000001",
+                        "sender": "BPNL000000000TATA",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000TATA",
+                        "sender": "BPNL000000000001",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000001",
+                        "sender": "BPNL000000000TATA",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000TATA",
+                        "sender": "BPNL000000000001",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    }
+                ]
+                """;
+        return mapper.readValue(history, List.class);
+    }
 
     @Async
     public void initProcess(ChatMessage chatMessage) {

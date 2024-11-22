@@ -6,22 +6,24 @@ import com.smartsense.chat.dao.repository.BusinessPartnerRepository;
 import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.utils.exception.ConflictException;
 import com.smartsense.chat.utils.request.BusinessPartnerRequest;
+import com.smartsense.chat.utils.request.ChatRequest;
 import com.smartsense.chat.utils.response.BpnResponse;
 import com.smartsense.chat.utils.response.BusinessPartnerResponse;
+import com.smartsense.chat.utils.response.ChatResponse;
 import com.smartsense.chat.utils.validate.Validate;
 import com.smartsensesolutions.commons.dao.base.BaseRepository;
 import com.smartsensesolutions.commons.dao.base.BaseService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -81,55 +83,11 @@ public class BusinessPartnerService extends BaseService<BusinessPartner, UUID> {
         return partner.getEdcUrl();
     }
 
-
     @SneakyThrows
-    public List<Map> getChatHistory(){
-        String history = """
-                [
-                    {
-                        "receiver": "BPNL000000000001",
-                        "sender": "BPNL000000000TATA",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000TATA",
-                        "sender": "BPNL000000000001",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000001",
-                        "sender": "BPNL000000000TATA",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000TATA",
-                        "sender": "BPNL000000000001",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000001",
-                        "sender": "BPNL000000000TATA",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000TATA",
-                        "sender": "BPNL000000000001",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    }
-                ]
-                """;
-        return mapper.readValue(history, List.class);
+    public ChatResponse chat(ChatRequest chatRequest) {
+        log.info("Chat request: {}", mapper.writeValueAsString(chatRequest));
+        //TODO start EDC process
+        ChatResponse chatResponse = new ChatResponse(chatRequest.receiverBpn(), config.bpn(), chatRequest.message(), System.currentTimeMillis());
+        return chatResponse;
     }
 }
