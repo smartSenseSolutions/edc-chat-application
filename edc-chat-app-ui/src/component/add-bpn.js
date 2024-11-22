@@ -10,13 +10,47 @@ const AddBpn = () => {
     const [formData, setFormData] = useState({ name: "", edcUrl: "", bpn: "" });
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [validationErrors, setValidationErrors] = useState({
+        name: false,
+        bpn: false,
+        edcUrl: false,
+    });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+        setValidationErrors({ ...validationErrors, [name]: false }); // Reset validation error on change
     };
 
     const handleSave = async () => {
+        // Check if any field is empty
+        const { name, bpn, edcUrl } = formData;
+        let isValid = true;
+
+        // Set validation errors for empty fields
+        const errors = { name: false, bpn: false, edcUrl: false };
+        if (!name.trim()) {
+            errors.name = true;
+            isValid = false;
+        }
+        if (!bpn.trim()) {
+            errors.bpn = true;
+            isValid = false;
+        }
+        if (!edcUrl.trim()) {
+            errors.edcUrl = true;
+            isValid = false;
+        }
+        setValidationErrors(errors);
+
+        // If form is not valid, return early and show error message
+        if (!isValid) {
+            setError("All fields are required.");
+            return;
+        }
+
+        setError(null); // Clear
+
         const requestData = { ...formData }; // Include BPN in the request body
 
         try {
@@ -43,7 +77,6 @@ const AddBpn = () => {
             }
         }
     };
-
     return (
         <div className="container mt-5">
             <h1 className="text-center">Add New Business Partner</h1>
@@ -66,6 +99,9 @@ const AddBpn = () => {
                         className="form-control"
                         value={formData.name}
                         onChange={handleInputChange}
+                        style={{
+                            borderColor: validationErrors.name ? "red" : "",
+                        }}
                     />
                 </div>
                 <div className="mb-3">
@@ -76,6 +112,9 @@ const AddBpn = () => {
                         value={formData.bpn}
                         className="form-control"
                         onChange={handleInputChange}
+                        style={{
+                            borderColor: validationErrors.bpn ? "red" : "",
+                        }}
                     />
                 </div>
                 <div className="mb-3">
@@ -86,6 +125,9 @@ const AddBpn = () => {
                         className="form-control"
                         value={formData.edcUrl}
                         onChange={handleInputChange}
+                        style={{
+                            borderColor: validationErrors.edcUrl ? "red" : "",
+                        }}
                     />
                 </div>
                 <button className="btn btn-primary w-100" onClick={handleSave}>
@@ -95,5 +137,4 @@ const AddBpn = () => {
         </div>
     );
 };
-
 export default AddBpn;

@@ -88,6 +88,15 @@ const Chat = () => {
     };
 
     const handleSendMessage = () => {
+        if (!newMessage.trim()) {
+            // Highlight the input box in red if the message is empty
+            document.getElementById("messageInput").style.borderColor = "red";
+            return; // Prevent sending an empty message
+        }
+
+        // Reset the border color if the message is valid
+        document.getElementById("messageInput").style.borderColor = "";
+
         //send message to backend
         const chatRequest = {
             message: newMessage,
@@ -182,6 +191,7 @@ const Chat = () => {
                     type="text"
                     className="form-control me-2"
                     value={newMessage}
+                    id="messageInput"
                     onKeyDown={handleKeyDown}
                     rows={3}
                     onChange={(e) => setNewMessage(e.target.value)}
