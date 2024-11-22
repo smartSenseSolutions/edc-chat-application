@@ -136,9 +136,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConflictException.class)
     public ProblemDetail handleConflictException(ConflictException ex) {
-        String errorMsg = ExceptionUtils.getMessage(ex);
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, errorMsg);
-        problemDetail.setTitle(errorMsg);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle(ex.getMessage());
         problemDetail.setProperty(ContField.TIMESTAMP, System.currentTimeMillis());
         return problemDetail;
     }

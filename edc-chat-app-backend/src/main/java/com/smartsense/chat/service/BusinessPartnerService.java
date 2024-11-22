@@ -30,9 +30,10 @@ public class BusinessPartnerService extends BaseService<BusinessPartner, UUID> {
 
 
     public BusinessPartnerResponse createBusinessPartner(BusinessPartnerRequest request) {
-        BusinessPartner partner = businessPartnerRepository.findByNameOrBpn(request.name(), request.bpn());
+        log.info("Business partner request: {}", request);
+        BusinessPartner partner = businessPartnerRepository.findByBpn(request.bpn());
         if (Objects.nonNull(partner)) {
-            String errorMessage = String.format("BusinessPartner with name '%s' or BPN '%s' already exists.", request.name(), request.bpn());
+            String errorMessage = String.format("BusinessPartner with BPN '%s' already exists.", request.bpn());
             log.error(errorMessage);
             throw new ConflictException(errorMessage);
         }
