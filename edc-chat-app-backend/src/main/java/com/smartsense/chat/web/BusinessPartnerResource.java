@@ -10,11 +10,9 @@ import com.smartsense.chat.web.apidocs.BusinessPartnersApiDocs.GetBusinessPartne
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -43,8 +41,8 @@ public class BusinessPartnerResource {
 
     @GetBusinessPartners
     @GetMapping(value = "/partners", produces = APPLICATION_JSON_VALUE)
-    public List<BpnResponse> getBusinessPartner(@RequestParam(required = false) String name) {
-        return StringUtils.hasText(name) ? businessPartnerService.getBusinessPartner(name) : businessPartnerService.getAllBusinessPartners();
+    public List<BpnResponse> getBusinessPartner() {
+        return businessPartnerService.getAllBusinessPartners();
     }
 }
 
