@@ -38,3 +38,7 @@ CREATE TABLE chat_messages (
 
 --changeset Bhautik:4
 ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS  is_chat_success BOOLEAN;
+
+--changeset Bhautik:5
+ALTER TABLE edc_process_states ALTER COLUMN error_detail TYPE TEXT;
+
