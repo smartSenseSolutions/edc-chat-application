@@ -5,12 +5,13 @@ import com.smartsensesolutions.commons.dao.base.BaseRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface BusinessPartnerRepository extends BaseRepository<BusinessPartner, UUID> {
 
-    BusinessPartner findByName(String name);
+    List<BusinessPartner> findByName(String name);
 
     BusinessPartner findByBpn(String bpn);
 

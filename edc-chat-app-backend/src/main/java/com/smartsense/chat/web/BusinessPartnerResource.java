@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -41,7 +43,7 @@ public class BusinessPartnerResource {
 
     @GetBusinessPartners
     @GetMapping(value = "/partners", produces = APPLICATION_JSON_VALUE)
-    public BpnResponse getBusinessPartner(@RequestParam(required = false) String name) {
+    public List<BpnResponse> getBusinessPartner(@RequestParam(required = false) String name) {
         return StringUtils.hasText(name) ? businessPartnerService.getBusinessPartner(name) : businessPartnerService.getAllBusinessPartners();
     }
 }

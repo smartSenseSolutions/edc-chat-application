@@ -14,11 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -46,16 +45,23 @@ public class BusinessPartnerService extends BaseService<BusinessPartner, UUID> {
         return mapper.convertValue(businessPartnerRepository.save(businessPartner), BusinessPartnerResponse.class);
     }
 
-    public BpnResponse getBusinessPartner(String name) {
-        BusinessPartner businessPartner = businessPartnerRepository.findByName(name);
+    public List<BpnResponse> getBusinessPartner(String name) {
+        List<BpnResponse> response = new ArrayList<>();
+        List<BusinessPartner> businessPartner = businessPartnerRepository.findByName(name);
         Validate.isTrue(Objects.isNull(businessPartner)).launch("No Business partner found with name: " + name);
-        return new BpnResponse(Map.of(businessPartner.getName(), businessPartner.getBpn()));
+        for (BusinessPartner partner : businessPartner) {
+            response.add(new BpnResponse(partner.getBpn(), partner.getName()));
+        }
+        return response;
     }
 
-    public BpnResponse getAllBusinessPartners() {
+    public List<BpnResponse> getAllBusinessPartners() {
+        List<BpnResponse> response = new ArrayList<>();
         List<BusinessPartner> businessPartnerList = businessPartnerRepository.findAll();
-        Map<String, String> bpnMap = businessPartnerList.stream().collect(Collectors.toMap(BusinessPartner::getName, BusinessPartner::getBpn, (k, v) -> v));
-        return new BpnResponse(bpnMap);
+        for (BusinessPartner partner : businessPartnerList) {
+            response.add(new BpnResponse(partner.getBpn(), partner.getName()));
+        }
+        return response;
     }
 
     @Override
