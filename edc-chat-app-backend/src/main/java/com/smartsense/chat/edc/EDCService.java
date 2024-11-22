@@ -62,18 +62,20 @@ public class EDCService {
     @Async
     public void initProcess(ChatRequest chatMessage) {
         String receiverBpnl = chatMessage.receiverBpn();
-        EdcProcessState educByReceiverBpn = edcProcessStateService.getEdcByBpn(receiverBpnl);
+        EdcProcessState edcProcessState = edcProcessStateService.getEdcByBpn(receiverBpnl);
         ChatMessage chatResponse = chatMessageService.createChat(chatMessage, true, false);
-        if (Objects.nonNull(educByReceiverBpn) && StringUtils.hasText(educByReceiverBpn.getTransferId())) {
-            chatMessageService.updateChat(chatResponse, false, educByReceiverBpn);
-            publicUrlHandlerService.getAuthCodeAndPublicUrl(educByReceiverBpn.getTransferId(), chatMessage, educByReceiverBpn);
+        if (Objects.nonNull(edcProcessState) && StringUtils.hasText(edcProcessState.getTransferId())) {
+            chatMessageService.updateChat(chatResponse, false, edcProcessState);
+            publicUrlHandlerService.getAuthCodeAndPublicUrl(edcProcessState.getTransferId(), chatMessage, edcProcessState);
             chatMessageService.updateChat(chatResponse, true, null);
             return;
         }
 
-        EdcProcessState edcProcessState = new EdcProcessState();
-        edcProcessState.setReceiverBpn(chatMessage.receiverBpn());
         String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
+        if (Objects.isNull(edcProcessState)) {
+            edcProcessState = new EdcProcessState();
+            edcProcessState.setReceiverBpn(receiverBpnl);
+        }
 
         // Query the catalog for chat asset
         String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, edcProcessState);
