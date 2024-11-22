@@ -25,7 +25,6 @@ const AddBpn = () => {
           "Content-Type": "application/json",
         }
       });
-
       if (response.status === 200) {
         setSuccess("Business partner added successfully!");
         setTimeout(() => navigate("/"), 2000); // Redirect to Screen1 after success
@@ -33,7 +32,11 @@ const AddBpn = () => {
         setError("Failed to save business partner. Please try again.");
       }
     } catch (err) {
-      setError("Network error: Unable to save business partner.");
+      if(err.response.status == 409){
+        setError(err.response.data.title)
+      }else{
+        setError("Network error: Unable to save business partner.");
+      }
     }
   };
 
