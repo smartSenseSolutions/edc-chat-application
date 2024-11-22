@@ -32,11 +32,11 @@ const Home = () => {
     const fetchDropdownData = async () => {
         try {
             const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/partners`);
-            const apiResponse = response.data.response;
+            const apiResponse = response.data;
             // Transform response into key-value pairs for dropdown
-            const dropdownItems = Object.entries(apiResponse).map(([key, value]) => ({
-                label: `${key} - ${value}`,
-                value: value,
+            const dropdownItems = apiResponse.map((item) => ({
+                label: `${item.name} - ${item.bpn}`,
+                value: item.bpn,
             }));
             setDropdownData(dropdownItems);
         } catch (error) {
@@ -44,11 +44,18 @@ const Home = () => {
         }
     };
     const handleStartChat = () => {
-      console.log("selected BPN -"+selectedValue)
+        console.log("selected BPN -" + selectedValue);
         if (!bpn) {
             setError("BPN is not available. Please try again later.");
             return;
         }
+        if (!selectedValue) {
+            document.getElementById("dropdown").style.borderColor = "red";
+            setError("Please select business partner to start chat.");
+            return;
+        }
+        document.getElementById("dropdown").style.borderColor = "";
+
         navigate("/chat", { state: { bpn, selectedValue } });
     };
 

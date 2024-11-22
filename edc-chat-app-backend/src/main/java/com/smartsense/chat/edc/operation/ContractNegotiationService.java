@@ -1,7 +1,9 @@
 package com.smartsense.chat.edc.operation;
 
+import com.smartsense.chat.dao.entity.EdcProcessState;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
+import com.smartsense.chat.service.EdcProcessStateService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class ContractNegotiationService {
     private final EDCConnectorClient edc;
     private final AppConfig config;
+    private final EdcProcessStateService edcProcessStateService;
 
     private static List<Object> prepareNegotiationContext() {
         List<Object> context = new ArrayList<>();
@@ -26,7 +29,7 @@ public class ContractNegotiationService {
         return context;
     }
 
-    public String initNegotiation(String receiverDspUrl, String receiverBpnL, String offerId) {
+    public String initNegotiation(String receiverDspUrl, String receiverBpnL, String offerId, EdcProcessState edcProcessState) {
         try {
             log.info("Starting negotiation process with bpnl {}, dspUrl {} and offerId {}", receiverBpnL, receiverDspUrl, offerId);
             Map<String, Object> negotiationRequest = prepareNegotiationRequest(receiverDspUrl, receiverBpnL, offerId);
@@ -36,10 +39,11 @@ public class ContractNegotiationService {
             log.info("Contract negotiation process done for offerId {} with negotiationId {}", offerId, negotiationId);
             return negotiationId;
         } catch (Exception ex) {
+            edcProcessState.setErrorDetail(String.format("Error occurred while negotiating the contract offer %s with dspUrl %s and bpnl %s and Exception is %s.", offerId, receiverDspUrl, receiverBpnL, ex.getMessage()));
+            edcProcessStateService.create(edcProcessState);
             log.error("Error occurred while negotiating the contract offer {} with dspUrl {} and bpnl {}.", offerId, receiverDspUrl, receiverBpnL);
             return null;
         }
-
     }
 
     private Map<String, Object> prepareNegotiationRequest(String receiverDspUrl, String receiverBpnL, String offerId) {

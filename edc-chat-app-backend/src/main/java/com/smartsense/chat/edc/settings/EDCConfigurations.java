@@ -4,7 +4,9 @@ import java.net.URI;
 
 public record EDCConfigurations(String edcUrl,
                                 String authCode,
-                                String assetId) {
+                                String assetId,
+                                String contractDefinitionId,
+                                String policyId) {
 
     public URI edcUri() {
         return URI.create(edcUrl);

@@ -13,10 +13,11 @@ import lombok.Setter;
 @Builder
 public class EDCProcessDto {
 
-    private String bpn;
+    private String receiverBpn;
     private String dspUrl;
     private String offerId;
     private String negotiationId;
     private String agreementId;
     private String transferProcessId;
+    private String errorDetail;
 }
