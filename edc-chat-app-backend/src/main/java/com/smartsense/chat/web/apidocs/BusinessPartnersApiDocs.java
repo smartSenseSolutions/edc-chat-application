@@ -23,8 +23,8 @@ public class BusinessPartnersApiDocs {
                             @ExampleObject(name = "Business Partner created", value = """
                                     {
                                         "id": "89221248-4c98-4d8e-a909-d31f3ea0fa8f",
-                                        "name": "bhautik",
-                                        "bpn": "BPNL000000000001",
+                                        "name": "smartSense",
+                                        "bpn": "BPNL00SMARTSENSE",
                                         "edcUrl": "http://localhost:8090"
                                     }
                                     """)
@@ -40,14 +40,40 @@ public class BusinessPartnersApiDocs {
             @ApiResponse(responseCode = "200", description = "Get Business Partner details by name.", content = {
                     @Content(examples = {
                             @ExampleObject(name = "Get Business Partner details", value = """
-                                    {
-                                        "response": {
-                                            "bhautik": "BPNL000000000001",
-                                            "dilip": "BPNL000000000002"
+                                    [
+                                        {
+                                          "bpn": "BPNL00SMARTSENSE",
+                                          "name": "smartSense"
                                         }
-                                    }
+                                      ]
                                     """)
                     }) }) })
     public @interface GetBusinessPartners {
+    }
+
+    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @Retention(RetentionPolicy.RUNTIME)
+    @Operation(description = "Get Chat history", summary = "Get Chat history")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Get Chat history", content = {
+                    @Content(examples = {
+                            @ExampleObject(name = "Get Chat history", value = """
+                                    [
+                                         {
+                                             "receiver": "BPNL000000000001",
+                                             "sender": "BPNL000000000TATA",
+                                             "content": "Hello!",
+                                             "timestamp": 1700654400
+                                         },
+                                         {
+                                             "receiver": "BPNL000000000TATA",
+                                             "sender": "BPNL000000000001",
+                                             "content": "Hello! How can I help you?",
+                                             "timestamp": 1700654400
+                                         }
+                                     ]
+                                    """)
+                    }) }) })
+    public @interface GetChatHistory {
     }
 }

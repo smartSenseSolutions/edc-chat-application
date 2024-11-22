@@ -5,6 +5,7 @@ import com.smartsense.chat.service.BusinessPartnerService;
 import com.smartsense.chat.utils.request.BusinessPartnerRequest;
 import com.smartsense.chat.utils.response.BpnResponse;
 import com.smartsense.chat.utils.response.BusinessPartnerResponse;
+import com.smartsense.chat.web.apidocs.BusinessPartnersApiDocs;
 import com.smartsense.chat.web.apidocs.BusinessPartnersApiDocs.CreateBusinessPartner;
 import com.smartsense.chat.web.apidocs.BusinessPartnersApiDocs.GetBusinessPartners;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -43,6 +45,12 @@ public class BusinessPartnerResource {
     @GetMapping(value = "/partners", produces = APPLICATION_JSON_VALUE)
     public List<BpnResponse> getBusinessPartner() {
         return businessPartnerService.getAllBusinessPartners();
+    }
+
+    @BusinessPartnersApiDocs.GetChatHistory
+    @GetMapping(value = "chat/history", produces = APPLICATION_JSON_VALUE)
+    public List<Map> getChatHistory(){
+        return businessPartnerService.getChatHistory();
     }
 }
 

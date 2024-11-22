@@ -7,7 +7,7 @@ const AddBpn = () => {
   const navigate = useNavigate();
 
   const { bpn } = location.state || {}; // Get BPN from navigation state
-  const [formData, setFormData] = useState({ name: "", edcUrl: "", bpn: "" });
+  const [formData, setFormData] = useState({ name: "", edcUrl: "", partnerBpn: "" });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -17,7 +17,7 @@ const AddBpn = () => {
   };
 
   const handleSave = async () => {
-    const requestData = { ...formData, bpn }; // Include BPN in the request body
+    const requestData = { ...formData }; // Include BPN in the request body
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/partners`,JSON.stringify(requestData), {
@@ -32,7 +32,7 @@ const AddBpn = () => {
         setError("Failed to save business partner. Please try again.");
       }
     } catch (err) {
-      if(err.response.status == 409){
+      if(err.response.status == 409 || err.response.status == 400){
         setError(err.response.data.title)
       }else{
         setError("Network error: Unable to save business partner.");
@@ -70,7 +70,7 @@ const AddBpn = () => {
             type="text"
             name="bpn"
             className="form-control"
-            value={formData.bpn}
+            value={formData.partnerBpn}
             onChange={handleInputChange}
           />
         </div>

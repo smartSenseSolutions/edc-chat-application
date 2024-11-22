@@ -12,12 +12,14 @@ import com.smartsense.chat.utils.validate.Validate;
 import com.smartsensesolutions.commons.dao.base.BaseRepository;
 import com.smartsensesolutions.commons.dao.base.BaseService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -77,5 +79,57 @@ public class BusinessPartnerService extends BaseService<BusinessPartner, UUID> {
         BusinessPartner partner = businessPartnerRepository.findByBpn(bpn);
         Validate.isTrue(Objects.isNull(partner)).launch("No Business partner found with bpn: " + bpn);
         return partner.getEdcUrl();
+    }
+
+
+    @SneakyThrows
+    public List<Map> getChatHistory(){
+        String history = """
+                [
+                    {
+                        "receiver": "BPNL000000000001",
+                        "sender": "BPNL000000000TATA",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000TATA",
+                        "sender": "BPNL000000000001",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000001",
+                        "sender": "BPNL000000000TATA",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000TATA",
+                        "sender": "BPNL000000000001",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000001",
+                        "sender": "BPNL000000000TATA",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    },
+                    {
+                        "receiver": "BPNL000000000TATA",
+                        "sender": "BPNL000000000001",
+                        "content": "Hello! How can I help you?",
+                        "timestamp": 1700654400,
+                        "status": "sent"
+                    }
+                ]
+                """;
+        return mapper.readValue(history, List.class);
     }
 }
