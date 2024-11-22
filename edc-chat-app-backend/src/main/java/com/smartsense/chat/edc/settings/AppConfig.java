@@ -17,8 +17,14 @@ public record AppConfig(String bpn,
         if (!StringUtils.hasText(assetUrl)) {
             throw new RuntimeException("Please provide bpn with chat.assetUrl configurations.");
         }
-        if (!StringUtils.hasText(edc().assetId())) {
+        if (!StringUtils.hasText(edc().policyId())) {
             throw new RuntimeException("Please provide bpn with chat.edc.assetId configurations.");
+        }
+        if (!StringUtils.hasText(edc().assetId())) {
+            throw new RuntimeException("Please provide bpn with chat.edc.policyId configurations.");
+        }
+        if (!StringUtils.hasText(edc().contractDefinitionId())) {
+            throw new RuntimeException("Please provide bpn with chat.edc.contractDefinitionId configurations.");
         }
         if (!StringUtils.hasText(edc().edcUrl())) {
             throw new RuntimeException("Please provide bpn with chat.edc.edcUrl configurations.");

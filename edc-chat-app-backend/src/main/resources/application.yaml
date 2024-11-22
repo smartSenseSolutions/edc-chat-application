@@ -15,11 +15,14 @@ chat:
   edc:
     authCode: password
     assetId: edc-chat-app
+    policyId: edc-chat-policy
+    contractDefinitionId: edc-chat-contract
     edcUrl: http://localhost:9192
 
 spring:
   application:
     name: ${chat.name}
+    host:
   threads:
     virtual:
       enabled: true

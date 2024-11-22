@@ -24,12 +24,12 @@ public class ChatMessageService extends BaseService<ChatMessage, Long> {
         return chatMessageRepository;
     }
 
-    public ChatMessage createChat(ChatRequest chatMessage, boolean isOwner) {
+    public ChatMessage createChat(ChatRequest chatMessage, boolean isOwner, boolean success) {
         ChatMessage chat = ChatMessage.builder()
                 .message(chatMessage.message())
                 .partnerBpn(chatMessage.receiverBpn())
                 .selfOwner(isOwner)
-                .chatSuccess(false)
+                .chatSuccess(success)
                 .edcProcessState(null)
                 .build();
         return create(chat);
