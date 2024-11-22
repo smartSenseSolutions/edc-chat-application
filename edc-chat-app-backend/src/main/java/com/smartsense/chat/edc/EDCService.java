@@ -42,7 +42,7 @@ public class EDCService {
     public void initProcess(ChatRequest chatMessage) {
         String receiverBpnl = chatMessage.receiverBpn();
         EdcProcessState educByReceiverBpn = edcProcessStateService.getEdcByBpn(receiverBpnl);
-        ChatMessage chatResponse = chatMessageService.createChat(chatMessage, true);
+        ChatMessage chatResponse = chatMessageService.createChat(chatMessage, true, false);
         if (Objects.nonNull(educByReceiverBpn) && StringUtils.hasText(educByReceiverBpn.getTransferId())) {
             chatMessageService.updateChat(chatResponse, false, educByReceiverBpn);
             publicUrlHandlerService.getAuthCodeAndPublicUrl(educByReceiverBpn.getTransferId(), chatMessage, educByReceiverBpn);
@@ -104,7 +104,7 @@ public class EDCService {
 
     public void receiveMessage(ChatRequest message) {
         log.info("Received message: {}", message);
-        chatMessageService.createChat(message, false);
+        chatMessageService.createChat(message, false, true);
     }
 
     @SneakyThrows
