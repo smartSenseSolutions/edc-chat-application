@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.dao.entity.EdcProcessState;
 import com.smartsense.chat.edc.operation.AgreementFetcherService;
+import com.smartsense.chat.edc.operation.AssetCreationService;
+import com.smartsense.chat.edc.operation.ContractDefinitionService;
 import com.smartsense.chat.edc.operation.ContractNegotiationService;
+import com.smartsense.chat.edc.operation.PolicyCreationService;
 import com.smartsense.chat.edc.operation.PublicUrlHandlerService;
 import com.smartsense.chat.edc.operation.QueryCatalogService;
 import com.smartsense.chat.edc.operation.TransferProcessService;
@@ -15,6 +18,8 @@ import com.smartsense.chat.utils.request.ChatRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -36,7 +41,23 @@ public class EDCService {
     private final PublicUrlHandlerService publicUrlHandlerService;
     private final EdcProcessStateService edcProcessStateService;
     private final ChatMessageService chatMessageService;
+    private final AssetCreationService assetCreationService;
+    private final PolicyCreationService policyCreationService;
+    private final ContractDefinitionService contractDefinitionService;
+
     private final ObjectMapper mapper;
+
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void initializePreEdcProcess() {
+        if (assetCreationService.checkAssetPresent()) {
+            log.info("Asset already exists. Not required to create Asset, Policy and ContractDefinition...");
+            return;
+        }
+        assetCreationService.createAsset();
+        policyCreationService.createPolicy();
+        contractDefinitionService.createContractDefinition();
+    }
 
     @Async
     public void initProcess(ChatRequest chatMessage) {

@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
+import static com.smartsense.chat.web.ApiConstant.CHAT_HISTORY;
+import static com.smartsense.chat.web.ApiConstant.RECEIVE_CHAT;
+import static com.smartsense.chat.web.ApiConstant.SEND_CHAT;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -27,20 +30,20 @@ public class EDCChatResource {
 
 
     @EDCChatApiDocs.GetChatHistory
-    @GetMapping(value = "chat/history", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = CHAT_HISTORY, produces = APPLICATION_JSON_VALUE)
     public List<Map> getChatHistory(@RequestParam(name = "partnerBpn") String partnerBpn) {
         return edcService.getChatHistory(partnerBpn);
     }
 
     @EDCChatApiDocs.Chat
-    @PostMapping("/chat")
+    @PostMapping(SEND_CHAT)
     public Map<String, String> sentMessage(@RequestBody ChatRequest chatRequest) {
         edcService.initProcess(chatRequest);
         return Map.of("message", "Send message process has been started, please check the logs for more details.");
     }
 
     @EDCChatReceive
-    @PostMapping("/chat/receive")
+    @PostMapping(RECEIVE_CHAT)
     public Map<String, String> receiveMessage(@RequestBody ChatRequest message) {
         edcService.receiveMessage(message);
         return Map.of("message", "Message had been received successfully.");

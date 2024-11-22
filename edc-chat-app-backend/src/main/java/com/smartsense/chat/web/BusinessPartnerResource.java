@@ -9,16 +9,18 @@ import com.smartsense.chat.web.apidocs.BusinessPartnersApiDocs;
 import com.smartsense.chat.web.apidocs.BusinessPartnersApiDocs.CreateBusinessPartner;
 import com.smartsense.chat.web.apidocs.BusinessPartnersApiDocs.GetBusinessPartners;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static com.smartsense.chat.web.ApiConstant.CONFIG;
+import static com.smartsense.chat.web.ApiConstant.PARTNERS;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @Slf4j
@@ -30,19 +32,19 @@ public class BusinessPartnerResource {
     private final AppConfig config;
 
     @BusinessPartnersApiDocs.GetConfiguration
-    @GetMapping(value = "/config", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = CONFIG, produces = APPLICATION_JSON_VALUE)
     public AppConfig getConfig() {
         return config;
     }
 
     @CreateBusinessPartner
-    @PostMapping(value = "/partners", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(value = PARTNERS, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public BusinessPartnerResponse createBusinessPartner(@RequestBody BusinessPartnerRequest request) {
         return businessPartnerService.createBusinessPartner(request);
     }
 
     @GetBusinessPartners
-    @GetMapping(value = "/partners", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(value = PARTNERS, produces = APPLICATION_JSON_VALUE)
     public List<BpnResponse> getBusinessPartner() {
         return businessPartnerService.getAllBusinessPartners();
     }
