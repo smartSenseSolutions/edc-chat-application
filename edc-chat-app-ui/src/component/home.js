@@ -35,20 +35,27 @@ const Home = () => {
             const apiResponse = response.data;
             // Transform response into key-value pairs for dropdown
             const dropdownItems = apiResponse.map((item) => ({
-              label: `${item.name} - ${item.bpn}`,
-              value: item.bpn,
-            }))
+                label: `${item.name} - ${item.bpn}`,
+                value: item.bpn,
+            }));
             setDropdownData(dropdownItems);
         } catch (error) {
             console.error("Error fetching dropdown data:", error);
         }
     };
     const handleStartChat = () => {
-      console.log("selected BPN -"+selectedValue)
+        console.log("selected BPN -" + selectedValue);
         if (!bpn) {
             setError("BPN is not available. Please try again later.");
             return;
         }
+        if (!selectedValue) {
+            document.getElementById("dropdown").style.borderColor = "red";
+            setError("Please select business partner to start chat.");
+            return;
+        }
+        document.getElementById("dropdown").style.borderColor = "";
+
         navigate("/chat", { state: { bpn, selectedValue } });
     };
 
