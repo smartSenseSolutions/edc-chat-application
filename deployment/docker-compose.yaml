@@ -101,7 +101,7 @@ services:
       - vault
     volumes:
       - ./env/vault/prepopulate_vault.sh:/usr/local/bin/prepopulate_vault.sh
-    command: [ "sh", "-c", "/usr/local/bin/prepopulate_vault.sh" ]
+    command: ["sh", "-c", "/usr/local/bin/prepopulate_vault.sh"]
     networks:
       - edc-network
 
@@ -115,6 +115,23 @@ services:
       - STUB_URL=http://wallet-stub
     ports:
       - "80:80"
+    networks:
+      - edc-network
+    healthcheck:
+      test: curl --fail http://localhost/BPNL0000TRACTUSX/did.json || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
+  create-wallets:
+    image: alpine/curl
+    environment:
+      - BPN_LIST=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL000COFINITYX
+    depends_on:
+      - wallet-stub
+    volumes:
+      - ./env/wallet/create_wallets.sh:/usr/local/bin/create_wallets.sh
+    command: ["sh", "-c", "/usr/local/bin/create_wallets.sh"]
     networks:
       - edc-network
 
