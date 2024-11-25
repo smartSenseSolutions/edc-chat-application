@@ -155,7 +155,8 @@ public class EDCService {
                 sender,
                 message.getMessage(),
                 status,
-                message.getCreatedAt().getTime()
+                message.getCreatedAt().getTime(),
+                message.getEdcProcessState().getErrorDetail()
         );
     }
 

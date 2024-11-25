@@ -13,6 +13,8 @@ const Chat = () => {
     const [newMessage, setNewMessage] = useState(""); // Current message to send
     const [error, setError] = useState(null); // Error messages
 
+    const [errorPopup, setErrorPopup] = useState({ isVisible: false, errorMessage: "" });
+
     const { bpn: selfBpn, selectedValue: partnerBpn } = location.state || {};
 
     useEffect(() => {
@@ -32,6 +34,17 @@ const Chat = () => {
         //connect to WS for message transfer
         connectWs();
     }, [selfBpn]);
+
+    const handleMessageClick = (msg) => {
+        // Show popup only if there is a valid errorMessage
+        if (msg.status !== "SENT" && msg.errorMessage) {
+            setErrorPopup({ isVisible: true, errorMessage: msg.errorMessage });
+        }
+    };
+
+    const closePopup = () => {
+        setErrorPopup({ isVisible: false, errorMessage: "" });
+    };
 
     const connectWs = () => {
         const wsUrl = "wss://example.com/chat"; // Replace with your WebSocket URL
@@ -167,22 +180,62 @@ const Chat = () => {
                     // Determine if the message is sent by the current user
                     const isCurrentUser = msg.sender === selfBpn;
 
-                    // Format the timestamp (assumes `timestamp` is in seconds)
-                    const formattedTimestamp = new Date(msg.timestamp * 1000).toLocaleString();
+                    // Format the timestamp (assumes `timestamp` is in milliseconds)
+                    const formattedTimestamp = new Date(msg.timestamp).toLocaleString();
+
+                    // Determine status and its styling
+                    const status = msg.status;
+                    const showStatus = status && status !== "NONE";
+                    const statusColor = status === "SENT" ? "text-success" : "text-danger";
+                    const statusText = status === "SENT" ? "Sent" : "Failed";
 
                     return (
                         <div
                             key={index}
                             className={`d-flex ${isCurrentUser ? "justify-content-end" : "justify-content-start"} mb-2`}
                         >
-                            <div className={`p-2 rounded ${isCurrentUser ? "bg-light" : "bg-info text-white"}`}>
+                            <div
+                                className={`p-2 rounded ${isCurrentUser ? "bg-light" : "bg-info text-white"}`}
+                                onClick={() => handleMessageClick(msg)} // Add click handler
+                                style={{ cursor: status !== "SENT" && msg.errorMessage ? "pointer" : "default" }}
+                            >
                                 <strong>{isCurrentUser ? "You" : msg.sender}: </strong> {msg.content || msg.text}
                                 <div className="text-muted small">{formattedTimestamp}</div>
+                                {/* Conditionally render status */}
+                                {showStatus && <div className={`small ${statusColor}`}>{statusText}</div>}
                             </div>
                         </div>
                     );
                 })}
             </div>
+            {/* Error Popup */}
+            {errorPopup.isVisible && (
+                <div
+                    className="modal fade show d-block"
+                    style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+                    onClick={closePopup}
+                >
+                    <div
+                        className="modal-dialog modal-lg modal-dialog-centered"
+                        onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking inside
+                    >
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Error Message</h5>
+                                <button type="button" className="btn-close" onClick={closePopup}></button>
+                            </div>
+                            <div className="modal-body">
+                                <p>{errorPopup.errorMessage}</p>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-primary" onClick={closePopup}>
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {error && <div className="alert alert-danger">{error}</div>}
 
