@@ -19,7 +19,7 @@ const Chat = () => {
         //validate partner BPN is selected
         if (!selfBpn || !partnerBpn) {
             setError("BPN is missing. Redirecting to home...");
-            setTimeout(() => navigate("/"), 3000);
+            setTimeout(() => navigate("/"), 1000);
             return;
         } else {
             console.log("bpn -> " + selfBpn);

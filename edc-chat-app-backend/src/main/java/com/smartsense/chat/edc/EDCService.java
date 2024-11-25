@@ -3,6 +3,7 @@ package com.smartsense.chat.edc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.dao.entity.EdcProcessState;
+import com.smartsense.chat.dao.repository.ChatMessageRepository;
 import com.smartsense.chat.edc.operation.AgreementFetcherService;
 import com.smartsense.chat.edc.operation.AssetCreationService;
 import com.smartsense.chat.edc.operation.ContractDefinitionService;
@@ -11,10 +12,12 @@ import com.smartsense.chat.edc.operation.PolicyCreationService;
 import com.smartsense.chat.edc.operation.PublicUrlHandlerService;
 import com.smartsense.chat.edc.operation.QueryCatalogService;
 import com.smartsense.chat.edc.operation.TransferProcessService;
+import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.service.BusinessPartnerService;
 import com.smartsense.chat.service.ChatMessageService;
 import com.smartsense.chat.service.EdcProcessStateService;
 import com.smartsense.chat.utils.request.ChatRequest;
+import com.smartsense.chat.utils.response.ChatHistoryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -33,6 +35,7 @@ import java.util.Objects;
 @Slf4j
 public class EDCService {
 
+    private final ChatMessageRepository chatMessageRepository;
     private final BusinessPartnerService partnerService;
     private final QueryCatalogService queryCatalogService;
     private final ContractNegotiationService contractNegotiationService;
@@ -44,6 +47,7 @@ public class EDCService {
     private final AssetCreationService assetCreationService;
     private final PolicyCreationService policyCreationService;
     private final ContractDefinitionService contractDefinitionService;
+    private final AppConfig appConfig;
 
     private final ObjectMapper mapper;
 
@@ -62,18 +66,20 @@ public class EDCService {
     @Async
     public void initProcess(ChatRequest chatMessage) {
         String receiverBpnl = chatMessage.receiverBpn();
-        EdcProcessState educByReceiverBpn = edcProcessStateService.getEdcByBpn(receiverBpnl);
+        EdcProcessState edcProcessState = edcProcessStateService.getEdcByBpn(receiverBpnl);
         ChatMessage chatResponse = chatMessageService.createChat(chatMessage, true, false);
-        if (Objects.nonNull(educByReceiverBpn) && StringUtils.hasText(educByReceiverBpn.getTransferId())) {
-            chatMessageService.updateChat(chatResponse, false, educByReceiverBpn);
-            publicUrlHandlerService.getAuthCodeAndPublicUrl(educByReceiverBpn.getTransferId(), chatMessage, educByReceiverBpn);
+        if (Objects.nonNull(edcProcessState) && StringUtils.hasText(edcProcessState.getTransferId())) {
+            chatMessageService.updateChat(chatResponse, false, edcProcessState);
+            publicUrlHandlerService.getAuthCodeAndPublicUrl(edcProcessState.getTransferId(), chatMessage, edcProcessState);
             chatMessageService.updateChat(chatResponse, true, null);
             return;
         }
 
-        EdcProcessState edcProcessState = new EdcProcessState();
-        edcProcessState.setReceiverBpn(chatMessage.receiverBpn());
         String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
+        if (Objects.isNull(edcProcessState)) {
+            edcProcessState = new EdcProcessState();
+            edcProcessState.setReceiverBpn(receiverBpnl);
+        }
 
         // Query the catalog for chat asset
         String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, edcProcessState);
@@ -129,53 +135,85 @@ public class EDCService {
     }
 
     @SneakyThrows
-    public List<Map> getChatHistory(String partnerBpn) {
-        String history = """
-                [
-                    {
-                        "receiver": "BPNL000000000001",
-                        "sender": "BPNL000000000TATA",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000TATA",
-                        "sender": "BPNL000000000001",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000001",
-                        "sender": "BPNL000000000TATA",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000TATA",
-                        "sender": "BPNL000000000001",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000001",
-                        "sender": "BPNL000000000TATA",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    },
-                    {
-                        "receiver": "BPNL000000000TATA",
-                        "sender": "BPNL000000000001",
-                        "content": "Hello! How can I help you?",
-                        "timestamp": 1700654400,
-                        "status": "sent"
-                    }
-                ]
-                """;
-        return mapper.readValue(history, List.class);
+    public List<ChatHistoryResponse> getChatHistory(String partnerBpn) {
+        List<ChatMessage> chatMessages = chatMessageRepository.findByPartnerBpnAndChatSuccessTrue(partnerBpn);
+
+        return chatMessages.stream()
+                .map(this::mapToChatHistoryResponse)
+                .toList();
+    }
+
+    private ChatHistoryResponse mapToChatHistoryResponse(ChatMessage message) {
+        String sender = findSender(message);
+        String receiver = findReceiver(message);
+        String status = findStatus(message);
+
+        return new ChatHistoryResponse(
+                message.getId(),
+                receiver,
+                sender,
+                message.getMessage(),
+                status,
+                message.getCreatedAt().getTime()
+        );
+    }
+
+    private String findSender(ChatMessage message) {
+        return message.getSelfOwner() ? appConfig.bpn() : message.getPartnerBpn();
+    }
+
+    private String findReceiver(ChatMessage message) {
+        return message.getSelfOwner() ? message.getPartnerBpn() : appConfig.bpn();
+    }
+
+    private String findStatus(ChatMessage message) {
+        if (message.getEdcProcessState() != null) {
+            if (StringUtils.hasText(message.getEdcProcessState().getErrorDetail())) {
+                return message.getEdcProcessState().getErrorDetail();
+            }
+            return "sent";
+        }
+        return null;
+    }
+
+    public void createTestChat() {
+        EdcProcessState build = EdcProcessState.builder()
+                .agreementId("agreementId")
+                .errorDetail(null)
+                .receiverBpn("BPNL000000000012")
+                .offerId("offerId")
+                .negotiationId("negotiationId")
+                .transferId("transferId")
+                .build();
+        EdcProcessState edcProcessState = edcProcessStateService.create(build);
+        ChatMessage chatMessage = ChatMessage.builder()
+                .edcProcessState(edcProcessState)
+                .chatSuccess(true)
+                .message("Holoo")
+                .selfOwner(true)
+                .partnerBpn("BPNL000000000012")
+                .build();
+        ChatMessage save = chatMessageRepository.save(chatMessage);
+        log.info(save.toString());
+
+        ChatMessage chatMessage1 = ChatMessage.builder()
+                .edcProcessState(edcProcessState)
+                .chatSuccess(true)
+                .message("Holoo again")
+                .selfOwner(false)
+                .partnerBpn("BPNL000000000012")
+                .build();
+        ChatMessage save1 = chatMessageRepository.save(chatMessage1);
+        log.info(save1.toString());
+
+        ChatMessage chatMessage2 = ChatMessage.builder()
+                .edcProcessState(edcProcessState)
+                .chatSuccess(false)
+                .message("Holoo again")
+                .selfOwner(false)
+                .partnerBpn("BPNL000000000012")
+                .build();
+        ChatMessage save2 = chatMessageRepository.save(chatMessage2);
+        log.info(save2.toString());
     }
 }

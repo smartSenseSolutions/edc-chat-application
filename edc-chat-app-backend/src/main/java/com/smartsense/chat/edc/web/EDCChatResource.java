@@ -3,6 +3,7 @@ package com.smartsense.chat.edc.web;
 import com.smartsense.chat.edc.EDCService;
 import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.utils.request.ChatRequest;
+import com.smartsense.chat.utils.response.ChatHistoryResponse;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs.EDCChatReceive;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +32,7 @@ public class EDCChatResource {
 
     @EDCChatApiDocs.GetChatHistory
     @GetMapping(value = CHAT_HISTORY, produces = APPLICATION_JSON_VALUE)
-    public List<Map> getChatHistory(@RequestParam(name = "partnerBpn") String partnerBpn) {
+    public List<ChatHistoryResponse> getChatHistory(@RequestParam(name = "partnerBpn") String partnerBpn) {
         return edcService.getChatHistory(partnerBpn);
     }
 

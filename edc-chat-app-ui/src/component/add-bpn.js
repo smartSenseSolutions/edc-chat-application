@@ -65,7 +65,7 @@ const AddBpn = () => {
             );
             if (response.status === 200) {
                 setSuccess("Business partner added successfully!");
-                setTimeout(() => navigate("/"), 2000); // Redirect to Screen1 after success
+                setTimeout(() => navigate("/"), 1000); // Redirect to Screen1 after success
             } else {
                 setError("Failed to save business partner. Please try again.");
             }
