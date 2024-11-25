@@ -17,27 +17,14 @@ services:
       - edc-network
 
   senderControlplane:
-    image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.2
+    image: edc-chat-app:latest
+    pull_policy: never
     container_name: sender-controlplane
     ports:
       - "8191:8191"
       - "8192:8192"
       - "8194:8194"
       - "8195:8195"
-    volumes:
-      - ./env/smartsense/edc.properties:/app/configuration.properties
-    environment:
-      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
-    depends_on:
-      - postgres
-      - wallet-stub
-    networks:
-      - edc-network
-
-  senderDataplane:
-    image: tractusx/edc-dataplane-hashicorp-vault:0.7.2
-    container_name: sender-dataplane
-    ports:
       - "8196:8196"
     volumes:
       - ./env/smartsense/edc.properties:/app/configuration.properties
@@ -49,14 +36,31 @@ services:
     networks:
       - edc-network
 
+  #  senderDataplane:
+  #    image: tractusx/edc-dataplane-hashicorp-vault:0.7.2
+  #    container_name: sender-dataplane
+  #    ports:
+  #      - "8196:8196"
+  #    volumes:
+  #      - ./env/smartsense/edc.properties:/app/configuration.properties
+  #    environment:
+  #      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
+  #    depends_on:
+  #      - postgres
+  #      - wallet-stub
+  #    networks:
+  #      - edc-network
+
   receiverControlplane:
-    image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.2
+    image: edc-chat-app:latest
+    pull_policy: never
     container_name: receiver-controlplane
     ports:
       - "9191:9191"
       - "9192:9192"
       - "9194:9194"
       - "9195:9195"
+      - "9196:9196"
     volumes:
       - ./env/cofinityx/edc.properties:/app/configuration.properties
     environment:
@@ -67,20 +71,20 @@ services:
     networks:
       - edc-network
 
-  receiverDataplane:
-    image: tractusx/edc-dataplane-hashicorp-vault:0.7.2
-    container_name: receiver-dataplane
-    ports:
-      - "9196:8196"
-    volumes:
-      - ./env/cofinityx/edc.properties:/app/configuration.properties
-    environment:
-      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
-    depends_on:
-      - postgres
-      - wallet-stub
-    networks:
-      - edc-network
+  #  receiverDataplane:
+  #    image: tractusx/edc-dataplane-hashicorp-vault:0.7.2
+  #    container_name: receiver-dataplane
+  #    ports:
+  #      - "9196:8196"
+  #    volumes:
+  #      - ./env/cofinityx/edc.properties:/app/configuration.properties
+  #    environment:
+  #      - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
+  #    depends_on:
+  #      - postgres
+  #      - wallet-stub
+  #    networks:
+  #      - edc-network
 
   vault:
     container_name: vault
@@ -101,7 +105,7 @@ services:
       - vault
     volumes:
       - ./env/vault/prepopulate_vault.sh:/usr/local/bin/prepopulate_vault.sh
-    command: ["sh", "-c", "/usr/local/bin/prepopulate_vault.sh"]
+    command: [ "sh", "-c", "/usr/local/bin/prepopulate_vault.sh" ]
     networks:
       - edc-network
 
@@ -111,8 +115,8 @@ services:
     environment:
       - SERVER_PORT=80
       - BASE_WALLET_BPN=BPNL0000TRACTUSX
-      - DID_HOST=wallet-stub
-      - STUB_URL=http://wallet-stub
+      - DID_HOST=2t9tyqch1hw7.share.zrok.io
+      - STUB_URL=https://2t9tyqch1hw7.share.zrok.io
     ports:
       - "80:80"
     networks:
@@ -123,16 +127,17 @@ services:
       timeout: 30s
       retries: 3
       start_period: 30s
+
   create-wallets:
     image: alpine/curl
     environment:
-      - BPN_LIST=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL000COFINITYX
+      - BPN_LIST=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL000COFINITYX,BPNL000000000000,BPNL000000000001
     depends_on:
       wallet-stub:
         condition: service_healthy
     volumes:
       - ./env/wallet/create_wallets.sh:/usr/local/bin/create_wallets.sh
-    command: ["sh", "-x", "/usr/local/bin/create_wallets.sh"]
+    command: [ "sh", "-x", "/usr/local/bin/create_wallets.sh" ]
     networks:
       - edc-network
 
