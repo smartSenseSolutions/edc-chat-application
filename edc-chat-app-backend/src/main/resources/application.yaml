@@ -1,28 +1,28 @@
 server:
-  port: 8080
+  port: ${APP_PORT:8082}
 
 chat:
   name: EDC based chat application
-  bpn: BPNL000000000001
+  bpn: ${BPN:BPNL000000000000}
   assetUrl: http://localhost:9192
   datasource:
     host: localhost
     port: 5432
-    database: chat_app
+    database: ${CHAT_DB:chat_app}
     schema: public
     username: root
     password: root
   edc:
     authCode: password
-    assetId: edc-chat-app
-    policyId: edc-chat-policy
-    contractDefinitionId: edc-chat-contract
-    edcUrl: http://localhost:9192
+    assetId: ${ASSET_ID:edc-chat-app}
+    policyId: ${POLICY_ID:edc-chat-policy}
+    contractDefinitionId: ${CONTRACT_ID:edc-chat-contract}
+    edcUrl: ${EDC_URL:http://localhost:8192}
 
 spring:
   application:
     name: ${chat.name}
-    host:
+    host: ${APP_HOST_URL:http://localhost:8082}
   threads:
     virtual:
       enabled: true

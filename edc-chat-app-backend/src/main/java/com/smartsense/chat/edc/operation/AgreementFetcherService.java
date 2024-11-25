@@ -25,7 +25,7 @@ public class AgreementFetcherService {
             Map<String, Object> agreementResponse = null;
             String agreementId = null;
             do {
-                Thread.sleep(5_000);
+                Thread.sleep(10_000);
                 log.info("Fetching agreement for negotiationId {}", negotiationId);
                 agreementResponse = edc.getAgreement(config.edc().edcUri(),
                         negotiationId,
