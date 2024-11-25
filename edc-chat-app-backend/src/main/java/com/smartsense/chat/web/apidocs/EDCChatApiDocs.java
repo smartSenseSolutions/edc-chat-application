@@ -33,12 +33,12 @@ public class EDCChatApiDocs {
                                       }
                                     """)
                     })
-            })})
+            }) })
     public @interface EDCChatReceive {
     }
 
 
-    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Target({ ElementType.TYPE, ElementType.METHOD })
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(description = "Send Chat message to selected partner", summary = "Send Chat message to selected partner")
     @RequestBody(content = {
@@ -61,12 +61,12 @@ public class EDCChatApiDocs {
                                               "content": "Hello!",
                                               "timestamp": 1700654400
                                           }
-                                     """)
-                    })})})
+                                    """)
+                    }) }) })
     public @interface Chat {
     }
 
-    @Target({ElementType.TYPE, ElementType.METHOD})
+    @Target({ ElementType.TYPE, ElementType.METHOD })
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(description = "Get Chat history", summary = "Get Chat history")
     @ApiResponses(value = {
@@ -74,21 +74,25 @@ public class EDCChatApiDocs {
                     @Content(examples = {
                             @ExampleObject(name = "Get Chat history", value = """
                                     [
-                                         {
-                                             "receiver": "BPNL000000000001",
-                                             "sender": "BPNL000000000TATA",
-                                             "content": "Hello!",
-                                             "timestamp": 1700654400
-                                         },
-                                         {
-                                             "receiver": "BPNL000000000TATA",
-                                             "sender": "BPNL000000000001",
-                                             "content": "Hello! How can I help you?",
-                                             "timestamp": 1700654400
-                                         }
-                                     ]
+                                        {
+                                            "id": 1,
+                                            "receiver": "BPNL000000000012",
+                                            "sender": "BPNL000000000001",
+                                            "content": "Hello!",
+                                            "status": "sent",
+                                            "timestamp": 1732514671370
+                                        },
+                                        {
+                                            "id": 2,
+                                            "receiver": "BPNL000000000001",
+                                            "sender": "BPNL000000000012",
+                                            "content": "Hello! How can I help you?",
+                                            "status": "sent",
+                                            "timestamp": 1732514675065
+                                        }
+                                    ]
                                     """)
-                    })})})
+                    }) }) })
     public @interface GetChatHistory {
     }
 }
