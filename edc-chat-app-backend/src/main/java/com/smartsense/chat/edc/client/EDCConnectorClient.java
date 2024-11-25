@@ -23,7 +23,7 @@ public interface EDCConnectorClient {
                      @RequestHeader("X-Api-Key") String auth);
 
     @GetMapping(value = "/management/v3/assets/{assetId}", produces = APPLICATION_JSON_VALUE)
-    ResponseEntity<String> getAsset(URI baseUri,
+    ResponseEntity<Object> getAsset(URI baseUri,
                                     @PathVariable("assetId") String assetId,
                                     @RequestHeader("X-Api-Key") String auth);
 
