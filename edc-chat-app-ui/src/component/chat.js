@@ -20,43 +20,25 @@ const Chat = () => {
     const { bpn: selfBpn, selectedValue: partnerBpn } = location.state || {};
 
     useEffect(() => {
+
         //validate partner BPN is selected
         if (!selfBpn || !partnerBpn) {
             setError("BPN is missing. Redirecting to home...");
             setTimeout(() => navigate("/"), 1000);
             return;
         } else {
-            console.log("bpn -> " + selfBpn);
-            console.log("selected values ->" + partnerBpn);
+            // console.log("bpn -> " + selfBpn);
+            // console.log("selected values ->" + partnerBpn);
         }
 
         //get chat history
         getChatHistory();
 
         //connect to WS for message transfer
-        connectWs();
-    }, [selfBpn]);
-
-    const handleMessageClick = (msg) => {
-        // Show popup only if there is a valid errorMessage
-        if (msg.status !== "SENT" && msg.errorMessage) {
-            setErrorPopup({ isVisible: true, errorMessage: msg.errorMessage });
-        }
-    };
-
-    const closePopup = () => {
-        setErrorPopup({ isVisible: false, errorMessage: "" });
-    };
-
-    const connectWs = () => {
         const client = new Client({
+        
             webSocketFactory: () => new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}/ws-chat`), // Replace with your backend WebSocket endpoint
-            connectHeaders: {
-                userId: selfBpn, // Pass the current user's ID
-            },
-            debug: (message) => {
-                console.log("STOMP Debug:", message); // This logs debug messages to the console
-            },
+            
             onConnect: () => {
                 console.log("Connected to WebSocket");
                 setConnected(true);
@@ -64,10 +46,12 @@ const Chat = () => {
                 client.subscribe("/topic/messages", (msg) => {
                     const newMessage = JSON.parse(msg.body);
                     if(newMessage.receiver == partnerBpn){
+            
                         setMessages((prevMessages) => [
                             ...prevMessages,
                             { sender: newMessage.receiver, text: newMessage.content, timestamp: newMessage.timestamp },
                         ]);
+                        scrollToBottom()
                     }
 
                 });
@@ -86,7 +70,21 @@ const Chat = () => {
         return () => {
             client.deactivate(); // Cleanup on unmount
         };
+
+    }, [selfBpn]);
+
+
+    const handleMessageClick = (msg) => {
+        // Show popup only if there is a valid errorMessage
+        if (msg.status !== "SENT" && msg.errorMessage) {
+            setErrorPopup({ isVisible: true, errorMessage: msg.errorMessage });
+        }
     };
+
+    const closePopup = () => {
+        setErrorPopup({ isVisible: false, errorMessage: "" });
+    };
+
 
     const scrollToBottom = () => {
         // Scroll chat window to bottom
@@ -136,7 +134,7 @@ const Chat = () => {
                 },
             })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 if (response.status === 200) {
                     const message = {
                         timestamp: Math.floor(Date.now() / 1000), // Current time in seconds
