@@ -215,45 +215,4 @@ public class EDCService {
         }
         return MessageStatus.NONE;
     }
-
-    public void createTestChat() {
-        EdcProcessState build = EdcProcessState.builder()
-                .agreementId("agreementId")
-                .errorDetail(null)
-                .receiverBpn("BPNL000000000012")
-                .offerId("offerId")
-                .negotiationId("negotiationId")
-                .transferId("transferId")
-                .build();
-        EdcProcessState edcProcessState = edcProcessStateService.create(build);
-        ChatMessage chatMessage = ChatMessage.builder()
-                .edcProcessState(edcProcessState)
-                .chatSuccess(true)
-                .message("Holoo")
-                .selfOwner(true)
-                .partnerBpn("BPNL000000000012")
-                .build();
-        ChatMessage save = chatMessageRepository.save(chatMessage);
-        log.info(save.toString());
-
-        ChatMessage chatMessage1 = ChatMessage.builder()
-                .edcProcessState(edcProcessState)
-                .chatSuccess(true)
-                .message("Holoo again")
-                .selfOwner(false)
-                .partnerBpn("BPNL000000000012")
-                .build();
-        ChatMessage save1 = chatMessageRepository.save(chatMessage1);
-        log.info(save1.toString());
-
-        ChatMessage chatMessage2 = ChatMessage.builder()
-                .edcProcessState(edcProcessState)
-                .chatSuccess(false)
-                .message("Holoo again")
-                .selfOwner(false)
-                .partnerBpn("BPNL000000000012")
-                .build();
-        ChatMessage save2 = chatMessageRepository.save(chatMessage2);
-        log.info(save2.toString());
-    }
 }
