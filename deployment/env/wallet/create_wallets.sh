@@ -7,7 +7,7 @@ bpn_string=$BPN_LIST
 IFS=',' read -r -a bpns <<< "$bpn_string"
 
 # Base URL of the API
-base_url="http://localhost:8080"
+base_url="http://wallet-stub"
 
 # Loop through each BPN and call the API
 for bpn in "${bpns[@]}"; do
