@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Client } from "@stomp/stompjs";
 
 const Chat = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const webSocketRef = useRef(null);
+
     const chatContainerRef = useRef(null); // Ref to the chat container for scrolling
     const [chatHistory, setChatHistory] = useState([]);
-
+    const [connected, setConnected] = useState(false); // Connection status
+    const [stompClient, setStompClient] = useState(null); // Stomp client instance
     const [messages, setMessages] = useState([]); // Chat messages
     const [newMessage, setNewMessage] = useState(""); // Current message to send
     const [error, setError] = useState(null); // Error messages
@@ -47,30 +49,42 @@ const Chat = () => {
     };
 
     const connectWs = () => {
-        const wsUrl = "wss://example.com/chat"; // Replace with your WebSocket URL
+        const client = new Client({
+            webSocketFactory: () => new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}/ws-chat`), // Replace with your backend WebSocket endpoint
+            connectHeaders: {
+                userId: selfBpn, // Pass the current user's ID
+            },
+            debug: (message) => {
+                console.log("STOMP Debug:", message); // This logs debug messages to the console
+            },
+            onConnect: () => {
+                console.log("Connected to WebSocket");
+                setConnected(true);
+                
+                client.subscribe("/topic/messages", (msg) => {
+                    const newMessage = JSON.parse(msg.body);
+                    if(newMessage.receiver == partnerBpn){
+                        setMessages((prevMessages) => [
+                            ...prevMessages,
+                            { sender: newMessage.receiver, text: newMessage.content, timestamp: newMessage.timestamp },
+                        ]);
+                    }
 
-        // WebSocket connection with BPN in headers (via query string)
-        const socket = new WebSocket(`${wsUrl}?bpn=${selfBpn}&partnerBpn=${partnerBpn}`);
+                });
+            },
+            onStompError: (frame) => {
+                console.error("WebSocket error:", frame.headers["message"], frame.body);
+                setConnected(false);
+            },
+           
+        });
 
-        webSocketRef.current = socket;
-
-        // WebSocket event handlers
-        socket.onopen = () => console.log("WebSocket connected!");
-
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data); // Assuming JSON messages
-            setMessages((prevMessages) => [...prevMessages, { sender: data.sender, text: data.message }]);
-        };
-
-        socket.onerror = () => setError("WebSocket connection error");
-
-        socket.onclose = () => console.log("WebSocket closed");
+        client.activate(); // Connect to WebSocket
+        setStompClient(client);
 
         // Cleanup WebSocket on component unmount
         return () => {
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.close();
-            }
+            client.deactivate(); // Cleanup on unmount
         };
     };
 

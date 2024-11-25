@@ -70,9 +70,36 @@ public class EDCService {
         Validate.isFalse(StringUtils.hasText(receiverDspUrl)).launch("Business Partner not registered with BPN: " + receiverBpnl);
         EdcProcessState edcProcessState = edcProcessStateService.getEdcByBpn(receiverBpnl);
         ChatMessage chatResponse = chatMessageService.createChat(chatMessage, true, false);
-        if (Objects.nonNull(edcProcessState) && StringUtils.hasText(edcProcessState.getTransferId())) {
+        if (Objects.nonNull(edcProcessState) && StringUtils.hasText(edcProcessState.getNegotiationId())) {
             chatMessageService.updateChat(chatResponse, false, edcProcessState);
-            publicUrlHandlerService.getAuthCodeAndPublicUrl(edcProcessState.getTransferId(), chatMessage, edcProcessState);
+
+
+            String negotiationId = contractNegotiationService.initNegotiation(receiverDspUrl, receiverBpnl, edcProcessState.getOfferId(), edcProcessState);
+            if (!StringUtils.hasText(negotiationId)) {
+                log.error("Not able to initiate the negotiation for EDC {} and offerId {}, please check manually.", receiverDspUrl, edcProcessState.getOfferId());
+                return;
+            }
+            //edcProcessState = setAndSaveEdcState("NegotiationId", negotiationId, edcProcessState);
+
+            // Get agreement Id based on the negotiationId
+            String agreementId = agreementService.getAgreement(negotiationId, edcProcessState);
+            if (!StringUtils.hasText(agreementId)) {
+                log.error("Not able to get the agreement for offerId {} and negotiationId {}, please check manually.", edcProcessState.getOfferId(),
+                        edcProcessState.getNegotiationId());
+                return;
+            }
+            //edcProcessState = setAndSaveEdcState("AgreementId", agreementId, edcProcessState);
+
+
+            String transferProcessId = transferProcessService.initiateTransfer(agreementId, edcProcessState);
+            if (!StringUtils.hasText(transferProcessId)) {
+                log.error("Not able to get the agreement for transferProcessId {}, please check manually.", transferProcessId);
+                return;
+            }
+            //edcProcessState = setAndSaveEdcState("TransferId", transferProcessId, edcProcessState);
+
+            ChatRequest recieverMsg = new ChatRequest(appConfig.bpn(), chatMessage.message());
+            publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, recieverMsg, edcProcessState);
             chatMessageService.updateChat(chatResponse, true, null);
             return;
         }
@@ -116,8 +143,10 @@ public class EDCService {
         edcProcessState = setAndSaveEdcState("TransferId", transferProcessId, edcProcessState);
 
         // Sent the message to public url
-        publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, chatMessage, edcProcessState);
-        chatMessageService.updateChat(chatResponse, true, edcProcessState);
+
+        ChatRequest recieverMsg = new ChatRequest(appConfig.bpn(), chatMessage.message());
+        publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, recieverMsg, edcProcessState);
+        chatMessageService.updateChat(chatResponse, true, null);
     }
 
     private EdcProcessState setAndSaveEdcState(String fieldName, String value, EdcProcessState edcProcessState) {
@@ -131,14 +160,14 @@ public class EDCService {
         return edcProcessStateService.create(edcProcessState);
     }
 
-    public void receiveMessage(ChatRequest message) {
+    public ChatMessage receiveMessage(ChatRequest message) {
         log.info("Received message: {}", message);
-        chatMessageService.createChat(message, false, true);
+        return chatMessageService.createChat(message, false, true);
     }
 
     @SneakyThrows
     public List<ChatHistoryResponse> getChatHistory(String partnerBpn) {
-        List<ChatMessage> chatMessages = chatMessageRepository.findByPartnerBpn(partnerBpn);
+        List<ChatMessage> chatMessages = chatMessageRepository.findByPartnerBpnOrderByIdAsc(partnerBpn);
         return chatMessages.stream()
                 .map(this::mapToChatHistoryResponse)
                 .toList();
@@ -156,8 +185,8 @@ public class EDCService {
                 message.getMessage(),
                 status,
                 message.getCreatedAt().getTime(),
-                message.getEdcProcessState().getErrorDetail()
-        );
+                message.getEdcProcessState() != null ? message.getEdcProcessState().getErrorDetail() : null);
+
     }
 
     private String findSender(ChatMessage message) {
