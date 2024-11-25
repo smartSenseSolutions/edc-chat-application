@@ -30,9 +30,9 @@ There will be some operator company(trusted issuer) which will host following co
 ![EDC Chat app.jpg](docs/images/EDC_Chat_app.jpg)
 
 ## Run in local IDE
+    To be added my Mittal
 
-
-## Local Deployment
+## Local Deployment using docker compose
 
 Please refer [README.md](deployment/README.md)
 
