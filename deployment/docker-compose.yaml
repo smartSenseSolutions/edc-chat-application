@@ -128,7 +128,8 @@ services:
     environment:
       - BPN_LIST=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL000COFINITYX
     depends_on:
-      - wallet-stub
+      wallet-stub:
+        condition: service_healthy
     volumes:
       - ./env/wallet/create_wallets.sh:/usr/local/bin/create_wallets.sh
     command: ["sh", "-x", "/usr/local/bin/create_wallets.sh"]
