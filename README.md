@@ -8,18 +8,20 @@ This definition is part of [Third Eclipse Tractus-X Community Days](https://ecli
 - Java - Spring boot
 - ReactJs
 - WebSocket
-- [EDC](https://github.com/eclipse-tractusx/tractusx-edc)
-- [SSI Dim Wallet stub](https://github.com/eclipse-tractusx/ssi-dim-wallet-stub)
-- Docker and Docker compose for local deployment
+- [EDC - 0.7.2](https://github.com/eclipse-tractusx/tractusx-edc)
+- [SSI Dim Wallet stub - 0.0.3](https://github.com/eclipse-tractusx/ssi-dim-wallet-stub)
+- Hashicorp Vault
+- Docker and Docker compose for local deployment using docker compose
 
 ## High level architecture
 
 We have multiple participants in Eclipse Tractus-x dataspace, let's assume We have two business partner and they want to chat/transfer messages. Both partners need to have following application installed:
 
-1. EDC
+1. EDC 
 2. Backend application, this will connect UI application with EDC and used for custom data management 
 3. UI application
 4. PostgreSQL Database
+5. Hashicorp Vault
 
 There will be some operator company(trusted issuer) which will host following components:
 
