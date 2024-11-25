@@ -131,7 +131,7 @@ services:
       - wallet-stub
     volumes:
       - ./env/wallet/create_wallets.sh:/usr/local/bin/create_wallets.sh
-    command: ["sh", "-c", "/usr/local/bin/create_wallets.sh"]
+    command: ["sh", "-x", "/usr/local/bin/create_wallets.sh"]
     networks:
       - edc-network
 

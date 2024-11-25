@@ -1,16 +1,19 @@
 #!/bin/bash
 
-# Comma-separated string of BPNs
-bpn_string=$BPN_LIST
+# Check if BPN_LIST is set
+if [[ -z "$BPN_LIST" ]]; then
+  echo "Error: BPN_LIST environment variable is not set."
+  exit 1
+fi
 
-# Convert the string into an array
-IFS=',' read -r -a bpns <<< "$bpn_string"
+# Comma-separated string of BPNs
+bpn_string="$BPN_LIST"
 
 # Base URL of the API
 base_url="http://wallet-stub"
 
-# Loop through each BPN and call the API
-for bpn in "${bpns[@]}"; do
+# Convert the string into space-separated values and loop through them
+for bpn in $(echo "$bpn_string" | tr ',' ' '); do
   echo "Calling API for ${bpn}..."
   response=$(curl -s "${base_url}/${bpn}/did.json")
   echo "Response for ${bpn}:"
