@@ -10,7 +10,6 @@ import java.util.List;
 @Repository
 public interface ChatMessageRepository extends BaseRepository<ChatMessage, Long> {
 
-    @Query("select c from ChatMessage c where c.partnerBpn = ?1 and c.chatSuccess = true")
-    List<ChatMessage> findByPartnerBpnAndChatSuccessTrue(String partnerBpn);
+    List<ChatMessage> findByPartnerBpn(String partnerBpn);
     
 }

@@ -138,7 +138,7 @@ public class EDCService {
 
     @SneakyThrows
     public List<ChatHistoryResponse> getChatHistory(String partnerBpn) {
-        List<ChatMessage> chatMessages = chatMessageRepository.findByPartnerBpnAndChatSuccessTrue(partnerBpn);
+        List<ChatMessage> chatMessages = chatMessageRepository.findByPartnerBpn(partnerBpn);
         return chatMessages.stream()
                 .map(this::mapToChatHistoryResponse)
                 .toList();
