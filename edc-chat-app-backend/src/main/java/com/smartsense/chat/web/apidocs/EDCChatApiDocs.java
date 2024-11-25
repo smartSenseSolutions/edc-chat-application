@@ -79,7 +79,7 @@ public class EDCChatApiDocs {
                                             "receiver": "BPNL000000000012",
                                             "sender": "BPNL000000000001",
                                             "content": "Hello!",
-                                            "status": "sent",
+                                            "status": "SENT",
                                             "timestamp": 1732514671370
                                         },
                                         {
@@ -87,7 +87,7 @@ public class EDCChatApiDocs {
                                             "receiver": "BPNL000000000001",
                                             "sender": "BPNL000000000012",
                                             "content": "Hello! How can I help you?",
-                                            "status": "sent",
+                                            "status": "SENT",
                                             "timestamp": 1732514675065
                                         }
                                     ]

@@ -18,11 +18,11 @@ import com.smartsense.chat.service.ChatMessageService;
 import com.smartsense.chat.service.EdcProcessStateService;
 import com.smartsense.chat.utils.request.ChatRequest;
 import com.smartsense.chat.utils.response.ChatHistoryResponse;
+import com.smartsense.chat.utils.response.MessageStatus;
+import com.smartsense.chat.utils.validate.Validate;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -52,7 +52,7 @@ public class EDCService {
     private final ObjectMapper mapper;
 
 
-    @EventListener(ApplicationReadyEvent.class)
+    // @EventListener(ApplicationReadyEvent.class)
     public void initializePreEdcProcess() {
         if (assetCreationService.checkAssetPresent()) {
             log.info("Asset already exists. Not required to create Asset, Policy and ContractDefinition...");
@@ -66,6 +66,8 @@ public class EDCService {
     @Async
     public void initProcess(ChatRequest chatMessage) {
         String receiverBpnl = chatMessage.receiverBpn();
+        String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
+        Validate.isFalse(StringUtils.hasText(receiverDspUrl)).launch("Business Partner not registered with BPN: " + receiverBpnl);
         EdcProcessState edcProcessState = edcProcessStateService.getEdcByBpn(receiverBpnl);
         ChatMessage chatResponse = chatMessageService.createChat(chatMessage, true, false);
         if (Objects.nonNull(edcProcessState) && StringUtils.hasText(edcProcessState.getTransferId())) {
@@ -75,7 +77,6 @@ public class EDCService {
             return;
         }
 
-        String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
         if (Objects.isNull(edcProcessState)) {
             edcProcessState = new EdcProcessState();
             edcProcessState.setReceiverBpn(receiverBpnl);
@@ -137,7 +138,6 @@ public class EDCService {
     @SneakyThrows
     public List<ChatHistoryResponse> getChatHistory(String partnerBpn) {
         List<ChatMessage> chatMessages = chatMessageRepository.findByPartnerBpnAndChatSuccessTrue(partnerBpn);
-
         return chatMessages.stream()
                 .map(this::mapToChatHistoryResponse)
                 .toList();
@@ -146,7 +146,7 @@ public class EDCService {
     private ChatHistoryResponse mapToChatHistoryResponse(ChatMessage message) {
         String sender = findSender(message);
         String receiver = findReceiver(message);
-        String status = findStatus(message);
+        MessageStatus status = findStatus(message);
 
         return new ChatHistoryResponse(
                 message.getId(),
@@ -166,14 +166,23 @@ public class EDCService {
         return message.getSelfOwner() ? message.getPartnerBpn() : appConfig.bpn();
     }
 
-    private String findStatus(ChatMessage message) {
+    private MessageStatus findStatus(ChatMessage message) {
         if (message.getEdcProcessState() != null) {
-            if (StringUtils.hasText(message.getEdcProcessState().getErrorDetail())) {
-                return message.getEdcProcessState().getErrorDetail();
+            if (!StringUtils.hasText(message.getEdcProcessState().getOfferId())) {
+                return MessageStatus.QUERY_CATALOG_FAILED; //"QueryCatalogFailed";
             }
-            return "sent";
+            if (!StringUtils.hasText(message.getEdcProcessState().getNegotiationId())) {
+                return MessageStatus.NEGOTIATION_FAILED; //"NegotiationFailed";
+            }
+            if (!StringUtils.hasText(message.getEdcProcessState().getAgreementId())) {
+                return MessageStatus.AGREEMENT_FAILED; //"AgreementFailed";
+            }
+            if (!StringUtils.hasText(message.getEdcProcessState().getTransferId())) {
+                return MessageStatus.TRANSFER_PROCESS_FAILED; //"TransferProcessFailed";
+            }
+            return MessageStatus.SENT; //"sent";
         }
-        return null;
+        return MessageStatus.NONE;
     }
 
     public void createTestChat() {
