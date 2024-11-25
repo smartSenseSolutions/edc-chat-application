@@ -2,6 +2,7 @@ package com.smartsense.chat.edc.operation;
 
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +48,14 @@ public class AssetCreationService {
     }
 
     public boolean checkAssetPresent() {
-        ResponseEntity<String> response = edc.getAsset(config.edc().edcUri(), config.edc().assetId(), config.edc().authCode());
-        return response.getStatusCode().is2xxSuccessful();
+        boolean success = false;
+        try {
+            ResponseEntity<Object> response = edc.getAsset(config.edc().edcUri(), config.edc().assetId(), config.edc().authCode());
+            success = response.getStatusCode().is2xxSuccessful();
+        } catch (FeignException e) {
+            log.info("Feign  ERROR :{}", e.getMessage());
+        }
+        return success;
+
     }
 }
