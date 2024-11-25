@@ -85,6 +85,7 @@ public class EDCService {
         // Query the catalog for chat asset
         String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, edcProcessState);
         if (!StringUtils.hasText(offerId)) {
+            chatMessageService.updateChat(chatResponse, false, edcProcessState);
             log.error("Not able to retrieve the offerId from EDC {}, please check manually.", receiverDspUrl);
             return;
         }
@@ -116,7 +117,7 @@ public class EDCService {
 
         // Sent the message to public url
         publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, chatMessage, edcProcessState);
-        chatMessageService.updateChat(chatResponse, true, null);
+        chatMessageService.updateChat(chatResponse, true, edcProcessState);
     }
 
     private EdcProcessState setAndSaveEdcState(String fieldName, String value, EdcProcessState edcProcessState) {
