@@ -1,9 +1,9 @@
 package com.smartsense.chat.edc.operation;
 
-import com.smartsense.chat.dao.entity.EdcProcessState;
+import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
-import com.smartsense.chat.service.EdcProcessStateService;
+import com.smartsense.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,9 +20,9 @@ public class AgreementFetcherService {
 
     private final EDCConnectorClient edc;
     private final AppConfig config;
-    private final EdcProcessStateService edcProcessStateService;
+    private final ChatMessageService chatMessageService;
 
-    public String getAgreement(String negotiationId, EdcProcessState edcProcessState) {
+    public String getAgreement(String negotiationId, ChatMessage chatMessage) {
         try {
             int count = 1;
             Map<String, Object> agreementResponse;
@@ -44,8 +44,8 @@ public class AgreementFetcherService {
             } while (!agreementResponse.get(AGREEMENT_STATE).equals(AGREEMENT_STATE_FINALIZED) && count <= config.edc().agreementRetryLimit());
             return agreementId;
         } catch (Exception ex) {
-            edcProcessState.setErrorDetail(String.format("Error occurred while getting agreement information for negotiationId %s and exception is %s", negotiationId, ex.getMessage()));
-            edcProcessStateService.create(edcProcessState);
+            chatMessage.setErrorDetail(String.format("Error occurred while getting agreement information for negotiationId %s and exception is %s", negotiationId, ex.getMessage()));
+            chatMessageService.create(chatMessage);
             log.error("Error occurred while getting agreement information for negotiationId {}", negotiationId, ex);
             return null;
         }

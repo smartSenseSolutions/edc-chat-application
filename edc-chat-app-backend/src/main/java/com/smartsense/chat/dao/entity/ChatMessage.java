@@ -35,8 +35,8 @@ public class ChatMessage implements BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "edc_process_state_id")
-    private EdcProcessState edcProcessState;
+    @JoinColumn(name = "edc_offer_details_id")
+    private EdcOfferDetails edcOfferDetails;
 
     @Column(name = "partner_bpn")
     private String partnerBpn;
@@ -49,6 +49,18 @@ public class ChatMessage implements BaseEntity {
 
     @Column(name = "is_chat_success")
     private boolean chatSuccess;
+
+    @Column(name = "negotiation_id")
+    private String negotiationId;
+
+    @Column(name = "agreement_id")
+    private String agreementId;
+
+    @Column(name = "transfer_id")
+    private String transferId;
+
+    @Column(name = "error_detail")
+    private String errorDetail;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false, nullable = false)

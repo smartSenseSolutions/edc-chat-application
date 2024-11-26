@@ -1,10 +1,10 @@
 package com.smartsense.chat.edc.operation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.smartsense.chat.dao.entity.EdcProcessState;
+import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
-import com.smartsense.chat.service.EdcProcessStateService;
+import com.smartsense.chat.service.ChatMessageService;
 import com.smartsense.chat.utils.request.ChatRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +18,12 @@ import java.util.Map;
 @Slf4j
 public class PublicUrlHandlerService {
 
-    private final EdcProcessStateService edcProcessStateService;
+    private final ChatMessageService chatMessageService;
     private final EDCConnectorClient edc;
     private final ObjectMapper mapper;
     private final AppConfig config;
 
-    public void getAuthCodeAndPublicUrl(String transferProcessId, ChatRequest message, EdcProcessState edcProcessState) {
+    public void getAuthCodeAndPublicUrl(String transferProcessId, ChatRequest message, ChatMessage chatMessage) {
         try {
             log.info("Initiate to get auth code based on transfer process id {}", transferProcessId);
             Map<String, Object> response = edc.getAuthCodeAndPublicUrl(config.edc().edcUri(), transferProcessId, config.edc().authCode());
@@ -38,8 +38,8 @@ public class PublicUrlHandlerService {
 
             log.info("Initiate to get auth code based on transfer process id {} is done.", transferProcessId);
         } catch (Exception ex) {
-            edcProcessState.setErrorDetail(String.format("Error occurred in get auth code based on transfer process id %s and exception: %s", transferProcessId, ex.getMessage()));
-            edcProcessStateService.create(edcProcessState);
+            chatMessage.setErrorDetail(String.format("Error occurred in get auth code based on transfer process id %s and exception: %s", transferProcessId, ex.getMessage()));
+            chatMessageService.create(chatMessage);
             log.error("Error occurred in get auth code based on transfer process id {} ", transferProcessId, ex);
         }
     }

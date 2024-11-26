@@ -6,6 +6,7 @@ public enum MessageStatus {
     AGREEMENT_FAILED,
     TRANSFER_PROCESS_FAILED,
     SENT,
+    CALL_PUBLIC_URL_PROCESS_FAILED,
     NONE
 }
 

@@ -11,4 +11,5 @@ public interface ChatMessageRepository extends BaseRepository<ChatMessage, Long>
 
     List<ChatMessage> findByPartnerBpnOrderByIdAsc(String partnerBpn);
 
+    ChatMessage findByPartnerBpn(String partnerBpn);
 }

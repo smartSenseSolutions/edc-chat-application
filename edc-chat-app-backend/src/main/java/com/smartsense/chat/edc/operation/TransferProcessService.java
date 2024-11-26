@@ -1,9 +1,9 @@
 package com.smartsense.chat.edc.operation;
 
-import com.smartsense.chat.dao.entity.EdcProcessState;
+import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
-import com.smartsense.chat.service.EdcProcessStateService;
+import com.smartsense.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,9 +21,9 @@ public class TransferProcessService {
 
     private final EDCConnectorClient edc;
     private final AppConfig config;
-    private final EdcProcessStateService edcProcessStateService;
+    private final ChatMessageService chatMessageService;
 
-    public String initiateTransfer(String agreementId, EdcProcessState edcProcessState) {
+    public String initiateTransfer(String agreementId, ChatMessage chatMessage) {
         try {
             log.info("Initiate transfer process for agreement Id {}", agreementId);
 
@@ -41,8 +41,8 @@ public class TransferProcessService {
             log.info("Transfer process is complete successfully for agreement Id {}", agreementId);
             return transferProcessId;
         } catch (Exception ex) {
-            edcProcessState.setErrorDetail(String.format("Error occurred in transfer process for agreement Id %s and Exception is %s", agreementId, ex.getMessage()));
-            edcProcessStateService.create(edcProcessState);
+            chatMessage.setErrorDetail(String.format("Error occurred in transfer process for agreement Id %s and Exception is %s", agreementId, ex.getMessage()));
+            chatMessageService.create(chatMessage);
             log.error("Error occurred in transfer process for agreement Id {}", agreementId, ex);
             return null;
         }
