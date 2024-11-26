@@ -32,47 +32,13 @@ There will be some operator company(trusted issuer) which will host following co
 ![EDC Chat app.jpg](docs/images/EDC_Chat_app.jpg)
 
 ## Run in local IDE
-### Backend Application
+### How to Start the Backend Application [edc-chat-app-backend]
 
-#### How to Start the Backend Application [edc-chat-app-backend]
-1. **Build the Project**
-   Open the project terminal and run:
-   ```bash
-   ./gradlew clean build
-2. **Run the Backend Application**
-  - Set following env variable:
-##### Environment Variables
+Please refer [README.md](edc-chat-app-backend/README.md)
 
-| **Env Name**                     | **Description**                                                 |
-|-----------------------------------|-----------------------------------------------------------------|
-| `CHAT_DATASOURCE_HOST`            | Database host                                                  |
-| `CHAT_DATASOURCE_PORT`            | Database port                                                  |
-| `CHAT_DATASOURCE_DATABASE`        | Database name (create if it does not exist)                    |
-| `CHAT_DATASOURCE_USERNAME`        | Database username                                              |
-| `CHAT_DATASOURCE_PASSWORD`        | Database password                                              |
-| `CHAT_EDC_AUTHCODE`               | EDC AuthCode                                                   |
-| `CHAT_EDC_ASSETID`                | Asset ID to configure for communication                        |
-| `CHAT_EDC_POLICYID`               | Asset Policy ID                                                |
-| `CHAT_EDC_CONTRACTDEFINITIONID`   | Asset Contract Definition ID                                   |
-| `CHAT_EDC_URL`                    | EDC Base Management URL                                        |
+### How to Start the Chat-App UI [edc-chat-app-ui]
 
- - Run the application
-   Run the application by executing the following command::
-   ```bash
-   ./gradlew bootRun
-
-### UI Application
-#### How to Start the Chat-App UI [edc-chat-app-ui]
-
-1. **Install Dependencies**
-   Before starting the application, install the required dependencies. Run the following command in the project directory:
-   ```bash
-   npm install
-
-2. **Run UI Application**
-   After installing the dependencies, start the application using:
-   ```bash
-   npm start
+Please refer [README.md](edc-chat-app-ui/README.md)
 
 ## Local Deployment using docker compose
 
