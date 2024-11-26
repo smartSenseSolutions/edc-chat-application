@@ -10,6 +10,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.smartsense.chat.edc.constant.EdcConstant.ACTION;
+import static com.smartsense.chat.edc.constant.EdcConstant.CONTEXT;
+import static com.smartsense.chat.edc.constant.EdcConstant.DCT;
+import static com.smartsense.chat.edc.constant.EdcConstant.DCT_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC_NS_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.ODRL_JSONLD_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.PERMISSION;
+import static com.smartsense.chat.edc.constant.EdcConstant.TRACTUS_POLICY_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.TYPE;
+import static com.smartsense.chat.edc.constant.EdcConstant.USE;
+import static com.smartsense.chat.edc.constant.EdcConstant.VOCAB;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -26,11 +39,11 @@ public class PolicyCreationService {
 
     private Map<String, Object> cretePolicyRequest() {
         Map<String, Object> policyCreation = new HashMap<>();
-        policyCreation.put("@context", List.of("https://w3id.org/tractusx/policy/v1.0.0", "http://www.w3.org/ns/odrl.jsonld",
-                Map.of("@vocab", "https://w3id.org/edc/v0.0.1/ns/", "dct", "https://purl.org/dc/terms/")));
-        policyCreation.put("@type", "PolicyDefinitionRequestDto");
-        policyCreation.put("@id", config.edc().policyId());
-        policyCreation.put("policy", Map.of("@type", "Set", "permission", List.of(Map.of("action", "use"))));
+        policyCreation.put(CONTEXT, List.of(TRACTUS_POLICY_URL, ODRL_JSONLD_URL,
+                Map.of(VOCAB, EDC_NS_URL, DCT, DCT_URL)));
+        policyCreation.put(TYPE, "PolicyDefinitionRequestDto");
+        policyCreation.put(ID, config.edc().policyId());
+        policyCreation.put("policy", Map.of(TYPE, "Set", PERMISSION, List.of(Map.of(ACTION, USE))));
         return policyCreation;
     }
 }

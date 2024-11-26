@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static com.smartsense.chat.utils.constant.ContField.AGREEMENT_STATE;
-import static com.smartsense.chat.utils.constant.ContField.AGREEMENT_STATE_FINALIZED;
+import static com.smartsense.chat.edc.constant.EdcConstant.AGREEMENT_STATE;
+import static com.smartsense.chat.edc.constant.EdcConstant.AGREEMENT_STATE_FINALIZED;
 
 @Service
 @RequiredArgsConstructor

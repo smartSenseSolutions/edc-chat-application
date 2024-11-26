@@ -1,7 +1,7 @@
 package com.smartsense.chat.edc.web;
 
 import com.smartsense.chat.dao.entity.ChatMessage;
-import com.smartsense.chat.edc.EDCService;
+import com.smartsense.chat.edc.service.EDCService;
 import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.utils.request.ChatRequest;
 import com.smartsense.chat.utils.response.ChatHistoryResponse;

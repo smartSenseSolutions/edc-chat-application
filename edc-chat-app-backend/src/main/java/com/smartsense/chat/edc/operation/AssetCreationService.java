@@ -12,6 +12,15 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.smartsense.chat.edc.constant.EdcConstant.CONTEXT;
+import static com.smartsense.chat.edc.constant.EdcConstant.DCT;
+import static com.smartsense.chat.edc.constant.EdcConstant.DCT_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC_NS_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.S_TRUE;
+import static com.smartsense.chat.edc.constant.EdcConstant.S_TYPE;
+import static com.smartsense.chat.edc.constant.EdcConstant.TYPE;
 import static com.smartsense.chat.web.ApiConstant.RECEIVE_CHAT;
 
 @Service
@@ -34,16 +43,16 @@ public class AssetCreationService {
     private Map<String, Object> prepareAssetCreationRequest() {
         String baseUrl = host.concat(RECEIVE_CHAT);
         Map<String, Object> assetCreation = new HashMap<>();
-        assetCreation.put("@context", Map.of("edc", "https://w3id.org/edc/v0.0.1/ns/",
+        assetCreation.put(CONTEXT, Map.of(EDC, EDC_NS_URL,
                 "cx-common", "https://w3id.org/catenax/ontology/common#",
                 "cx-taxo", "https://w3id.org/catenax/taxonomy#",
-                "dct", "https://purl.org/dc/terms/"));
-        assetCreation.put("@id", config.edc().assetId());
-        assetCreation.put("properties", Map.of("type", Map.of("@id", "Asset")));
-        assetCreation.put("dataAddress", Map.of("@type", "DataAddress", "type", "HttpData",
-                "baseUrl", baseUrl, "proxyQueryParams", "true", "proxyPath", "true",
-                "proxyMethod", "true", "proxyBody", "true", "method", "POST"));
-        log.info("Create Asset Creation request looks like: {}", assetCreation);
+                DCT, DCT_URL));
+        assetCreation.put(ID, config.edc().assetId());
+        assetCreation.put("properties", Map.of(S_TYPE, Map.of(ID, "Asset")));
+        assetCreation.put("dataAddress", Map.of(TYPE, "DataAddress", S_TYPE, "HttpData",
+                "baseUrl", baseUrl, "proxyQueryParams", S_TRUE, "proxyPath", S_TRUE,
+                "proxyMethod", S_TRUE, "proxyBody", S_TRUE, "method", "POST"));
+        log.trace("Create Asset Creation request looks like: {}", assetCreation);
         return assetCreation;
     }
 

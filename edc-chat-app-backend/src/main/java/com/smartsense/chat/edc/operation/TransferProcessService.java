@@ -12,7 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.smartsense.chat.utils.constant.ContField.TRANSFER_PROCESS_ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.CONTEXT;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC_NS_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.EQUAL;
+import static com.smartsense.chat.edc.constant.EdcConstant.FILTER_EXPRESSION;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERAND_LEFT;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERAND_RIGHT;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERATOR;
+import static com.smartsense.chat.edc.constant.EdcConstant.TYPE;
+import static com.smartsense.chat.edc.constant.EdcConstant.VOCAB;
 
 @Service
 @RequiredArgsConstructor
@@ -25,20 +33,16 @@ public class TransferProcessService {
 
     public String initiateTransfer(String agreementId, ChatMessage chatMessage) {
         try {
-            log.info("Initiate transfer process for agreement Id {}", agreementId);
-
-            // prepare transfer request
+            log.info("Transfer process initiate for agreementId {}", agreementId);
             Map<String, Object> transferRequest = prepareTransferRequest(agreementId);
             // initiate the transfer process
             Thread.sleep(7_000);
             List<Map<String, Object>> transferResponse = edc.initTransferProcess(config.edc().edcUri(), transferRequest, config.edc().authCode());
-            log.info("Received transfer response -> {}", transferResponse);
+            log.trace("Received transfer response -> {}", transferResponse);
 
             // get the transfer process id from response
-            String transferProcessId = transferResponse.getFirst().get(TRANSFER_PROCESS_ID).toString();
-            log.info("Transfer process id: {}", transferProcessId);
-
-            log.info("Transfer process is complete successfully for agreement Id {}", agreementId);
+            String transferProcessId = transferResponse.getFirst().get("transferProcessId").toString();
+            log.info("Transfer process is complete for agreementId {} and transferId {} ", agreementId, transferProcessId);
             return transferProcessId;
         } catch (Exception ex) {
             chatMessage.setErrorDetail(String.format("Error occurred in transfer process for agreement Id %s and Exception is %s", agreementId, ex.getMessage()));
@@ -50,14 +54,14 @@ public class TransferProcessService {
 
     private Map<String, Object> prepareTransferRequest(String agreementId) {
         Map<String, Object> transferRequest = new HashMap<>();
-        transferRequest.put("@context", Map.of("@vocab", "https://w3id.org/edc/v0.0.1/ns/"));
-        transferRequest.put("@type", "QuerySpec");
+        transferRequest.put(CONTEXT, Map.of(VOCAB, EDC_NS_URL));
+        transferRequest.put(TYPE, "QuerySpec");
         transferRequest.put("offset", 0);
         transferRequest.put("limit", 1);
-        transferRequest.put("filterExpression", List.of(Map.of("operandLeft", "agreementId",
-                "operator", "=",
-                "operandRight", agreementId)));
-        log.info("Transfer request looks like: {}", transferRequest);
+        transferRequest.put(FILTER_EXPRESSION, List.of(Map.of(OPERAND_LEFT, "agreementId",
+                OPERATOR, EQUAL,
+                OPERAND_RIGHT, agreementId)));
+        log.trace("Transfer request looks like: {}", transferRequest);
         return transferRequest;
     }
 }

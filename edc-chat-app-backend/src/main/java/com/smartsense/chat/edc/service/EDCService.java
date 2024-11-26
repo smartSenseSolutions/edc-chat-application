@@ -1,4 +1,4 @@
-package com.smartsense.chat.edc;
+package com.smartsense.chat.edc.service;
 
 import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.dao.entity.EdcOfferDetails;
@@ -30,6 +30,10 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
+
+import static com.smartsense.chat.edc.constant.EdcConstant.AGREEMENT_ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.NEGOTIATION_ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.TRANSFER_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -96,7 +100,7 @@ public class EDCService {
             log.error("Not able to initiate the negotiation for EDC {} and offerId {}, please check manually.", receiverDspUrl, offerId);
             return;
         }
-        chatMessageService.setAndSaveEdcState("NegotiationId", negotiationId, chatMessage);
+        chatMessageService.setAndSaveEdcState(NEGOTIATION_ID, negotiationId, chatMessage);
 
         // Get agreement Id based on the negotiationId
         String agreementId = agreementService.getAgreement(negotiationId, chatMessage);
@@ -104,7 +108,7 @@ public class EDCService {
             log.error("Not able to get the agreement for offerId {} and negotiationId {}, please check manually.", offerId, negotiationId);
             return;
         }
-        chatMessageService.setAndSaveEdcState("AgreementId", agreementId, chatMessage);
+        chatMessageService.setAndSaveEdcState(AGREEMENT_ID, agreementId, chatMessage);
 
         // Initiate the transfer process
         String transferProcessId = transferProcessService.initiateTransfer(agreementId, chatMessage);
@@ -112,7 +116,7 @@ public class EDCService {
             log.error("Not able to get the agreement for transferProcessId {}, please check manually.", transferProcessId);
             return;
         }
-        chatMessageService.setAndSaveEdcState("TransferId", transferProcessId, chatMessage);
+        chatMessageService.setAndSaveEdcState(TRANSFER_ID, transferProcessId, chatMessage);
 
         // Sent the message to public url
         ChatRequest receiverMsg = new ChatRequest(appConfig.bpn(), chatRequest.message());
@@ -123,7 +127,7 @@ public class EDCService {
     }
 
     public ChatMessage receiveMessage(ChatRequest message) {
-        log.info("Received message: {}", message);
+        log.trace("Received message: {}", message);
         return chatMessageService.createChat(message, false, true, null);
     }
 
@@ -138,9 +142,8 @@ public class EDCService {
     private ChatHistoryResponse mapToChatHistoryResponse(ChatMessage message) {
         String sender = findSender(message);
         String receiver = findReceiver(message);
-        MessageStatus status= Boolean.FALSE.equals(message.getSelfOwner()) ? MessageStatus.RECEIVED : MessageStatus.SENT;
-
-        if(Boolean.TRUE.equals(message.getSelfOwner()) && !message.isChatSuccess()){
+        MessageStatus status = Boolean.FALSE.equals(message.getSelfOwner()) ? MessageStatus.RECEIVED : MessageStatus.SENT;
+        if (Boolean.TRUE.equals(message.getSelfOwner()) && !message.isChatSuccess()) {
             status = findStatus(message);
         }
 

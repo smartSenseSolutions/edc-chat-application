@@ -25,9 +25,9 @@ public class PublicUrlHandlerService {
 
     public void getAuthCodeAndPublicUrl(String transferProcessId, ChatRequest message, ChatMessage chatMessage) {
         try {
-            log.info("Initiate to get auth code based on transfer process id {}", transferProcessId);
+            log.info("Get Auth Code process initiate for transfer process id {}", transferProcessId);
             Map<String, Object> response = edc.getAuthCodeAndPublicUrl(config.edc().edcUri(), transferProcessId, config.edc().authCode());
-            log.info("Auth code and public url response -> {}", response);
+            log.trace("Auth code and public url response -> {}", response);
 
             // Retrieve public path and authorization code
             String publicPath = response.get("tx-auth:refreshEndpoint").toString();
@@ -36,7 +36,7 @@ public class PublicUrlHandlerService {
             // Call the public path with authorization code
             callPublicUri(publicPath, mapper.writeValueAsString(message), authorization);
 
-            log.info("Initiate to get auth code based on transfer process id {} is done.", transferProcessId);
+            log.info("Get Auth Code process is completed for transferProcessId {} ", transferProcessId);
         } catch (Exception ex) {
             chatMessage.setErrorDetail(String.format("Error occurred in get auth code based on transfer process id %s and exception: %s", transferProcessId, ex.getMessage()));
             chatMessageService.create(chatMessage);
@@ -47,7 +47,7 @@ public class PublicUrlHandlerService {
     private void callPublicUri(String publicPath, String message, String authorization) {
         try {
             Map<String, Object> publicUriResponse = edc.sendMessage(URI.create(publicPath), message, authorization);
-            log.info("Received public uri response -> {}", publicUriResponse);
+            log.trace("Received public uri response -> {}", publicUriResponse);
         } catch (Exception ex) {
             log.error("Error occurred while calling public uri {} and auth code {} ", publicPath, authorization, ex);
         }

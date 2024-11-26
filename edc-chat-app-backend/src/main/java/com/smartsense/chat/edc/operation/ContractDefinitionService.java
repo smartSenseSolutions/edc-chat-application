@@ -9,6 +9,16 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.smartsense.chat.edc.constant.EdcConstant.CONTEXT;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC_NS_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.EQUAL;
+import static com.smartsense.chat.edc.constant.EdcConstant.ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERAND_LEFT;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERAND_RIGHT;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERATOR;
+import static com.smartsense.chat.edc.constant.EdcConstant.TYPE;
+import static com.smartsense.chat.edc.constant.EdcConstant.VOCAB;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -25,13 +35,13 @@ public class ContractDefinitionService {
 
     private Map<String, Object> createContractDefinitionRequest() {
         Map<String, Object> request = new HashMap<>();
-        request.put("@context", Map.of("@vocab", "https://w3id.org/edc/v0.0.1/ns/"));
-        request.put("@type", "ContractDefinition");
-        request.put("@id", config.edc().contractDefinitionId());
+        request.put(CONTEXT, Map.of(VOCAB, EDC_NS_URL));
+        request.put(TYPE, "ContractDefinition");
+        request.put(ID, config.edc().contractDefinitionId());
         request.put("accessPolicyId", config.edc().policyId());
         request.put("contractPolicyId", config.edc().policyId());
-        request.put("assetsSelector", Map.of("operandLeft", "https://w3id.org/edc/v0.0.1/ns/id", "operator", "=",
-                "operandRight", config.edc().assetId()));
+        request.put("assetsSelector", Map.of(OPERAND_LEFT, "https://w3id.org/edc/v0.0.1/ns/id", OPERATOR, EQUAL,
+                OPERAND_RIGHT, config.edc().assetId()));
         return request;
     }
 }

@@ -11,6 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import static com.smartsense.chat.edc.constant.EdcConstant.AGREEMENT_ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.NEGOTIATION_ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.TRANSFER_ID;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -44,9 +48,9 @@ public class ChatMessageService extends BaseService<ChatMessage, Long> {
     @Async
     public void setAndSaveEdcState(String fieldName, String value, ChatMessage chatMessage) {
         switch (fieldName) {
-            case "NegotiationId" -> chatMessage.setNegotiationId(value);
-            case "AgreementId" -> chatMessage.setAgreementId(value);
-            case "TransferId" -> chatMessage.setTransferId(value);
+            case NEGOTIATION_ID -> chatMessage.setNegotiationId(value);
+            case AGREEMENT_ID -> chatMessage.setAgreementId(value);
+            case TRANSFER_ID -> chatMessage.setTransferId(value);
             default -> throw new IllegalArgumentException("Unsupported field name: " + fieldName);
         }
         create(chatMessage);

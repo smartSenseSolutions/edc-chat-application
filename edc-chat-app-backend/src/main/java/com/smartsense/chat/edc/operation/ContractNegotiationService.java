@@ -13,6 +13,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.smartsense.chat.edc.constant.EdcConstant.ACTION;
+import static com.smartsense.chat.edc.constant.EdcConstant.CONTEXT;
+import static com.smartsense.chat.edc.constant.EdcConstant.DATASPACE_PROTOCOL;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC_NS_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.ODRL_JSONLD_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.PERMISSION;
+import static com.smartsense.chat.edc.constant.EdcConstant.TRACTUS_POLICY_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.TYPE;
+import static com.smartsense.chat.edc.constant.EdcConstant.USE;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -23,20 +35,19 @@ public class ContractNegotiationService {
 
     private static List<Object> prepareNegotiationContext() {
         List<Object> context = new ArrayList<>();
-        context.add("https://w3id.org/tractusx/policy/v1.0.0");
-        context.add("http://www.w3.org/ns/odrl.jsonld");
-        context.add(Map.of("edc", "https://w3id.org/edc/v0.0.1/ns/"));
+        context.add(TRACTUS_POLICY_URL);
+        context.add(ODRL_JSONLD_URL);
+        context.add(Map.of(EDC, EDC_NS_URL));
         return context;
     }
 
     public String initNegotiation(String receiverDspUrl, String receiverBpnL, String offerId, ChatMessage chatMessage) {
         try {
-            log.info("Starting negotiation process with bpnl {}, dspUrl {} and offerId {}", receiverBpnL, receiverDspUrl, offerId);
             Map<String, Object> negotiationRequest = prepareNegotiationRequest(receiverDspUrl, receiverBpnL, offerId);
-            log.info("Negotiation initiated for offerId {}", offerId);
+            log.info("Negotiation process is initiated for offerId {}", offerId);
             Map<String, Object> negotiationResponse = edc.initNegotiation(config.edc().edcUri(), negotiationRequest, config.edc().authCode());
-            String negotiationId = negotiationResponse.get("@id").toString();
-            log.info("Contract negotiation process done for offerId {} with negotiationId {}", offerId, negotiationId);
+            String negotiationId = negotiationResponse.get(ID).toString();
+            log.info("Negotiation process is Competed for offerId {} with negotiationId {}", offerId, negotiationId);
             return negotiationId;
         } catch (Exception ex) {
             chatMessage.setErrorDetail(String.format("Error occurred while negotiating the contract offer %s with dspUrl %s and bpnl %s and Exception is %s.", offerId, receiverDspUrl, receiverBpnL, ex.getMessage()));
@@ -48,10 +59,10 @@ public class ContractNegotiationService {
 
     private Map<String, Object> prepareNegotiationRequest(String receiverDspUrl, String receiverBpnL, String offerId) {
         Map<String, Object> negotiationRequest = new HashMap<>();
-        negotiationRequest.put("@context", prepareNegotiationContext());
-        negotiationRequest.put("@type", "ContractRequest");
+        negotiationRequest.put(CONTEXT, prepareNegotiationContext());
+        negotiationRequest.put(TYPE, "ContractRequest");
         negotiationRequest.put("edc:counterPartyAddress", receiverDspUrl);
-        negotiationRequest.put("edc:protocol", "dataspace-protocol-http");
+        negotiationRequest.put("edc:protocol", DATASPACE_PROTOCOL);
         negotiationRequest.put("edc:counterPartyId", receiverBpnL);
         negotiationRequest.put("edc:policy", prepareNegotiationPolicy(receiverBpnL, offerId));
         log.info("Negotiation request looks like: {}", negotiationRequest);
@@ -60,9 +71,9 @@ public class ContractNegotiationService {
 
     private Map<String, Object> prepareNegotiationPolicy(String receiverBpnL, String offerId) {
         Map<String, Object> negotiationPolicy = new HashMap<>();
-        negotiationPolicy.put("@id", offerId);
-        negotiationPolicy.put("@type", "Offer");
-        negotiationPolicy.put("permission", List.of(Map.of("action", "use")));
+        negotiationPolicy.put(ID, offerId);
+        negotiationPolicy.put(TYPE, "Offer");
+        negotiationPolicy.put(PERMISSION, List.of(Map.of(ACTION, USE)));
         negotiationPolicy.put("target", config.edc().assetId());
         negotiationPolicy.put("assigner", receiverBpnL);
         return negotiationPolicy;

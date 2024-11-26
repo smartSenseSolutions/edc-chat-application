@@ -13,6 +13,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.smartsense.chat.edc.constant.EdcConstant.CONTEXT;
+import static com.smartsense.chat.edc.constant.EdcConstant.COUNTER_PARTY_ADDRESS;
+import static com.smartsense.chat.edc.constant.EdcConstant.COUNTER_PARTY_ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.DATASPACE_PROTOCOL;
+import static com.smartsense.chat.edc.constant.EdcConstant.DCT;
+import static com.smartsense.chat.edc.constant.EdcConstant.DCT_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC;
+import static com.smartsense.chat.edc.constant.EdcConstant.EDC_NS_URL;
+import static com.smartsense.chat.edc.constant.EdcConstant.EQUAL;
+import static com.smartsense.chat.edc.constant.EdcConstant.FILTER_EXPRESSION;
+import static com.smartsense.chat.edc.constant.EdcConstant.ID;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERAND_LEFT;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERAND_RIGHT;
+import static com.smartsense.chat.edc.constant.EdcConstant.OPERATOR;
+import static com.smartsense.chat.edc.constant.EdcConstant.PROTOCOL;
+import static com.smartsense.chat.edc.constant.EdcConstant.TYPE;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -34,7 +51,7 @@ public class QueryCatalogService {
             }
             String offerId = dataSet
                     .getJSONObject("odrl:hasPolicy")
-                    .getString("@id");
+                    .getString(ID);
             log.info("Received offerId {}.", offerId);
             return offerId;
         } catch (Exception ex) {
@@ -47,14 +64,14 @@ public class QueryCatalogService {
 
     private Map<String, Object> prepareQueryCatalog(String counterPartyAddress, String counterPartyId, String assetId) {
         Map<String, Object> queryCatalog = new HashMap<>();
-        queryCatalog.put("@context", Map.of("edc", "https://w3id.org/edc/v0.0.1/ns/", "odrl", "http://www.w3.org/ns/odrl/2/", "dct", "https://purl.org/dc/terms/"));
-        queryCatalog.put("@type", "edc:CatalogRequest");
-        queryCatalog.put("counterPartyAddress", counterPartyAddress);
-        queryCatalog.put("counterPartyId", counterPartyId);
-        queryCatalog.put("protocol", "dataspace-protocol-http");
-        queryCatalog.put("querySpec", Map.of("filterExpression", List.of(Map.of("operandLeft", "https://w3id.org/edc/v0.0.1/ns/id",
-                "operator", "=",
-                "operandRight", assetId))));
+        queryCatalog.put(CONTEXT, Map.of(EDC, EDC_NS_URL, "odrl", "http://www.w3.org/ns/odrl/2/", DCT, DCT_URL));
+        queryCatalog.put(TYPE, "edc:CatalogRequest");
+        queryCatalog.put(COUNTER_PARTY_ADDRESS, counterPartyAddress);
+        queryCatalog.put(COUNTER_PARTY_ID, counterPartyId);
+        queryCatalog.put(PROTOCOL, DATASPACE_PROTOCOL);
+        queryCatalog.put("querySpec", Map.of(FILTER_EXPRESSION, List.of(Map.of(OPERAND_LEFT, "https://w3id.org/edc/v0.0.1/ns/id",
+                OPERATOR, EQUAL,
+                OPERAND_RIGHT, assetId))));
         log.info("Create Query Catalog request looks like: {}", queryCatalog);
         return queryCatalog;
     }
