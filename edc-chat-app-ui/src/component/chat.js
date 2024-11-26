@@ -198,8 +198,8 @@ const Chat = () => {
                     // Determine status and its styling
                     const status = msg.status;
                     const showStatus = status && status !== "NONE";
-                    const statusColor = status === "SENT" ? "text-success" : "text-danger";
-                    const statusText = status === "SENT" ? "Sent" : "Failed";
+                    const statusColor = status === "SENT" || "RECEIVED" ? "text-success"  : "text-danger";
+                    const statusText = status === "SENT" ? "Sent" : status ===  "RECEIVED"? "Received" : "Failed";
 
                     return (
                         <div

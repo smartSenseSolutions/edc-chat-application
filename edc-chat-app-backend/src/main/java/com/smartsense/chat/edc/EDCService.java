@@ -138,7 +138,12 @@ public class EDCService {
     private ChatHistoryResponse mapToChatHistoryResponse(ChatMessage message) {
         String sender = findSender(message);
         String receiver = findReceiver(message);
-        MessageStatus status = findStatus(message);
+        MessageStatus status= Boolean.FALSE.equals(message.getSelfOwner()) ? MessageStatus.RECEIVED : MessageStatus.SENT;
+
+        if(Boolean.TRUE.equals(message.getSelfOwner()) && !message.isChatSuccess()){
+            status = findStatus(message);
+        }
+
         return new ChatHistoryResponse(
                 message.getId(),
                 receiver,
