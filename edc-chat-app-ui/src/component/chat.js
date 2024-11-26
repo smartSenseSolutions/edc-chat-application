@@ -20,7 +20,6 @@ const Chat = () => {
     const { bpn: selfBpn, selectedValue: partnerBpn } = location.state || {};
 
     useEffect(() => {
-
         //validate partner BPN is selected
         if (!selfBpn || !partnerBpn) {
             setError("BPN is missing. Redirecting to home...");
@@ -36,31 +35,27 @@ const Chat = () => {
 
         //connect to WS for message transfer
         const client = new Client({
-        
             webSocketFactory: () => new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}/ws-chat`), // Replace with your backend WebSocket endpoint
-            
+
             onConnect: () => {
                 console.log("Connected to WebSocket");
                 setConnected(true);
-                
+
                 client.subscribe("/topic/messages", (msg) => {
                     const newMessage = JSON.parse(msg.body);
-                    if(newMessage.receiver == partnerBpn){
-            
+                    if (newMessage.receiver == partnerBpn) {
                         setMessages((prevMessages) => [
                             ...prevMessages,
                             { sender: newMessage.receiver, text: newMessage.content, timestamp: newMessage.timestamp },
                         ]);
-                        scrollToBottom()
+                        scrollToBottom();
                     }
-
                 });
             },
             onStompError: (frame) => {
                 console.error("WebSocket error:", frame.headers["message"], frame.body);
                 setConnected(false);
             },
-           
         });
 
         client.activate(); // Connect to WebSocket
@@ -70,9 +65,7 @@ const Chat = () => {
         return () => {
             client.deactivate(); // Cleanup on unmount
         };
-
     }, [selfBpn]);
-
 
     const handleMessageClick = (msg) => {
         // Show popup only if there is a valid errorMessage
@@ -84,7 +77,6 @@ const Chat = () => {
     const closePopup = () => {
         setErrorPopup({ isVisible: false, errorMessage: "" });
     };
-
 
     const scrollToBottom = () => {
         // Scroll chat window to bottom
@@ -198,9 +190,10 @@ const Chat = () => {
                     // Determine status and its styling
                     const status = msg.status;
                     const showStatus = status && status !== "NONE";
-                    const statusColor = status === "SENT" || "RECEIVED" ? "text-success"  : "text-danger";
-                    const statusText = status === "SENT" ? "Sent" : status ===  "RECEIVED"? "Received" : "Failed";
+                    const statusColor = status === "SENT" || status === "RECEIVED" ? "text-success" : "text-danger";
+                    const statusText = status === "SENT" ? "Sent" : status === "RECEIVED" ? "Received" : "Failed";
 
+                    debugger;
                     return (
                         <div
                             key={index}
