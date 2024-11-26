@@ -1,6 +1,5 @@
 package com.smartsense.chat.edc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.dao.entity.EdcProcessState;
 import com.smartsense.chat.dao.repository.ChatMessageRepository;
@@ -23,12 +22,17 @@ import com.smartsense.chat.utils.validate.Validate;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
+
+import static com.smartsense.chat.utils.constant.ContField.AGREEMENT_ID;
+import static com.smartsense.chat.utils.constant.ContField.NEGOTIATION_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +53,7 @@ public class EDCService {
     private final ContractDefinitionService contractDefinitionService;
     private final AppConfig appConfig;
 
-    private final ObjectMapper mapper;
-
-
-    // @EventListener(ApplicationReadyEvent.class)
+    @EventListener(ApplicationReadyEvent.class)
     public void initializePreEdcProcess() {
         if (assetCreationService.checkAssetPresent()) {
             log.info("Asset already exists. Not required to create Asset, Policy and ContractDefinition...");
@@ -70,16 +71,15 @@ public class EDCService {
         Validate.isFalse(StringUtils.hasText(receiverDspUrl)).launch("Business Partner not registered with BPN: " + receiverBpnl);
         EdcProcessState edcProcessState = edcProcessStateService.getEdcByBpn(receiverBpnl);
         ChatMessage chatResponse = chatMessageService.createChat(chatMessage, true, false);
-        if (Objects.nonNull(edcProcessState) && StringUtils.hasText(edcProcessState.getNegotiationId())) {
+        if (Objects.nonNull(edcProcessState) && StringUtils.hasText(edcProcessState.getOfferId())) {
             chatMessageService.updateChat(chatResponse, false, edcProcessState);
-
 
             String negotiationId = contractNegotiationService.initNegotiation(receiverDspUrl, receiverBpnl, edcProcessState.getOfferId(), edcProcessState);
             if (!StringUtils.hasText(negotiationId)) {
                 log.error("Not able to initiate the negotiation for EDC {} and offerId {}, please check manually.", receiverDspUrl, edcProcessState.getOfferId());
                 return;
             }
-            //edcProcessState = setAndSaveEdcState("NegotiationId", negotiationId, edcProcessState);
+            edcProcessState = setAndSaveEdcState(NEGOTIATION_ID, negotiationId, edcProcessState);
 
             // Get agreement Id based on the negotiationId
             String agreementId = agreementService.getAgreement(negotiationId, edcProcessState);
@@ -88,15 +88,15 @@ public class EDCService {
                         edcProcessState.getNegotiationId());
                 return;
             }
-            //edcProcessState = setAndSaveEdcState("AgreementId", agreementId, edcProcessState);
+            edcProcessState = setAndSaveEdcState(AGREEMENT_ID, agreementId, edcProcessState);
 
-
+            //  String agreementId = edcProcessState.getAgreementId();
             String transferProcessId = transferProcessService.initiateTransfer(agreementId, edcProcessState);
             if (!StringUtils.hasText(transferProcessId)) {
                 log.error("Not able to get the agreement for transferProcessId {}, please check manually.", transferProcessId);
                 return;
             }
-            //edcProcessState = setAndSaveEdcState("TransferId", transferProcessId, edcProcessState);
+            edcProcessState = setAndSaveEdcState("TransferId", transferProcessId, edcProcessState);
 
             ChatRequest recieverMsg = new ChatRequest(appConfig.bpn(), chatMessage.message());
             publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, recieverMsg, edcProcessState);
@@ -144,8 +144,8 @@ public class EDCService {
 
         // Sent the message to public url
 
-        ChatRequest recieverMsg = new ChatRequest(appConfig.bpn(), chatMessage.message());
-        publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, recieverMsg, edcProcessState);
+        ChatRequest receiverMsg = new ChatRequest(appConfig.bpn(), chatMessage.message());
+        publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, receiverMsg, edcProcessState);
         chatMessageService.updateChat(chatResponse, true, null);
     }
 

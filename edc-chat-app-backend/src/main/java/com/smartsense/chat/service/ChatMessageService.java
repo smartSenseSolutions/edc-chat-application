@@ -8,6 +8,7 @@ import com.smartsensesolutions.commons.dao.base.BaseRepository;
 import com.smartsensesolutions.commons.dao.base.BaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -35,6 +36,7 @@ public class ChatMessageService extends BaseService<ChatMessage, Long> {
         return create(chat);
     }
 
+    @Async
     public void updateChat(ChatMessage chatMessage, boolean isChatSuccess, EdcProcessState edcState) {
         chatMessage.setChatSuccess(isChatSuccess);
         if (Objects.nonNull(edcState)) {

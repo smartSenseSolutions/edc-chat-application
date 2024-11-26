@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.smartsense.chat.utils.constant.ContField.TRANSFER_PROCESS_ID;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,12 +30,12 @@ public class TransferProcessService {
             // prepare transfer request
             Map<String, Object> transferRequest = prepareTransferRequest(agreementId);
             // initiate the transfer process
-            Thread.sleep(5_000);
+            Thread.sleep(7_000);
             List<Map<String, Object>> transferResponse = edc.initTransferProcess(config.edc().edcUri(), transferRequest, config.edc().authCode());
             log.info("Received transfer response -> {}", transferResponse);
 
             // get the transfer process id from response
-            String transferProcessId = transferResponse.getFirst().get("transferProcessId").toString();
+            String transferProcessId = transferResponse.getFirst().get(TRANSFER_PROCESS_ID).toString();
             log.info("Transfer process id: {}", transferProcessId);
 
             log.info("Transfer process is complete successfully for agreement Id {}", agreementId);

@@ -10,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+import static com.smartsense.chat.utils.constant.ContField.AGREEMENT_STATE;
+import static com.smartsense.chat.utils.constant.ContField.AGREEMENT_STATE_FINALIZED;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -22,23 +25,23 @@ public class AgreementFetcherService {
     public String getAgreement(String negotiationId, EdcProcessState edcProcessState) {
         try {
             int count = 1;
-            Map<String, Object> agreementResponse = null;
+            Map<String, Object> agreementResponse;
             String agreementId = null;
             do {
-                Thread.sleep(10_000);
+                Thread.sleep(Long.parseLong(config.edc().agreementWaitTime()));
                 log.info("Fetching agreement for negotiationId {}", negotiationId);
                 agreementResponse = edc.getAgreement(config.edc().edcUri(),
                         negotiationId,
                         config.edc().authCode());
                 log.info("AgreementResponse: {}", agreementResponse);
-                if (!agreementResponse.get("state").toString().equals("FINALIZED")) {
+                if (!agreementResponse.get(AGREEMENT_STATE).toString().equals(AGREEMENT_STATE_FINALIZED)) {
                     count++;
                     continue;
                 }
                 agreementId = agreementResponse.get("contractAgreementId").toString();
                 log.info("Negotiation {} is successfully done and agreementId is {}", negotiationId, agreementId);
                 log.info("Fetching agreement for negotiationId {} is completed successfully.", negotiationId);
-            } while (!agreementResponse.get("state").equals("FINALIZED") && count <= 3);
+            } while (!agreementResponse.get(AGREEMENT_STATE).equals(AGREEMENT_STATE_FINALIZED) && count <= config.edc().agreementRetryLimit());
             return agreementId;
         } catch (Exception ex) {
             edcProcessState.setErrorDetail(String.format("Error occurred while getting agreement information for negotiationId %s and exception is %s", negotiationId, ex.getMessage()));
