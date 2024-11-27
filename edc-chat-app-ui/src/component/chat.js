@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Client } from "@stomp/stompjs";
 
 const Chat = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const webSocketRef = useRef(null);
+
     const chatContainerRef = useRef(null); // Ref to the chat container for scrolling
     const [chatHistory, setChatHistory] = useState([]);
-
+    const [connected, setConnected] = useState(false); // Connection status
+    const [stompClient, setStompClient] = useState(null); // Stomp client instance
     const [messages, setMessages] = useState([]); // Chat messages
     const [newMessage, setNewMessage] = useState(""); // Current message to send
     const [error, setError] = useState(null); // Error messages
@@ -24,15 +26,45 @@ const Chat = () => {
             setTimeout(() => navigate("/"), 1000);
             return;
         } else {
-            console.log("bpn -> " + selfBpn);
-            console.log("selected values ->" + partnerBpn);
+            // console.log("bpn -> " + selfBpn);
+            // console.log("selected values ->" + partnerBpn);
         }
 
         //get chat history
         getChatHistory();
 
         //connect to WS for message transfer
-        connectWs();
+        const client = new Client({
+            webSocketFactory: () => new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}/ws-chat`), // Replace with your backend WebSocket endpoint
+
+            onConnect: () => {
+                console.log("Connected to WebSocket");
+                setConnected(true);
+
+                client.subscribe("/topic/messages", (msg) => {
+                    const newMessage = JSON.parse(msg.body);
+                    if (newMessage.receiver == partnerBpn) {
+                        setMessages((prevMessages) => [
+                            ...prevMessages,
+                            { sender: newMessage.receiver, text: newMessage.content, timestamp: newMessage.timestamp },
+                        ]);
+                        scrollToBottom();
+                    }
+                });
+            },
+            onStompError: (frame) => {
+                console.error("WebSocket error:", frame.headers["message"], frame.body);
+                setConnected(false);
+            },
+        });
+
+        client.activate(); // Connect to WebSocket
+        setStompClient(client);
+
+        // Cleanup WebSocket on component unmount
+        return () => {
+            client.deactivate(); // Cleanup on unmount
+        };
     }, [selfBpn]);
 
     const handleMessageClick = (msg) => {
@@ -44,34 +76,6 @@ const Chat = () => {
 
     const closePopup = () => {
         setErrorPopup({ isVisible: false, errorMessage: "" });
-    };
-
-    const connectWs = () => {
-        const wsUrl = "wss://example.com/chat"; // Replace with your WebSocket URL
-
-        // WebSocket connection with BPN in headers (via query string)
-        const socket = new WebSocket(`${wsUrl}?bpn=${selfBpn}&partnerBpn=${partnerBpn}`);
-
-        webSocketRef.current = socket;
-
-        // WebSocket event handlers
-        socket.onopen = () => console.log("WebSocket connected!");
-
-        socket.onmessage = (event) => {
-            const data = JSON.parse(event.data); // Assuming JSON messages
-            setMessages((prevMessages) => [...prevMessages, { sender: data.sender, text: data.message }]);
-        };
-
-        socket.onerror = () => setError("WebSocket connection error");
-
-        socket.onclose = () => console.log("WebSocket closed");
-
-        // Cleanup WebSocket on component unmount
-        return () => {
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.close();
-            }
-        };
     };
 
     const scrollToBottom = () => {
@@ -122,7 +126,7 @@ const Chat = () => {
                 },
             })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 if (response.status === 200) {
                     const message = {
                         timestamp: Math.floor(Date.now() / 1000), // Current time in seconds
@@ -186,9 +190,10 @@ const Chat = () => {
                     // Determine status and its styling
                     const status = msg.status;
                     const showStatus = status && status !== "NONE";
-                    const statusColor = status === "SENT" ? "text-success" : "text-danger";
-                    const statusText = status === "SENT" ? "Sent" : "Failed";
+                    const statusColor = status === "SENT" || status === "RECEIVED" ? "text-success" : "text-danger";
+                    const statusText = status === "SENT" ? "Sent" : status === "RECEIVED" ? "Received" : "Failed";
 
+                    debugger;
                     return (
                         <div
                             key={index}
