@@ -18,6 +18,8 @@ chat:
     policyId: ${POLICY_ID:edc-chat-policy}
     contractDefinitionId: ${CONTRACT_ID:edc-chat-contract}
     edcUrl: ${EDC_URL:http://localhost:8192}
+    agreementWaitTime: ${AGREEMENT_WAIT_MILLI:7000}
+    agreementRetryLimit: ${AGREEMENT_RETRY_LIMIT:5}
 
 spring:
   application:
@@ -32,7 +34,6 @@ spring:
       ddl-auto: none
     properties:
       hibernate.default_schema: ${chat.datasource.schema}
-    show-sql: true
   datasource:
     url: jdbc:postgresql://${chat.datasource.host}:${chat.datasource.port}/${chat.datasource.database}
     username: ${chat.datasource.username}

@@ -26,15 +26,45 @@ const Chat = () => {
             setTimeout(() => navigate("/"), 1000);
             return;
         } else {
-            console.log("bpn -> " + selfBpn);
-            console.log("selected values ->" + partnerBpn);
+            // console.log("bpn -> " + selfBpn);
+            // console.log("selected values ->" + partnerBpn);
         }
 
         //get chat history
         getChatHistory();
 
         //connect to WS for message transfer
-        connectWs();
+        const client = new Client({
+            webSocketFactory: () => new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}/ws-chat`), // Replace with your backend WebSocket endpoint
+
+            onConnect: () => {
+                console.log("Connected to WebSocket");
+                setConnected(true);
+
+                client.subscribe("/topic/messages", (msg) => {
+                    const newMessage = JSON.parse(msg.body);
+                    if (newMessage.receiver == partnerBpn) {
+                        setMessages((prevMessages) => [
+                            ...prevMessages,
+                            { sender: newMessage.receiver, text: newMessage.content, timestamp: newMessage.timestamp },
+                        ]);
+                        scrollToBottom();
+                    }
+                });
+            },
+            onStompError: (frame) => {
+                console.error("WebSocket error:", frame.headers["message"], frame.body);
+                setConnected(false);
+            },
+        });
+
+        client.activate(); // Connect to WebSocket
+        setStompClient(client);
+
+        // Cleanup WebSocket on component unmount
+        return () => {
+            client.deactivate(); // Cleanup on unmount
+        };
     }, [selfBpn]);
 
     const handleMessageClick = (msg) => {
@@ -46,46 +76,6 @@ const Chat = () => {
 
     const closePopup = () => {
         setErrorPopup({ isVisible: false, errorMessage: "" });
-    };
-
-    const connectWs = () => {
-        const client = new Client({
-            webSocketFactory: () => new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}/ws-chat`), // Replace with your backend WebSocket endpoint
-            connectHeaders: {
-                userId: selfBpn, // Pass the current user's ID
-            },
-            debug: (message) => {
-                console.log("STOMP Debug:", message); // This logs debug messages to the console
-            },
-            onConnect: () => {
-                console.log("Connected to WebSocket");
-                setConnected(true);
-                
-                client.subscribe("/topic/messages", (msg) => {
-                    const newMessage = JSON.parse(msg.body);
-                    if(newMessage.receiver == partnerBpn){
-                        setMessages((prevMessages) => [
-                            ...prevMessages,
-                            { sender: newMessage.receiver, text: newMessage.content, timestamp: newMessage.timestamp },
-                        ]);
-                    }
-
-                });
-            },
-            onStompError: (frame) => {
-                console.error("WebSocket error:", frame.headers["message"], frame.body);
-                setConnected(false);
-            },
-           
-        });
-
-        client.activate(); // Connect to WebSocket
-        setStompClient(client);
-
-        // Cleanup WebSocket on component unmount
-        return () => {
-            client.deactivate(); // Cleanup on unmount
-        };
     };
 
     const scrollToBottom = () => {
@@ -136,7 +126,7 @@ const Chat = () => {
                 },
             })
             .then((response) => {
-                console.log(response.data);
+                // console.log(response.data);
                 if (response.status === 200) {
                     const message = {
                         timestamp: Math.floor(Date.now() / 1000), // Current time in seconds
@@ -200,9 +190,10 @@ const Chat = () => {
                     // Determine status and its styling
                     const status = msg.status;
                     const showStatus = status && status !== "NONE";
-                    const statusColor = status === "SENT" ? "text-success" : "text-danger";
-                    const statusText = status === "SENT" ? "Sent" : "Failed";
+                    const statusColor = status === "SENT" || status === "RECEIVED" ? "text-success" : "text-danger";
+                    const statusText = status === "SENT" ? "Sent" : status === "RECEIVED" ? "Received" : "Failed";
 
+                    debugger;
                     return (
                         <div
                             key={index}
