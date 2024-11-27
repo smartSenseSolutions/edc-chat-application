@@ -32,7 +32,13 @@ There will be some operator company(trusted issuer) which will host following co
 ![EDC Chat app.jpg](docs/images/EDC_Chat_app.jpg)
 
 ## Run in local IDE
-    To be added my Mittal
+### How to Start the Backend Application [edc-chat-app-backend]
+
+Please refer [README.md](edc-chat-app-backend/README.md)
+
+### How to Start the Chat-App UI [edc-chat-app-ui]
+
+Please refer [README.md](edc-chat-app-ui/README.md)
 
 ## Local Deployment using docker compose
 
