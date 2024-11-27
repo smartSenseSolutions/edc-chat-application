@@ -4,16 +4,15 @@ server:
 chat:
   name: EDC based chat application
   bpn: ${BPN:BPNL000000000000}
-  assetUrl: http://localhost:9192
   datasource:
-    host: localhost
+    host: ${DB_HOST:localhost}
     port: 5432
     database: ${CHAT_DB:chat_app}
     schema: public
-    username: root
-    password: root
+    username: ${DB_USER:root}
+    password: ${DB_PASS:root}
   edc:
-    authCode: password
+    authCode: ${AUTH_CODE:password}
     assetId: ${ASSET_ID:edc-chat-app}
     policyId: ${POLICY_ID:edc-chat-policy}
     contractDefinitionId: ${CONTRACT_ID:edc-chat-contract}
