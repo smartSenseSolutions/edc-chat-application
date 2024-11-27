@@ -21,6 +21,6 @@ public class EdcOfferDetailsService extends BaseService<EdcOfferDetails, Long> {
     }
 
     public EdcOfferDetails getOfferDetails(String receiverBpnl) {
-        return edcOfferDetailsRepository.findByReceiverBpnAndOfferIdNotNull(receiverBpnl);
+        return edcOfferDetailsRepository.findByReceiverBpn(receiverBpnl);
     }
 }
