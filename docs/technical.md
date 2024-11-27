@@ -5,9 +5,14 @@ This documentation explain technical details how this solution is implemented.
 ### Data flow/Sequence Diagram
 
 ## Add Business Partner
+**Description**: This step is pre-requisite step to chat with any business partner. 
+Provided EDC url will use to fetch catalog and transfer process. It will store BPN number and edc url in database to perform operations.
+
 ![Add Business Partner](./images/add_business_partner.png)
 
 ## Chat Request flow
+**Description**: This diagram showcase entire chat application request flow from sender application stack to receiver application using EDC. 
+
 ![Chat request flow](./images/chat_request_flow.png)
 
 
