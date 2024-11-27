@@ -1,14 +1,22 @@
+# Docker Compose configuration for running Chat application using EDC
+# This setup includes PostgreSQL, EDC control planes, data planes, backend application and UI for sender and receiver,
+# HashiCorp Vault and wallet stub service for operator company(Trusted issuer)
+
 version: "3.8"
 services:
+  # PostgreSQL database service
   postgres:
     image: postgres:latest
     container_name: postgres_multi_db
     environment:
+      # Database credentials and configuration
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
+      # List of databases to be created. It creates database for both EDCs and backend applications
       POSTGRES_MULTIPLE_DATABASES: sender-edc,receiver-edc,sender-backend,receiver-backend
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+      # Script to create multiple databases
       - ./env/postgres/create_database.sh:/docker-entrypoint-initdb.d/create_databases.sh
     ports:
       - "5432:5432"
@@ -16,17 +24,21 @@ services:
     networks:
       - edc-network
 
+  # Sender Control Plane service
   sender-controlplane:
     image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.7
     container_name: sender-controlplane
     ports:
+      # Expose Control Plane ports
       - "8191:8191"
       - "8192:8192"
       - "8194:8194"
       - "8195:8195"
     volumes:
+      # Mount configuration file
       - ./env/smartsense/edc.properties:/app/configuration.properties
     environment:
+      # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
       - postgres
@@ -34,14 +46,18 @@ services:
     networks:
       - edc-network
 
+  # Sender Data Plane service
   sender-dataplane:
     image: tractusx/edc-dataplane-hashicorp-vault:0.7.7
     container_name: sender-dataplane
     ports:
+      # Expose Data Plane port
       - "8196:8193"
     volumes:
+      # Mount configuration file
       - ./env/smartsense/dataplane.properties:/app/configuration.properties
     environment:
+      # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
       - postgres
@@ -50,17 +66,21 @@ services:
     networks:
       - edc-network
 
+  # Receiver Control Plane service
   receiver-controlplane:
     image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.7
     container_name: receiver-controlplane
     ports:
+      # Expose Control Plane ports
       - "9191:9191"
       - "9192:9192"
       - "9194:9194"
       - "9195:9195"
     volumes:
-      - ./env/cofinityx/edc.properties:/app/configuration.properties
+      # Mount configuration file
+      - ./env/catena-x/edc.properties:/app/configuration.properties
     environment:
+      # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
       - postgres
@@ -68,14 +88,18 @@ services:
     networks:
       - edc-network
 
+  # Receiver Data Plane service
   receiver-dataplane:
     image: tractusx/edc-dataplane-hashicorp-vault:0.7.7
     container_name: receiver-dataplane
     ports:
+      # Expose Data Plane port
       - "9196:8196"
     volumes:
-      - ./env/cofinityx/dataplane.properties:/app/configuration.properties
+      # Mount configuration file
+      - ./env/catena-x/dataplane.properties:/app/configuration.properties
     environment:
+      # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
       - postgres
@@ -84,12 +108,15 @@ services:
     networks:
       - edc-network
 
+  # HashiCorp Vault service
   vault:
     container_name: vault
     image: vault:1.13.3
     ports:
+      # Expose Vault API port
       - "8200:8200"
     environment:
+      # Vault configuration
       VAULT_DEV_ROOT_TOKEN_ID: "root-token"
       VAULT_ADDR: "http://127.0.0.1:8200"
     cap_add:
@@ -97,38 +124,46 @@ services:
     networks:
       - edc-network
 
+  # Service to prepopulate Vault with initial data
   vault-prepopulate:
     image: alpine/curl
     depends_on:
       - vault
     volumes:
+      # Mount script to prepopulate Vault
       - ./env/vault/prepopulate_vault.sh:/usr/local/bin/prepopulate_vault.sh
     command: [ "sh", "-c", "/usr/local/bin/prepopulate_vault.sh" ]
     networks:
       - edc-network
 
+  # Wallet stub service
   wallet-stub:
     image: tractusx/ssi-dim-wallet-stub:0.0.4
     container_name: wallet-stub
     environment:
+      # Wallet configuration
       - SERVER_PORT=80
       - BASE_WALLET_BPN=BPNL0000TRACTUSX
       - DID_HOST=ha3c3xy568h9.share.zrok.io
       - STUB_URL=https://ha3c3xy568h9.share.zrok.io
-      - SEED_WALLETS_BPN=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL000COFINITYX,BPNL000000000000,BPNL000000000001
+      - SEED_WALLETS_BPN=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL00000CATENAX
     ports:
+      # Expose wallet service port
       - "80:80"
     networks:
       - edc-network
     healthcheck:
+      # Health check configuration
       test: curl --fail http://localhost/BPNL0000TRACTUSX/did.json || exit 1
       interval: 40s
       timeout: 30s
       retries: 3
       start_period: 30s
 
+# Define custom network for inter-service communication
 networks:
   edc-network:
 
+# Define named volume for persistent PostgreSQL data
 volumes:
   postgres_data:
