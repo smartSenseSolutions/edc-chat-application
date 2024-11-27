@@ -1,0 +1,83 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+title Chat Application request flow
+box "Sender" #white
+participant "Chat UI" as s_ui order 1
+participant "Chat Backend" as s_be order 5
+database "DB" as s_db order 10
+participant "Sender EDC" as s_edc order 15
+end box
+
+
+
+group One time process if assets are not created on application start
+s_be -> s_edc: create data asset for chat application \n /v3/assets
+s_edc --> s_be: asset created for chat application
+s_be -> s_edc: create asset policy for chat application \n /v2/policydefinitions
+s_edc --> s_be: policy created for chat application
+s_be -> s_edc: create contract definition for chat application \n /v2/contractdefinitions
+s_edc --> s_be: contract created for chat application
+end
+
+box "Receiver" #white
+participant "Receiver EDC" as r_edc order 30
+participant "Chat Backend" as r_be order 35
+database "DB" as r_db order 40
+participant "Chat UI" as r_ui order 45
+end box
+
+
+group One time process if assets are not created on application start
+r_be -> r_edc: create data asset for chat application \n /v3/assets
+r_edc --> r_be: asset created for chat application
+r_be -> r_edc: create asset policy for chat application \n /v2/policydefinitions
+r_edc --> r_be: policy created for chat application
+r_be -> r_edc: create contract definition for chat application \n /v2/contractdefinitions
+r_edc --> r_be: contract created for chat application
+end
+
+
+autonumber
+
+
+
+s_ui -> s_ui : select registered business partner
+note left
+    Socket connection created
+    with selected Business partner
+end note
+
+activate s_be
+s_ui -> s_be: send chat message
+s_be -> s_be: fetch partner EDC url
+s_be -> s_db: store msg info with state
+s_be --> s_ui: 200 Ok response
+s_be -> s_edc: Query catalog request
+s_edc -> r_edc: fetch catalog info \n /v2/catalog/request
+r_edc --> s_edc: Response with offer details
+s_edc --> s_be: Offer detail send to backend
+s_be -> s_edc: Negotiation request with offer id
+s_edc -> r_edc: Initiate negotiation request and fetch negotiation id \n /v2/edrs
+r_edc --> s_edc: Response send with id
+s_edc --> s_be: Negotiation detail send to backend
+s_be -> s_edc: Get agreement request with negotiation id
+s_edc -> r_edc: Get agreement state (FINALIZED) and fetch agreement id \n /v2/contractnegotiations/{negotiationId}
+s_edc --> s_be: Agreement detail send to backend
+s_be  -> s_edc: Initiate transfer request with agreement id
+s_edc -> r_edc: Initiate transfer request \n /v2/edrs/request
+r_edc --> s_edc: Response send with transfer id
+s_edc --> s_be: Response send to backend
+s_be  -> s_edc: Fetch dataaddress detail with transfer id
+s_edc -> r_edc: Fetch receiver public endpoint and authorization code (JWT) \n v2/edrs/{transferProcessId}/dataaddress
+r_edc --> s_edc: Response send with details
+s_edc --> s_be: Response send to backend
+s_be  -> r_edc: Data transfer request with chat msg and authorization code (JWT) \n
+r_edc -> r_be: Send data transfer
+r_be  -> r_db: Save chat msg in database
+r_be  -> r_ui: Send chat content via websocket
+r_edc --> s_be: 200 Ok response
+s_be  --> s_db: Update state of received msg in database
+s_be  --> s_ui: Push msg in websocket consumed by frontend
+
+
+@enduml
