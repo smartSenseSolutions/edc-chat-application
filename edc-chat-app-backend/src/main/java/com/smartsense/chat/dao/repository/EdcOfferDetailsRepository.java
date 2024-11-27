@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface EdcOfferDetailsRepository extends BaseRepository<EdcOfferDetails, Long> {
 
     EdcOfferDetails findByReceiverBpnAndOfferIdNotNull(String receiverBpn);
+
+    EdcOfferDetails findByReceiverBpn(String receiverBpn);
 }

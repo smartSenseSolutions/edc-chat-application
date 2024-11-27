@@ -16,7 +16,7 @@ public class EDCChatApiDocs {
 
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
-    @Operation(description = "Receive Chat message", summary = "Receive Chat message.")
+    @Operation(description = "Sender will call this endpoint", summary = "Sender will call this endpoint to transfer the message once negotiation is done")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Receive Chat message", content = {
                     @Content(examples = {

@@ -22,8 +22,6 @@ import com.smartsense.chat.utils.validate.Validate;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -54,7 +52,7 @@ public class EDCService {
     private final ContractDefinitionService contractDefinitionService;
     private final AppConfig appConfig;
 
-    @EventListener(ApplicationReadyEvent.class)
+    // @EventListener(ApplicationReadyEvent.class)
     public void initializePreEdcProcess() {
         if (assetCreationService.checkAssetPresent()) {
             log.info("Asset already exists. Not required to create Asset, Policy and ContractDefinition...");
@@ -78,10 +76,13 @@ public class EDCService {
             edcOfferDetails.setReceiverBpn(receiverBpnl);
             edcOfferDetails.setAssetId(appConfig.edc().assetId());
             edcOfferDetails = edcOfferDetailsService.create(edcOfferDetails);
+        }
+        chatMessageService.updateChat(chatMessage, edcOfferDetails, false);
 
-            chatMessageService.updateChat(chatMessage, edcOfferDetails, false);
+        if (!StringUtils.hasText(edcOfferDetails.getOfferId())) {
             // Query the catalog for chat asset
-            String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, chatMessage);
+            String offerId = "JH8uxWOO4HuRYIIApbkPat5XxNPJhqXimxylmE7K";
+            // String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, chatMessage);
             if (!StringUtils.hasText(offerId)) {
                 log.error("Not able to create and retrieve the offerId from EDC {}, please check manually.", receiverDspUrl);
                 Validate.isTrue(true).launch(String.format("Not able to create and retrieve the offerId from EDC %s ", receiverDspUrl));
@@ -89,13 +90,11 @@ public class EDCService {
             }
             edcOfferDetails.setOfferId(offerId);
             edcOfferDetails = edcOfferDetailsService.create(edcOfferDetails);
-        } else {
-            chatMessageService.updateChat(chatMessage, edcOfferDetails, false);
         }
-
         // Initiate the contract negotiation
         String offerId = edcOfferDetails.getOfferId();
-        String negotiationId = contractNegotiationService.initNegotiation(receiverDspUrl, receiverBpnl, offerId, chatMessage);
+        String negotiationId = "HIu8cijEc0XU7Askj4P1";
+        // String negotiationId = contractNegotiationService.initNegotiation(receiverDspUrl, receiverBpnl, offerId, chatMessage);
         if (!StringUtils.hasText(negotiationId)) {
             log.error("Not able to initiate the negotiation for EDC {} and offerId {}, please check manually.", receiverDspUrl, offerId);
             return;
@@ -103,7 +102,8 @@ public class EDCService {
         chatMessageService.setAndSaveEdcState(NEGOTIATION_ID, negotiationId, chatMessage);
 
         // Get agreement Id based on the negotiationId
-        String agreementId = agreementService.getAgreement(negotiationId, chatMessage);
+        String agreementId = "Wc710RLvOQOiuwAf8Pg1";
+        // String agreementId = agreementService.getAgreement(negotiationId, chatMessage);
         if (!StringUtils.hasText(agreementId)) {
             log.error("Not able to get the agreement for offerId {} and negotiationId {}, please check manually.", offerId, negotiationId);
             return;
@@ -111,7 +111,8 @@ public class EDCService {
         chatMessageService.setAndSaveEdcState(AGREEMENT_ID, agreementId, chatMessage);
 
         // Initiate the transfer process
-        String transferProcessId = transferProcessService.initiateTransfer(agreementId, chatMessage);
+        String transferProcessId = "u6jYhfs3sBa12gXLGweH";
+        // String transferProcessId = transferProcessService.initiateTransfer(agreementId, chatMessage);
         if (!StringUtils.hasText(transferProcessId)) {
             log.error("Not able to get the agreement for transferProcessId {}, please check manually.", transferProcessId);
             return;
