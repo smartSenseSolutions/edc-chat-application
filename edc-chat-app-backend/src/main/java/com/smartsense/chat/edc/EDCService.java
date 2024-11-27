@@ -106,8 +106,10 @@ public class EDCService {
             edcOfferDetails.setReceiverBpn(receiverBpnl);
             edcOfferDetails.setAssetId(appConfig.edc().assetId());
             edcOfferDetails = edcOfferDetailsService.create(edcOfferDetails);
+        }
+        chatMessageService.updateChat(chatMessage, edcOfferDetails, false);
 
-            chatMessageService.updateChat(chatMessage, edcOfferDetails, false);
+        if (!StringUtils.hasText(edcOfferDetails.getOfferId())){
             // Query the catalog for chat asset
             String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, chatMessage);
             if (!StringUtils.hasText(offerId)) {
@@ -117,8 +119,6 @@ public class EDCService {
             }
             edcOfferDetails.setOfferId(offerId);
             edcOfferDetails = edcOfferDetailsService.create(edcOfferDetails);
-        } else {
-            chatMessageService.updateChat(chatMessage, edcOfferDetails, false);
         }
 
         // Initiate the contract negotiation
