@@ -248,6 +248,30 @@ services:
     networks:
       - edc-network
 
+  sender-flyway:
+    image: flyway/flyway:latest
+    container_name: sender-flyway
+    command: -url=jdbc:postgresql://postgres:5432/sender-edc -schemas=public -user=root -password=root  -connectRetries=10 migrate
+    volumes:
+      - ./deployment/env/postgres/migration.sql:/flyway/sql/V0_0_1_0__create_tables.sql
+    depends_on:
+      postgres:
+        condition: service_started
+    networks:
+      - edc-network
+
+  receiver-flyway:
+    image: flyway/flyway:latest
+    container_name: receiver-flyway
+    command: -url=jdbc:postgresql://postgres:5432/receiver-edc -schemas=public -user=root -password=root  -connectRetries=10 migrate
+    volumes:
+      - ./deployment/env/postgres/migration.sql:/flyway/sql/V0_0_1_0__create_tables.sql
+    depends_on:
+      postgres:
+        condition: service_started
+    networks:
+      - edc-network
+
 # Define custom network for inter-service communication
 networks:
   edc-network:
