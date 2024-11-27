@@ -17,7 +17,7 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
       # Script to create multiple databases
-      - ./env/postgres/create_database.sh:/docker-entrypoint-initdb.d/create_databases.sh
+      - ./deployment/env/postgres/create_database.sh:/docker-entrypoint-initdb.d/create_databases.sh
     ports:
       - "5432:5432"
     restart: no
@@ -36,15 +36,23 @@ services:
       - "8195:8195"
     volumes:
       # Mount configuration file
-      - ./env/smartsense/edc.properties:/app/configuration.properties
+      - ./deployment/env/smartsense/edc.properties:/app/configuration.properties
     environment:
       # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
-      - postgres
-      - wallet-stub
+      postgres:
+        condition: service_started
+      wallet-stub:
+        condition: service_healthy
     networks:
       - edc-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://sender-controlplane:8191/api/check/health || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
 
   # Sender Data Plane service
   sender-dataplane:
@@ -55,14 +63,17 @@ services:
       - "8196:8193"
     volumes:
       # Mount configuration file
-      - ./env/smartsense/dataplane.properties:/app/configuration.properties
+      - ./deployment/env/smartsense/dataplane.properties:/app/configuration.properties
     environment:
       # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
-      - postgres
-      - wallet-stub
-      - sender-controlplane
+      postgres:
+        condition: service_started
+      wallet-stub:
+        condition: service_healthy
+      sender-controlplane:
+        condition: service_healthy
     networks:
       - edc-network
 
@@ -78,15 +89,23 @@ services:
       - "9195:9195"
     volumes:
       # Mount configuration file
-      - ./env/catena-x/edc.properties:/app/configuration.properties
+      - ./deployment/env/catena-x/edc.properties:/app/configuration.properties
     environment:
       # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
-      - postgres
-      - wallet-stub
+      postgres:
+        condition: service_started
+      wallet-stub:
+        condition: service_healthy
     networks:
       - edc-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://receiver-controlplane:9191/api/check/health || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
 
   # Receiver Data Plane service
   receiver-dataplane:
@@ -97,14 +116,17 @@ services:
       - "9196:8196"
     volumes:
       # Mount configuration file
-      - ./env/catena-x/dataplane.properties:/app/configuration.properties
+      - ./deployment/env/catena-x/dataplane.properties:/app/configuration.properties
     environment:
       # Specify the configuration file location
       - CONFIGURATION_PROPERTIES_FILE=/app/configuration.properties
     depends_on:
-      - postgres
-      - wallet-stub
-      - receiver-controlplane
+      postgres:
+        condition: service_started
+      wallet-stub:
+        condition: service_started
+      receiver-controlplane:
+        condition: service_healthy
     networks:
       - edc-network
 
@@ -131,7 +153,7 @@ services:
       - vault
     volumes:
       # Mount script to prepopulate Vault
-      - ./env/vault/prepopulate_vault.sh:/usr/local/bin/prepopulate_vault.sh
+      - ./deployment/env/vault/prepopulate_vault.sh:/usr/local/bin/prepopulate_vault.sh
     command: [ "sh", "-c", "/usr/local/bin/prepopulate_vault.sh" ]
     networks:
       - edc-network
@@ -154,11 +176,77 @@ services:
       - edc-network
     healthcheck:
       # Health check configuration
-      test: curl --fail http://localhost/BPNL0000TRACTUSX/did.json || exit 1
+      test: curl --fail http://wallet-stub/BPNL0000TRACTUSX/did.json || exit 1
       interval: 40s
       timeout: 30s
       retries: 3
       start_period: 30s
+
+  sender-backend:
+    build:
+      dockerfile: ./edc-chat-app-backend/Dockerfile
+    container_name: sender-backend
+    environment:
+      - APP_PORT=8080
+      - BPN=BPNL00SMARTSENSE
+      - DB_HOST=postgres
+      - CHAT_DB=sender-backend
+      - DB_USER=root
+      - DB_PASS=root
+      - ASSET_ID=edc-chat-app
+      - EDC_URL=http://sender-controlplane:8192
+      - APP_HOST_URL=http://sender-backend:8080
+    ports:
+      - "8182:8080"
+    depends_on:
+      sender-controlplane:
+        condition: service_healthy
+    networks:
+      - edc-network
+
+  receiver-backend:
+    build:
+      dockerfile: ./edc-chat-app-backend/Dockerfile
+    container_name: receiver-backend
+    environment:
+      - APP_PORT=8080
+      - BPN=BPNL00000CATENAX
+      - DB_HOST=postgres
+      - CHAT_DB=receiver-backend
+      - DB_USER=root
+      - DB_PASS=root
+      - ASSET_ID=edc-chat-app
+      - EDC_URL=http://receiver-controlplane:9192
+      - APP_HOST_URL=http://receiver-backend:8080
+    depends_on:
+      receiver-controlplane:
+        condition: service_healthy
+    ports:
+      - "8181:8080"
+    networks:
+      - edc-network
+
+  sender-ui:
+    build:
+      dockerfile: edc-chat-app-ui/Dockerfile-sender
+    container_name: sender-ui
+    depends_on:
+      - sender-backend
+    ports:
+      - "8180:80"
+    networks:
+      - edc-network
+
+  receiver-ui:
+    build:
+      dockerfile: edc-chat-app-ui/Dockerfile-receiver
+    container_name: receiver-ui
+    depends_on:
+      - receiver-backend
+    ports:
+      - "8280:80"
+    networks:
+      - edc-network
 
 # Define custom network for inter-service communication
 networks:
