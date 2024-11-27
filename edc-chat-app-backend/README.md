@@ -7,7 +7,7 @@ successful chat flow:
 
 - a Business Partner's EDC to establish a two-way communication.
 - a Postgres database to store other Business Partners' information and chat history.
-- a simple UI to send messages to and view messages from other Business Partners.
+- a simple UI to send messages to and receive messages from other Business Partners.
 
 ## Packages Overview
 
@@ -15,7 +15,7 @@ The backend application consists of the below packages:
 
 - **dao:** Contains the database entities and their JPA repositories
 - **edc:** This package contains a client to communicate with another EDC, services to create assets, policies,
-  negotiate contract, etc.
+  negotiate contract,data transfer etc.
 - **service:** Houses the services that implement the application's business logic
 - **utils:** The utils package contains application configurations, constants, validation methods, etc.
 - **web:** Houses the main application and the REST controllers for communicating with the server
@@ -52,18 +52,24 @@ server. The [WebSocketConfig.java](src/main/java/com/smartsense/chat/config/WebS
 - For locally deploy EDC, Postgres, wallet using Docker, please refer : [README.md](deployment/README.md)
 - After deployment, set the following environment variables:
 
-| **Env Name**                    | **Description**                             |
-|---------------------------------|---------------------------------------------|
-| `CHAT_DATASOURCE_HOST`          | Database host                               |
-| `CHAT_DATASOURCE_PORT`          | Database port                               |
-| `CHAT_DATASOURCE_DATABASE`      | Database name (create if it does not exist) |
-| `CHAT_DATASOURCE_USERNAME`      | Database username                           |
-| `CHAT_DATASOURCE_PASSWORD`      | Database password                           |
-| `CHAT_EDC_AUTHCODE`             | EDC AuthCode                                |
-| `CHAT_EDC_ASSETID`              | Asset ID to configure for communication     |
-| `CHAT_EDC_POLICYID`             | Asset Policy ID                             |
-| `CHAT_EDC_CONTRACTDEFINITIONID` | Asset Contract Definition ID                |
-| `CHAT_EDC_URL`                  | EDC Base Management URL                     |
+| **Env Name**            | **Description**                                  |
+|-------------------------|--------------------------------------------------|
+| `CHAT_DB`               | Database host                                    |
+| `DB_HOST`               | Database name (create if it does not exist)      |
+| `DB_USER`               | Database username                                |
+| `DB_PASS`               | Database password                                |
+| `AUTH_CODE`             | EDC AuthCode                                     |
+| `ASSET_ID`              | Asset ID to configure for communication          |
+| `POLICY_ID`             | Asset Policy ID                                  |
+| `CONTRACT_ID`           | Asset Contract Definition ID                     |
+| `EDC_URL`               | EDC Base Management URL                          |
+| `APP_PORT`              | Application running port                         |       
+| `BPN`                   | Application owner's bpn                          |
+| `AGREEMENT_WAIT_MILLI`  | Wait time in millisecond till contract finalized |
+| `AGREEMENT_RETRY_LIMIT` | Max retry check for contract to be finalized     |
+| `APP_HOST_URL`          | Application host url to add in asset             |
+
+
 
 - Run the application by executing the following command:
    ```bash
