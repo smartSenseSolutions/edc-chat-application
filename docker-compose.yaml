@@ -43,6 +43,8 @@ services:
     depends_on:
       postgres:
         condition: service_started
+      smartsense-edc-migration:
+        condition: service_completed_successfully
     #      wallet-stub:
     #        condition: service_healthy
     networks:
@@ -70,6 +72,8 @@ services:
     depends_on:
       postgres:
         condition: service_started
+      smartsense-edc-migration:
+        condition: service_completed_successfully
       #      wallet-stub:
       #        condition: service_healthy
       smartsense-controlplane:
@@ -96,6 +100,8 @@ services:
     depends_on:
       postgres:
         condition: service_started
+      catena-x-edc-migration:
+        condition: service_completed_successfully
     #      wallet-stub:
     #        condition: service_healthy
     networks:
@@ -123,6 +129,8 @@ services:
     depends_on:
       postgres:
         condition: service_started
+      catena-x-edc-migration:
+        condition: service_completed_successfully
       #      wallet-stub:
       #        condition: service_started
       catena-x-controlplane:
@@ -149,6 +157,7 @@ services:
   # Service to prepopulate Vault with initial data
   vault-prepopulate:
     image: alpine/curl
+    container_name: vault-prepopulate
     depends_on:
       - vault
     volumes:
@@ -207,6 +216,12 @@ services:
         condition: service_healthy
     networks:
       - edc-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://smartsense-backend:8080/actuator/health || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
 
   catena-x-backend:
     build:
@@ -229,13 +244,36 @@ services:
       - "8181:8080"
     networks:
       - edc-network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://catena-x-backend:8080/actuator/health || exit 1
+      interval: 40s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
+
+  bp-registration:
+    image: alpine/curl
+    container_name: bp-registration
+    volumes:
+      - ./deployment/env/bp_registration/bp_registration.sh:/usr/local/bin/bp_registration.sh
+    command: [ "sh", "+x", "/usr/local/bin/bp_registration.sh" ]
+    depends_on:
+      smartsense-backend:
+        condition: service_healthy
+      catena-x-backend:
+        condition: service_healthy
+    networks:
+      - edc-network
 
   smartsense-ui:
     build:
       dockerfile: edc-chat-app-ui/Dockerfile-smartsense
     container_name: smartsense-ui
     depends_on:
-      - smartsense-backend
+      smartsense-backend:
+        condition: service_healthy
+      bp-registration:
+        condition: service_completed_successfully
     ports:
       - "8180:80"
     networks:
@@ -246,7 +284,10 @@ services:
       dockerfile: edc-chat-app-ui/Dockerfile-catena-x
     container_name: catena-x-ui
     depends_on:
-      - catena-x-backend
+      catena-x-backend:
+        condition: service_healthy
+      bp-registration:
+        condition: service_completed_successfully
     ports:
       - "8280:80"
     networks:
