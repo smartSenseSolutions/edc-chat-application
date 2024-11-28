@@ -149,11 +149,10 @@ const Chat = () => {
             .then((response) => {
                 // console.log(response.data);
                 if (response.status === 200) {
-                    var test = response.data;
-                    debugger;
+                    var responseMessage = response.data;
                     const message = {
-                        id: test.id,
-                        timestamp: Math.floor(Date.now() / 1000), // Current time in seconds
+                        id: responseMessage.id,
+                        timestamp: responseMessage.timestamp, // Current time in seconds
                         content: newMessage,
                         sender: selfBpn,
                         receiver: partnerBpn,
