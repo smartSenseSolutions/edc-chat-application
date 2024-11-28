@@ -3,6 +3,19 @@
 This is a reference implementation of Chat application utilizing data transfer using EDC.
 This definition is part of [Third Eclipse Tractus-X Community Days](https://eclipse-tractusx.github.io/blog/community-days-12-2024).
 
+In this POC, lets assume We have two dataspace participant named with smartSense and Catena-X and they want to chat(Data transfer) with each other.  
+
+### Table of Business Partner Numbers (BPNs)
+
+The following table lists Business Partner Numbers (BPNs) associated with different entities. BPNs are unique identifiers used in various business ecosystems, such as Catena-X, to identify organizations and their digital identities.
+
+| **Entity Name** | **BPN**          | **Description**                                                                        |
+|-----------------|------------------|----------------------------------------------------------------------------------------|
+| smartSense      | BPNL00SMARTSENSE | Represents the BPN assigned to smartSense. We can also consider as sender/producer     |
+| Catena-X        | BPNL00000CATENAX | Represents the BPN assigned to the Catena-X. We can also consider as receier/consumer. |
+| Tractus-X       | BPNL0000TRACTUSX | Dataspace operator or trusted issuer                                                   |
+
+*Note: This is just to set the context of the application, you can transfer data vice versa(smartSense to Catena-X or Catena-X to smartSense).* 
 
 ## Tools and technology
 - Java - Spring boot
@@ -15,7 +28,9 @@ This definition is part of [Third Eclipse Tractus-X Community Days](https://ecli
 
 ## High level architecture
 
-We have multiple participants in Eclipse Tractus-x dataspace, let's assume We have two business partner and they want to chat/transfer messages. Both partners need to have following application installed:
+We have multiple participants in Eclipse Tractus-x dataspace, let's assume We have two business partner(smartSense/Catena-X) and they want to chat/transfer messages. 
+
+Both partners need to have the following application installed:
 
 1. EDC 
 2. Backend application, this will connect UI application with EDC and used for custom data management 
@@ -26,6 +41,10 @@ We have multiple participants in Eclipse Tractus-x dataspace, let's assume We ha
 There will be some operator company(trusted issuer) which will host following components:
 
 1. SSI Dim wallet stub application
+
+#### Note: 
+- We need to expose wallet stun on `https` URL as while verification of VP token EDC will resolve DID document on `https`. You can use `ngrok` or `tunnelmol` for this purpose.
+- Alternatively, You can use hosted wallet stub application on https://wallet.learn.smartsenselabs.com for testing purpose.
 
 ### High level diagram 
 
