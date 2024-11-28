@@ -22,6 +22,8 @@ import com.smartsense.chat.utils.validate.Validate;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -61,7 +63,7 @@ public class EDCService {
      * - policyCreationService: to create a new policy
      * - contractDefinitionService: to create a new contract definition
      */
-    // @EventListener(ApplicationReadyEvent.class)
+    @EventListener(ApplicationReadyEvent.class)
     public void initializePreEdcProcess() {
         if (assetCreationService.checkAssetPresent()) {
             log.info("Asset already exists. Not required to create Asset, Policy and ContractDefinition...");
@@ -154,7 +156,7 @@ public class EDCService {
             throw new IllegalStateException("Message sending OR EDC process failed.", e);
         } finally {
             ChatHistoryResponse chatResponse = new ChatHistoryResponse(chatMessage.getId(), chatRequest.receiverBpn(), appConfig.bpn(),
-                    chatRequest.message(), findStatus(chatMessage), chatMessage.getCreatedAt().getTime(), null, "add");
+                    chatRequest.message(), findStatus(chatMessage), chatMessage.getCreatedAt().getTime(), null, "update");
             messagingTemplate.convertAndSend("/topic/messages", chatResponse);
         }
     }

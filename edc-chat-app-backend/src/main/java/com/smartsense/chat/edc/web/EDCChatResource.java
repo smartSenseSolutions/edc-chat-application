@@ -90,7 +90,7 @@ public class EDCChatResource {
     public Map<String, String> receiveMessage(@RequestBody ChatRequest message) {
         ChatMessage chatMessage = edcService.receiveMessage(message);
         ChatHistoryResponse chatResponse = new ChatHistoryResponse(chatMessage.getId(), message.receiverBpn(), appConfig.bpn(),
-                message.message(), MessageStatus.SENT, chatMessage.getCreatedAt().getTime(), null, "update");
+                message.message(), MessageStatus.SENT, chatMessage.getCreatedAt().getTime(), null, "add");
         messagingTemplate.convertAndSend("/topic/messages", chatResponse);
         return Map.of("message", "Message had been received successfully.");
     }
