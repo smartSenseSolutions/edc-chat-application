@@ -21,7 +21,7 @@ services:
       # Script to create multiple databases
       - ./deployment/env/postgres/create_database.sh:/docker-entrypoint-initdb.d/create_databases.sh
     ports:
-      - "5432:5432"
+      - "5434:5432"
     restart: no
     networks:
       - edc-network
