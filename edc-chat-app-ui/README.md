@@ -6,7 +6,7 @@ This is ReactJS application for chat using EDC.
 
 #### Pre-Requirements
 
-1. Both(Consumer and Producer) EDCs and backend services should be up and running
+1. Both(smartSense and Catena-X) EDCs and backend services should be up and running
 2. Node.js should be installed in your local
 
 #### Environment variables
@@ -19,7 +19,7 @@ This is ReactJS application for chat using EDC.
 
 #### Steps
 
-1. Update environment variables in  [.env.producer](.env.producer) and [.env.consumer](.env.consumer)
+1. Update environment variables in  [.env.producer](.env.smartsense) and [.env.consumer](.env.catena-x)
 2. Install need packages using command ``npm install``
-3. Run consumer app using command ``npm run start:consumer``, you can access consumer UI on ``http://localhost:3000``
-4. Run producer app using command ``npm run start:producer``, you can access consumer UI on ``http://localhost:3001``
+3. Run consumer app using command ``npm run start:catenax``, you can access consumer UI on ``http://localhost:3000``
+4. Run producer app using command ``npm run start:smartsense``, you can access consumer UI on ``http://localhost:3001``
