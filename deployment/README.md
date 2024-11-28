@@ -101,7 +101,8 @@ includes multiple components working together for real-time messaging and data t
 
 ### **Troubleshooting**
 
-1. For troubleshooting, remove the `postgres_data` folder from the root path of the code.
+#### Issue related to database migration or start with fresh data
+1. remove the `postgres_data` folder from the root path of the code.
 2. Once removal is done, execute the below command.
     ```bash
    docker-compose down -v
