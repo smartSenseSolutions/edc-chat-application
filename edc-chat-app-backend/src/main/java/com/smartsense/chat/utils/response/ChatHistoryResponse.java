@@ -6,5 +6,6 @@ public record ChatHistoryResponse(Long id,
                                   String sender,
                                   String content,
                                   MessageStatus status,
-                                  long timestamp, String errorMessage) {
+                                  long timestamp, String errorMessage,
+                                  String action) {
 }

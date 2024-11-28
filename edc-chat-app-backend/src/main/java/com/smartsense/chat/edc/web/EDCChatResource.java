@@ -9,6 +9,15 @@ import com.smartsense.chat.utils.response.MessageStatus;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs.EDCChatReceive;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -16,16 +25,7 @@ import java.util.Map;
 import static com.smartsense.chat.web.ApiConstant.CHAT_HISTORY;
 import static com.smartsense.chat.web.ApiConstant.RECEIVE_CHAT;
 import static com.smartsense.chat.web.ApiConstant.SEND_CHAT;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -90,7 +90,7 @@ public class EDCChatResource {
     public Map<String, String> receiveMessage(@RequestBody ChatRequest message) {
         ChatMessage chatMessage = edcService.receiveMessage(message);
         ChatHistoryResponse chatResponse = new ChatHistoryResponse(chatMessage.getId(), message.receiverBpn(), appConfig.bpn(),
-                message.message(), MessageStatus.SENT, chatMessage.getCreatedAt().getTime(), null);
+                message.message(), MessageStatus.SENT, chatMessage.getCreatedAt().getTime(), null, "update");
         messagingTemplate.convertAndSend("/topic/messages", chatResponse);
         return Map.of("message", "Message had been received successfully.");
     }
