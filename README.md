@@ -67,6 +67,10 @@ Please refer [README.md](deployment/README.md)
 
 Please refer [technical.md](docs/technical.md)
 
+## Demo
+
+WIP
+
 ## Out of scope
 - Any authentication and authorization 
 - EDC discovery service, each participant need to register partner's BPN and EDC DSP URL to start chat
