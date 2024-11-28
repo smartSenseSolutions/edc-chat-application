@@ -42,12 +42,33 @@ const Chat = () => {
                 setConnected(true);
 
                 client.subscribe("/topic/messages", (msg) => {
+                    debugger;
                     const newMessage = JSON.parse(msg.body);
+                    debugger;
                     if (newMessage.receiver == partnerBpn) {
-                        setMessages((prevMessages) => [
-                            ...prevMessages,
-                            { sender: newMessage.receiver, text: newMessage.content, timestamp: newMessage.timestamp },
-                        ]);
+                        if (newMessage.action === "add") {
+                            setMessages((prevMessages) => [
+                                ...prevMessages,
+                                {
+                                    sender: newMessage.receiver,
+                                    text: newMessage.content,
+                                    timestamp: newMessage.timestamp,
+                                    id: newMessage.id,
+                                },
+                            ]);
+                        } else {
+                            setMessages((prevMessages) =>
+                                prevMessages.map((message) =>
+                                    message.id === newMessage.id
+                                        ? {
+                                              ...message,
+                                              errorMessage: newMessage.errorMessage, //update error message
+                                              status: newMessage.status, //update status
+                                          }
+                                        : message
+                                )
+                            );
+                        }
                         scrollToBottom();
                     }
                 });
@@ -128,7 +149,10 @@ const Chat = () => {
             .then((response) => {
                 // console.log(response.data);
                 if (response.status === 200) {
+                    var test = response.data;
+                    debugger;
                     const message = {
+                        id: test.id,
                         timestamp: Math.floor(Date.now() / 1000), // Current time in seconds
                         content: newMessage,
                         sender: selfBpn,
@@ -136,7 +160,7 @@ const Chat = () => {
                     };
                     setMessages((prevMessages) => [
                         ...prevMessages,
-                        { sender: selfBpn, text: message.content, timestamp: message.timestamp },
+                        { sender: selfBpn, text: message.content, timestamp: message.timestamp, id: message.id },
                     ]);
 
                     // Clear the input field
@@ -193,7 +217,6 @@ const Chat = () => {
                     const statusColor = status === "SENT" || status === "RECEIVED" ? "text-success" : "text-danger";
                     const statusText = status === "SENT" ? "Sent" : status === "RECEIVED" ? "Received" : "Failed";
 
-                    debugger;
                     return (
                         <div
                             key={index}

@@ -3,21 +3,15 @@ package com.smartsense.chat.edc.web;
 import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.edc.EDCService;
 import com.smartsense.chat.edc.settings.AppConfig;
+import com.smartsense.chat.service.BusinessPartnerService;
+import com.smartsense.chat.service.ChatMessageService;
 import com.smartsense.chat.utils.request.ChatRequest;
 import com.smartsense.chat.utils.response.ChatHistoryResponse;
 import com.smartsense.chat.utils.response.MessageStatus;
+import com.smartsense.chat.utils.validate.Validate;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs.EDCChatReceive;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +19,17 @@ import java.util.Map;
 import static com.smartsense.chat.web.ApiConstant.CHAT_HISTORY;
 import static com.smartsense.chat.web.ApiConstant.RECEIVE_CHAT;
 import static com.smartsense.chat.web.ApiConstant.SEND_CHAT;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +40,8 @@ public class EDCChatResource {
     private final AppConfig config;
     private final SimpMessagingTemplate messagingTemplate;
     private final AppConfig appConfig;
+    private final ChatMessageService chatMessageService;
+    private final BusinessPartnerService partnerService;
 
     /**
      * Retrieves the chat history for a specific partner.
@@ -69,9 +75,14 @@ public class EDCChatResource {
      */
     @EDCChatApiDocs.Chat
     @PostMapping(SEND_CHAT)
-    public Map<String, String> sentMessage(@RequestBody ChatRequest chatRequest) {
-        edcService.initProcess(chatRequest);
-        return Map.of("message", "Send message process has been started, please check the logs for more details.");
+    public ChatHistoryResponse sentMessage(@RequestBody ChatRequest chatRequest) {
+
+        String receiverBpnl = chatRequest.receiverBpn();
+        String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
+        Validate.isFalse(StringUtils.hasText(receiverDspUrl)).launch("Business Partner not registered with BPN: " + receiverBpnl);
+        ChatMessage chatMessage = chatMessageService.createChat(chatRequest, true, false, null);
+        edcService.initProcess(chatRequest, chatMessage, receiverBpnl, receiverDspUrl);
+        return edcService.mapToChatHistoryResponse(chatMessage);
     }
 
 

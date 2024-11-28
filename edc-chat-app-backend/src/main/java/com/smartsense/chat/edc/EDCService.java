@@ -19,6 +19,10 @@ import com.smartsense.chat.utils.request.ChatRequest;
 import com.smartsense.chat.utils.response.ChatHistoryResponse;
 import com.smartsense.chat.utils.response.MessageStatus;
 import com.smartsense.chat.utils.validate.Validate;
+
+import java.util.List;
+import java.util.Objects;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,9 +32,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -94,11 +95,7 @@ public class EDCService {
      *                    including the receiver's BPN and the message content.
      */
     @Async
-    public void initProcess(ChatRequest chatRequest) {
-        String receiverBpnl = chatRequest.receiverBpn();
-        String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
-        Validate.isFalse(StringUtils.hasText(receiverDspUrl)).launch("Business Partner not registered with BPN: " + receiverBpnl);
-        ChatMessage chatMessage = chatMessageService.createChat(chatRequest, true, false, null);
+    public void initProcess(ChatRequest chatRequest, ChatMessage chatMessage, String receiverBpnl, String receiverDspUrl) {
         try {
             EdcOfferDetails edcOfferDetails = edcOfferDetailsService.getOfferDetails(receiverBpnl);
             if (Objects.isNull(edcOfferDetails)) {
@@ -192,7 +189,7 @@ public class EDCService {
                 .toList();
     }
 
-    private ChatHistoryResponse mapToChatHistoryResponse(ChatMessage message) {
+    public ChatHistoryResponse mapToChatHistoryResponse(ChatMessage message) {
         String sender = findSender(message);
         String receiver = findReceiver(message);
         MessageStatus status = Boolean.FALSE.equals(message.getSelfOwner()) ? MessageStatus.RECEIVED : MessageStatus.SENT;
