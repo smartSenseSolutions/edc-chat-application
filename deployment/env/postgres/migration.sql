@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 -- sql-lease
 CREATE TABLE IF NOT EXISTS edc_lease
 (

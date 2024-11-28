@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat;
 
 import org.springframework.boot.SpringApplication;
@@ -6,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-@SpringBootApplication(scanBasePackages = { "com.smartsense", "com.smartsensesolutions" })
+@SpringBootApplication(scanBasePackages = {"com.smartsense", "com.smartsensesolutions"})
 @ConfigurationPropertiesScan
 @EnableFeignClients
 @EnableAsync

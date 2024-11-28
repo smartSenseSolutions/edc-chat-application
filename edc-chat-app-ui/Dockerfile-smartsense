@@ -2,7 +2,7 @@
 FROM node:16 as build
 
 # Set the maintainer information
-LABEL maintainer="Your Name <your.email@example.com>"
+LABEL maintainer="smartSense"
 
 # Set working directory inside the container
 WORKDIR /app

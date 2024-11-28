@@ -1,3 +1,5 @@
+#  Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+
 # Docker Compose configuration for running Chat application using EDC
 # This setup includes PostgreSQL, EDC control planes, data planes, backend application and UI for sender and receiver,
 # HashiCorp Vault and wallet stub service for operator company(Trusted issuer)

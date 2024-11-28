@@ -73,6 +73,7 @@ Please refer [technical.md](docs/technical.md)
 - Fancy UI/UX
 - Deployment using helm
 - Negative scenarios
+- Any kind of Unit test in code
 
 ## Note
 - There we be latency in transfer chat message due to contract negotiation and transfer process of the EDC 

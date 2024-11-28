@@ -1,11 +1,12 @@
-/*******************************************************************************
- *  Copyright (c) 2024 Cofinity-X
- ******************************************************************************/
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
 
 package com.smartsense.chat.utils.openapi;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
