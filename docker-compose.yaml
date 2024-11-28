@@ -13,7 +13,7 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
       # List of databases to be created. It creates database for both EDCs and backend applications
-      POSTGRES_MULTIPLE_DATABASES: sender-edc,receiver-edc,sender-backend,receiver-backend
+      POSTGRES_MULTIPLE_DATABASES: smartsense-edc,catena-x-edc,smartsense-backend,catena-x-backend
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
       # Script to create multiple databases
@@ -25,9 +25,9 @@ services:
       - edc-network
 
   # Sender Control Plane service
-  sender-controlplane:
+  smartsense-controlplane:
     image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.7
-    container_name: sender-controlplane
+    container_name: smartsense-controlplane
     ports:
       # Expose Control Plane ports
       - "8191:8191"
@@ -43,21 +43,21 @@ services:
     depends_on:
       postgres:
         condition: service_started
-      wallet-stub:
-        condition: service_healthy
+    #      wallet-stub:
+    #        condition: service_healthy
     networks:
       - edc-network
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://sender-controlplane:8191/api/check/health || exit 1
+      test: wget --no-verbose --tries=1 --spider http://smartsense-controlplane:8191/api/check/health || exit 1
       interval: 40s
       timeout: 30s
       retries: 3
       start_period: 30s
 
   # Sender Data Plane service
-  sender-dataplane:
+  smartsense-dataplane:
     image: tractusx/edc-dataplane-hashicorp-vault:0.7.7
-    container_name: sender-dataplane
+    container_name: smartsense-dataplane
     ports:
       # Expose Data Plane port
       - "8196:8193"
@@ -70,17 +70,17 @@ services:
     depends_on:
       postgres:
         condition: service_started
-      wallet-stub:
-        condition: service_healthy
-      sender-controlplane:
+      #      wallet-stub:
+      #        condition: service_healthy
+      smartsense-controlplane:
         condition: service_healthy
     networks:
       - edc-network
 
   # Receiver Control Plane service
-  receiver-controlplane:
+  catena-x-controlplane:
     image: tractusx/edc-controlplane-postgresql-hashicorp-vault:0.7.7
-    container_name: receiver-controlplane
+    container_name: catena-x-controlplane
     ports:
       # Expose Control Plane ports
       - "9191:9191"
@@ -96,21 +96,21 @@ services:
     depends_on:
       postgres:
         condition: service_started
-      wallet-stub:
-        condition: service_healthy
+    #      wallet-stub:
+    #        condition: service_healthy
     networks:
       - edc-network
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://receiver-controlplane:9191/api/check/health || exit 1
+      test: wget --no-verbose --tries=1 --spider http://catena-x-controlplane:9191/api/check/health || exit 1
       interval: 40s
       timeout: 30s
       retries: 3
       start_period: 30s
 
   # Receiver Data Plane service
-  receiver-dataplane:
+  catena-x-dataplane:
     image: tractusx/edc-dataplane-hashicorp-vault:0.7.7
-    container_name: receiver-dataplane
+    container_name: catena-x-dataplane
     ports:
       # Expose Data Plane port
       - "9196:8196"
@@ -123,9 +123,9 @@ services:
     depends_on:
       postgres:
         condition: service_started
-      wallet-stub:
-        condition: service_started
-      receiver-controlplane:
+      #      wallet-stub:
+      #        condition: service_started
+      catena-x-controlplane:
         condition: service_healthy
     networks:
       - edc-network
@@ -158,100 +158,104 @@ services:
     networks:
       - edc-network
 
+  # We deploy this service at https://wallet.learn.smartsenselabs.com/ and use it from there.
+  # If anyone wants to deploy this service to their local environment,
+  #     then please use the ngrok service and update the host with the ngrok urls.
+  # Also, uncomment depends on the controlplane and dataplane services.
   # Wallet stub service
-  wallet-stub:
-    image: tractusx/ssi-dim-wallet-stub:0.0.4
-    container_name: wallet-stub
-    environment:
-      # Wallet configuration
-      - SERVER_PORT=80
-      - BASE_WALLET_BPN=BPNL0000TRACTUSX
-      - DID_HOST=ha3c3xy568h9.share.zrok.io
-      - STUB_URL=https://ha3c3xy568h9.share.zrok.io
-      - SEED_WALLETS_BPN=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL00000CATENAX
-    ports:
-      # Expose wallet service port
-      - "80:80"
-    networks:
-      - edc-network
-    healthcheck:
-      # Health check configuration
-      test: curl --fail http://wallet-stub/BPNL0000TRACTUSX/did.json || exit 1
-      interval: 40s
-      timeout: 30s
-      retries: 3
-      start_period: 30s
+  #  wallet-stub:
+  #    image: tractusx/ssi-dim-wallet-stub:0.0.4
+  #    container_name: wallet-stub
+  #    environment:
+  #      # Wallet configuration
+  #      - SERVER_PORT=80
+  #      - BASE_WALLET_BPN=BPNL0000TRACTUSX
+  #      - DID_HOST=wallet.learn.smartsenselabs.com
+  #      - STUB_URL=https://wallet.learn.smartsenselabs.com
+  #      - SEED_WALLETS_BPN=BPNL0000TRACTUSX,BPNL00SMARTSENSE,BPNL00000CATENAX
+  #    ports:
+  #      # Expose wallet service port
+  #      - "80:80"
+  #    networks:
+  #      - edc-network
+  #    healthcheck:
+  #      # Health check configuration
+  #      test: curl --fail http://wallet-stub/BPNL0000TRACTUSX/did.json || exit 1
+  #      interval: 40s
+  #      timeout: 30s
+  #      retries: 3
+  #      start_period: 30s
 
-  sender-backend:
+  smartsense-backend:
     build:
       dockerfile: ./edc-chat-app-backend/Dockerfile
-    container_name: sender-backend
+    container_name: smartsense-backend
     environment:
       - APP_PORT=8080
       - BPN=BPNL00SMARTSENSE
       - DB_HOST=postgres
-      - CHAT_DB=sender-backend
+      - CHAT_DB=smartsense-backend
       - DB_USER=root
       - DB_PASS=root
       - ASSET_ID=edc-chat-app
-      - EDC_URL=http://sender-controlplane:8192
-      - APP_HOST_URL=http://sender-backend:8080
+      - EDC_URL=http://smartsense-controlplane:8192
+      - APP_HOST_URL=http://smartsense-backend:8080
     ports:
       - "8182:8080"
     depends_on:
-      sender-controlplane:
+      smartsense-controlplane:
         condition: service_healthy
     networks:
       - edc-network
 
-  receiver-backend:
+  catena-x-backend:
     build:
       dockerfile: ./edc-chat-app-backend/Dockerfile
-    container_name: receiver-backend
+    container_name: catena-x-backend
     environment:
       - APP_PORT=8080
       - BPN=BPNL00000CATENAX
       - DB_HOST=postgres
-      - CHAT_DB=receiver-backend
+      - CHAT_DB=catena-x-backend
       - DB_USER=root
       - DB_PASS=root
       - ASSET_ID=edc-chat-app
-      - EDC_URL=http://receiver-controlplane:9192
-      - APP_HOST_URL=http://receiver-backend:8080
+      - EDC_URL=http://catena-x-controlplane:9192
+      - APP_HOST_URL=http://catena-x-backend:8080
     depends_on:
-      receiver-controlplane:
+      catena-x-controlplane:
         condition: service_healthy
     ports:
       - "8181:8080"
     networks:
       - edc-network
 
-  sender-ui:
+  smartsense-ui:
     build:
-      dockerfile: edc-chat-app-ui/Dockerfile-sender
-    container_name: sender-ui
+      dockerfile: edc-chat-app-ui/Dockerfile-smartsense
+    container_name: smartsense-ui
     depends_on:
-      - sender-backend
+      - smartsense-backend
     ports:
       - "8180:80"
     networks:
       - edc-network
 
-  receiver-ui:
+  catena-x-ui:
     build:
-      dockerfile: edc-chat-app-ui/Dockerfile-receiver
-    container_name: receiver-ui
+      dockerfile: edc-chat-app-ui/Dockerfile-catena-x
+    container_name: catena-x-ui
     depends_on:
-      - receiver-backend
+      - catena-x-backend
     ports:
       - "8280:80"
     networks:
       - edc-network
 
-  sender-flyway:
+  smartsense-edc-migration:
     image: flyway/flyway:latest
-    container_name: sender-flyway
-    command: -url=jdbc:postgresql://postgres:5432/sender-edc -schemas=public -user=root -password=root  -connectRetries=10 migrate
+    container_name: smartsense-edc-migration
+    command: -url=jdbc:postgresql://postgres:5432/smartsense-edc -schemas=public -user=root -password=root  -connectRetries=10 migrate
     volumes:
       - ./deployment/env/postgres/migration.sql:/flyway/sql/V0_0_1_0__create_tables.sql
     depends_on:
@@ -260,10 +264,10 @@ services:
     networks:
       - edc-network
 
-  receiver-flyway:
+  catena-x-edc-migration:
     image: flyway/flyway:latest
-    container_name: receiver-flyway
-    command: -url=jdbc:postgresql://postgres:5432/receiver-edc -schemas=public -user=root -password=root  -connectRetries=10 migrate
+    container_name: catena-x-edc-migration
+    command: -url=jdbc:postgresql://postgres:5432/catena-x-edc -schemas=public -user=root -password=root  -connectRetries=10 migrate
     volumes:
       - ./deployment/env/postgres/migration.sql:/flyway/sql/V0_0_1_0__create_tables.sql
     depends_on:
