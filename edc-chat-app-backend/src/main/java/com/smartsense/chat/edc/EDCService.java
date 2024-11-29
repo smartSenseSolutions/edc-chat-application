@@ -23,10 +23,6 @@ import com.smartsense.chat.utils.request.ChatRequest;
 import com.smartsense.chat.utils.response.ChatHistoryResponse;
 import com.smartsense.chat.utils.response.MessageStatus;
 import com.smartsense.chat.utils.validate.Validate;
-
-import java.util.List;
-import java.util.Objects;
-
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +32,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -155,6 +154,98 @@ public class EDCService {
             // Sent the message to public url
             ChatRequest receiverMsg = new ChatRequest(appConfig.bpn(), chatRequest.message());
             publicUrlHandlerService.getAuthCodeAndPublicUrl(transferProcessId, receiverMsg, chatMessage);
+            if (!StringUtils.hasText(chatMessage.getErrorDetail())) {
+                chatMessageService.updateChat(chatMessage, edcOfferDetails, true);
+            }
+        } catch (Exception e) {
+            errorMessage = "Message sending OR EDC process failed. error" + e.getMessage();
+            throw new IllegalStateException("Message sending OR EDC process failed.", e);
+        } finally {
+            ChatHistoryResponse chatResponse = new ChatHistoryResponse(chatMessage.getId(), chatRequest.receiverBpn(), appConfig.bpn(),
+                    chatRequest.message(), findStatus(chatMessage), chatMessage.getCreatedAt().getTime(), errorMessage, "update");
+            messagingTemplate.convertAndSend("/topic/messages", chatResponse);
+        }
+    }
+
+    /**
+     * Initializes the process for sending a chat message through the Eclipse Dataspace Connector (EDC).
+     * This method handles the entire flow from creating a chat message to negotiating a contract,
+     * obtaining an agreement, initiating a transfer process, and finally sending the message to a public URL of counterparty.
+     * <p>
+     * The process includes:
+     * 1. Validating the receiver's business partner number (BPN)
+     * 2. Query Catalog
+     * 3. Creating or retrieving EDC offer details
+     * 4. Initiating contract negotiation
+     * 5. Obtaining an agreement
+     * 6. Initiating the transfer process
+     * 7. Sending the message to a public URL of receiver
+     * <p>
+     * This method is executed asynchronously.
+     *
+     * @param chatRequest The chat request containing information about the message to be sent,
+     *                    including the receiver's BPN and the message content.
+     */
+    @Async
+    public void initProcessWithoutEDR(ChatRequest chatRequest, ChatMessage chatMessage, String receiverBpnl, String receiverDspUrl) {
+        String errorMessage = "";
+        try {
+            EdcOfferDetails edcOfferDetails = edcOfferDetailsService.getOfferDetails(receiverBpnl);
+            if (Objects.isNull(edcOfferDetails)) {
+                edcOfferDetails = new EdcOfferDetails();
+                edcOfferDetails.setReceiverBpn(receiverBpnl);
+                edcOfferDetails.setAssetId(appConfig.edc().assetId());
+                edcOfferDetails = edcOfferDetailsService.create(edcOfferDetails);
+            }
+            chatMessageService.updateChat(chatMessage, edcOfferDetails, false);
+
+            if (!StringUtils.hasText(edcOfferDetails.getAgreementId())) {
+                // Query the catalog for chat asset
+                String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, chatMessage);
+                if (!StringUtils.hasText(offerId)) {
+                    errorMessage = String.format("Not able to create and retrieve the offerId from EDC %s ", receiverDspUrl);
+                    log.error("Not able to create and retrieve the offerId from EDC {}, please check manually.", receiverDspUrl);
+                    Validate.isTrue(true).launch(errorMessage);
+                    return;
+                }
+
+                // Initiate the contract negotiation
+                String negotiationId = contractNegotiationService.initNegotiationWithoutEDR(receiverDspUrl, receiverBpnl, offerId, chatMessage);
+                if (!StringUtils.hasText(negotiationId)) {
+                    errorMessage = String.format("Not able to initiate the negotiation for EDC %s and offerId %s, please check manually.", receiverDspUrl, offerId);
+                    log.error(errorMessage);
+                    return;
+                }
+                chatMessageService.setAndSaveEdcState("NegotiationId", negotiationId, chatMessage);
+
+                // Get agreement Id based on the negotiationId
+                String agreementId = agreementService.getAgreement(negotiationId, chatMessage);
+                if (!StringUtils.hasText(agreementId)) {
+                    errorMessage = String.format("Not able to get the agreement for offerId %s and negotiationId %s, please check manually.", offerId, negotiationId);
+                    log.error(errorMessage);
+                    return;
+                }
+                chatMessageService.setAndSaveEdcState("AgreementId", agreementId, chatMessage);
+
+                edcOfferDetails.setOfferId(offerId);
+                edcOfferDetails.setAgreementId(agreementId);
+                edcOfferDetails = edcOfferDetailsService.create(edcOfferDetails);
+            }
+
+            String agreementId = edcOfferDetails.getAgreementId();
+            chatMessageService.setAndSaveEdcState("AgreementId", agreementId, chatMessage);
+            // Initiate the transfer process
+            String transferProcessId = transferProcessService.initiateTransferWithoutEDR(receiverDspUrl, receiverBpnl, agreementId, chatMessage);
+            if (!StringUtils.hasText(transferProcessId)) {
+                errorMessage = String.format("Not able to get the agreement for transferProcessId %s, please check manually.", transferProcessId);
+                log.error(errorMessage);
+                return;
+            }
+            chatMessageService.setAndSaveEdcState("TransferId", transferProcessId, chatMessage);
+
+            // Sent the message to public url
+            ChatRequest receiverMsg = new ChatRequest(appConfig.bpn(), chatRequest.message());
+            publicUrlHandlerService.getAuthCodeAndPublicUrlWithoutEDR(transferProcessId, receiverMsg, chatMessage);
             if (!StringUtils.hasText(chatMessage.getErrorDetail())) {
                 chatMessageService.updateChat(chatMessage, edcOfferDetails, true);
             }

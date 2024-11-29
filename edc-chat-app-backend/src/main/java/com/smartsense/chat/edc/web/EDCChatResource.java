@@ -16,17 +16,9 @@ import com.smartsense.chat.utils.validate.Validate;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs;
 import com.smartsense.chat.web.apidocs.EDCChatApiDocs.EDCChatReceive;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import java.util.List;
-import java.util.Map;
-
-import static com.smartsense.chat.web.ApiConstant.CHAT_HISTORY;
-import static com.smartsense.chat.web.ApiConstant.RECEIVE_CHAT;
-import static com.smartsense.chat.web.ApiConstant.SEND_CHAT;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +26,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.smartsense.chat.web.ApiConstant.CHAT_HISTORY;
+import static com.smartsense.chat.web.ApiConstant.RECEIVE_CHAT;
+import static com.smartsense.chat.web.ApiConstant.SEND_CHAT;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequiredArgsConstructor
@@ -85,7 +85,7 @@ public class EDCChatResource {
         String receiverDspUrl = partnerService.getBusinessPartnerByBpn(receiverBpnl);
         Validate.isFalse(StringUtils.hasText(receiverDspUrl)).launch("Business Partner not registered with BPN: " + receiverBpnl);
         ChatMessage chatMessage = chatMessageService.createChat(chatRequest, true, false, null);
-        edcService.initProcess(chatRequest, chatMessage, receiverBpnl, receiverDspUrl);
+        edcService.initProcessWithoutEDR(chatRequest, chatMessage, receiverBpnl, receiverDspUrl);
         return edcService.mapToChatHistoryResponse(chatMessage);
     }
 

@@ -67,4 +67,5 @@ DROP TABLE edc_process_states CASCADE;
 --changeset Bhautik:8
 ALTER TABLE chat_messages DROP COLUMN edc_process_state_id;
 
-
+--changeset Dilip:9
+ALTER TABLE edc_offer_details ADD agreement_id VARCHAR(255);

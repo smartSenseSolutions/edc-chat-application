@@ -8,15 +8,14 @@ import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.service.ChatMessageService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +50,23 @@ public class ContractNegotiationService {
         }
     }
 
+    public String initNegotiationWithoutEDR(String receiverDspUrl, String receiverBpnL, String offerId, ChatMessage chatMessage) {
+        try {
+            log.info("Starting negotiation(Without EDR) process with bpnl {}, dspUrl {} and offerId {}", receiverBpnL, receiverDspUrl, offerId);
+            Map<String, Object> negotiationRequest = prepareNegotiationRequestWithoutEDR(receiverDspUrl, receiverBpnL, offerId, config.edc().assetId());
+            log.info("Negotiation(Without EDR) initiated for offerId {}", offerId);
+            Map<String, Object> negotiationResponse = edc.initNegotiationWithoutEDR(config.edc().edcUri(), negotiationRequest, config.edc().authCode());
+            String negotiationId = negotiationResponse.get("@id").toString();
+            log.info("Contract negotiation(Without EDR) process done for offerId {} with negotiationId {}", offerId, negotiationId);
+            return negotiationId;
+        } catch (Exception ex) {
+            chatMessage.setErrorDetail(String.format("Error occurred while negotiating(Without EDR) the contract offer %s with dspUrl %s and bpnl %s and Exception is %s.", offerId, receiverDspUrl, receiverBpnL, ex.getMessage()));
+            chatMessageService.create(chatMessage);
+            log.error("Error occurred while negotiating(Without EDR) the contract offer {} with dspUrl {} and bpnl {}.", offerId, receiverDspUrl, receiverBpnL);
+            return null;
+        }
+    }
+
     private Map<String, Object> prepareNegotiationRequest(String receiverDspUrl, String receiverBpnL, String offerId) {
         Map<String, Object> negotiationRequest = new HashMap<>();
         negotiationRequest.put("@context", prepareNegotiationContext());
@@ -71,5 +87,28 @@ public class ContractNegotiationService {
         negotiationPolicy.put("target", config.edc().assetId());
         negotiationPolicy.put("assigner", receiverBpnL);
         return negotiationPolicy;
+    }
+
+    private Map<String, Object> prepareNegotiationRequestWithoutEDR(String receiverDspUrl, String receiverBpnL, String offerId, String assetId) {
+        Map<String, Object> negotiationRequest = new HashMap<>();
+        negotiationRequest.put("@context", Map.of("@vocab", "https://w3id.org/edc/v0.0.1/ns/",
+                "odrl", "http://www.w3.org/ns/odrl/2/"));
+        negotiationRequest.put("counterPartyAddress", receiverDspUrl);
+        negotiationRequest.put("counterPartyId", receiverBpnL);
+        negotiationRequest.put("protocol", "dataspace-protocol-http");
+        negotiationRequest.put("policy", prepareNegotiationPolicyWithoutEDR(offerId, receiverBpnL, assetId));
+        log.info("Negotiation request without EDR looks like: {}", negotiationRequest);
+        return negotiationRequest;
+    }
+
+    private Map<String, Object> prepareNegotiationPolicyWithoutEDR(String offerId, String receiverBpnL, String assetId) {
+        Map<String, Object> policy = new HashMap<>();
+        policy.put("@context", "http://www.w3.org/ns/odrl.jsonld");
+        policy.put("@id", offerId);
+        policy.put("@type", "Offer");
+        policy.put("assigner", receiverBpnL);
+        policy.put("target", assetId);
+        policy.put("odrl:permission", List.of(Map.of("action", "use")));
+        return policy;
     }
 }

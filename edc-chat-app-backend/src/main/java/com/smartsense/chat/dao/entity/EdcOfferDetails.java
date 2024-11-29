@@ -14,14 +14,13 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -41,6 +40,9 @@ public class EdcOfferDetails implements BaseEntity {
 
     @Column(name = "offer_id")
     private String offerId;
+
+    @Column(name = "agreement_id")
+    private String agreementId;
 
     @Column(name = "asset_id")
     private String assetId;

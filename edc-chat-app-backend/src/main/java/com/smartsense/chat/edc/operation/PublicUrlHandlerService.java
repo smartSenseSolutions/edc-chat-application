@@ -10,13 +10,13 @@ import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.service.ChatMessageService;
 import com.smartsense.chat.utils.request.ChatRequest;
-
-import java.net.URI;
-import java.util.Map;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.net.URI;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +46,38 @@ public class PublicUrlHandlerService {
             chatMessage.setErrorDetail(String.format("Error occurred in get auth code based on transfer process id %s and exception: %s", transferProcessId, ex.getMessage()));
             chatMessageService.create(chatMessage);
             log.error("Error occurred in get auth code based on transfer process id {} ", transferProcessId, ex);
+        }
+    }
+
+    public void getAuthCodeAndPublicUrlWithoutEDR(String transferProcessId, ChatRequest message, ChatMessage chatMessage) {
+        try {
+            int count = 0;
+            log.info("Initiate to get auth code based on transfer process(Without EDR) id {}", transferProcessId);
+
+            Map<String, Object> response = null;
+            do {
+                try {
+                    response = edc.getAuthCodeAndPublicUrl(config.edc().edcUri(), transferProcessId, config.edc().authCode());
+                } catch (Exception ex) {
+                    log.error("Not able to fetch the public url, retry count {}", count);
+                    count++;
+                    Thread.sleep(2_000);
+                }
+            } while (CollectionUtils.isEmpty(response) && count <= 10);
+            log.info("Auth code and public url response(Without EDR) -> {}", response);
+
+            // Retrieve public path and authorization code
+            String publicPath = response.get("tx-auth:refreshEndpoint").toString();
+            String authorization = response.get("authorization").toString();
+
+            // Call the public path with authorization code
+            callPublicUri(publicPath, mapper.writeValueAsString(message), authorization);
+
+            log.info("Initiate to get auth code based on transfer process(Without EDR) id {} is done.", transferProcessId);
+        } catch (Exception ex) {
+            chatMessage.setErrorDetail(String.format("Error occurred in get auth code based on transfer process id %s and exception: %s", transferProcessId, ex.getMessage()));
+            chatMessageService.create(chatMessage);
+            log.error("Error occurred in get auth code based on transfer process id(Without EDR) {} ", transferProcessId, ex);
         }
     }
 
