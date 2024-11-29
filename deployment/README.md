@@ -82,7 +82,7 @@ includes multiple components working together for real-time messaging and data t
 3. Start the chat with the selected business partner.
    ![start-chat.png](../docs/images/ui/start-chat.png)
 4. When message has been passed then the logs are looks like below:
-   ![logs.png](../docs/images/ui/logs.png)
+   ![logs.png](../docs/images/deployment/logs.png)
 
 ---
 
