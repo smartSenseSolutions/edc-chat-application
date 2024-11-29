@@ -4,12 +4,134 @@
 
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-        "Droid Sans", "Helvetica Neue", sans-serif;
+    font-family: "Manrope", sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+        "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+html {
+    background-color: #000;
+}
+
+#root {
+    font-family: "Manrope", sans-serif;
+    color: white;
+    background: linear-gradient(to top right, #faa023 10%, #000000 30%, #000000 100%);
+}
+
+.main-container {
+    display: flex;
+    height: 100vh;
+    flex-direction: column;
+}
+.content {
+    flex-grow: 1;
+}
+.footer {
+    padding: 8px 16px;
+    text-align: right;
+    color: rgba(255, 255, 255, 0.603);
+}
+.footer span {
+    margin-right: 10px;
+}
+
+.form-container {
+    color: white;
+    font-family: "Manrope", sans-serif;
+    width: 50%;
+    margin: 0 auto;
+}
+
+.primary-btn {
+    color: #000 !important;
+    background-color: #faa023 !important;
+    border: none !important;
+    font-weight: 500 !important;
+}
+.primary-btn:hover {
+    color: #faa023 !important;
+    background-color: #1e1e1e !important;
+}
+
+.chatPrimary {
+    background-color: rgb(250, 200, 152);
+    color: black !important;
+}
+.chatSecondary {
+    background-color: #ece3e3;
+    color: black !important;
+}
+
+.bpnInfo {
+    color: white;
+    border: 2px solid #707277;
+    border-left: 0;
+    border-right: 0;
+    padding: 20px 0;
+    margin-bottom: 20px;
+}
+
+.bpnInfo.error {
+    color: #e06352;
+}
+
+.outline-btn {
+    color: #faa023 !important;
+    font-weight: 500 !important;
+    border: 2px solid #faa023 !important;
+    background-color: transparent !important;
+}
+
+.outline-btn:hover {
+    color: white !important;
+    font-weight: 500 !important;
+    border: 2px solid #faa023 !important;
+    background-color: #faa023 !important;
+}
+
+.bgBlack {
+    background-color: #000 !important;
+}
+.custom-select-form-control {
+    margin-top: 10px;
+}
+.custom-form-contol {
+    margin: 10px 0;
+}
+.edcLogo {
+    display: flex;
+    align-items: center;
+    font-weight: bolder;
+    text-decoration: none;
+    color: white;
+    font-family: "Manrope", sans-serif;
+    font-size: 28px;
+    gap: 10px;
+    padding: 16px;
+}
+
+.edcLogo:hover {
+    color: #faa023;
+}
+.header {
+    padding: 20px;
+}
+.backBtn {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    margin-bottom: 20px;
+}
+.custom-form {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 30px 40px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
 }

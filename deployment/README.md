@@ -33,6 +33,13 @@ includes multiple components working together for real-time messaging and data t
     - The `create_database.sh` script creates required databases at startup.
 - **Note**:
     - To ensure functionality, manually run the provided `migration.sql` to create EDC-specific tables.
+#### For deployment in Windows OS
+
+  - The [create_database.sh](deployment/env/postgres/create_database.sh) needs to be modified. The `chmod +x /docker-entrypoint-initdb.d/create_databases.sh` needs to be removed.
+  - Additionally, Windows uses CRLF line separators instead of LF, causing issues while running the init script.
+    - To change the line separators in IntelliJ IDEA, go to `File -> File Properties -> Line Separators` and select `LF - Unix and macOS (\n)`.
+    - To change the line separators in Notepad++, go to `Edit -> EOL Conversion` and select `Unix (LF)`
+
 
 ### **EDC (Eclipse Data Connector)**
 
@@ -82,7 +89,7 @@ includes multiple components working together for real-time messaging and data t
 3. Start the chat with the selected business partner.
    ![start-chat.png](../docs/images/ui/start-chat.png)
 4. When message has been passed then the logs are looks like below:
-   ![logs.png](../docs/images/ui/logs.png)
+   ![logs.png](../docs/images/deployment/logs.png)
 
 ---
 

@@ -4,7 +4,8 @@
 
 import axios from "axios";
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const AddBpn = () => {
     const location = useLocation();
@@ -82,11 +83,14 @@ const AddBpn = () => {
         }
     };
     return (
-        <div className="container mt-5">
-            <h1 className="text-center">Add New Business Partner</h1>
+        <div className="form-container  mt-5">
+            <Link to="/" className="backBtn">
+                &lt;&nbsp;Back
+            </Link>
+            <h2 className="text-center">Add New Business Partner</h2>
 
             {selfBpn && (
-                <div className="alert alert-info">
+                <div className="bpnInfo">
                     <strong>Your BPN: {selfBpn}</strong>
                 </div>
             )}
@@ -94,13 +98,14 @@ const AddBpn = () => {
             {success && <div className="alert alert-success">{success}</div>}
             {error && <div className="alert alert-danger">{error}</div>}
 
-            <div className="card p-3">
+            <div className="custom-form">
                 <div className="mb-3">
                     <label>Name</label>
                     <input
                         type="text"
                         name="name"
-                        className="form-control"
+                        placeholder="Your company name"
+                        className="form-control custom-form-contol "
                         value={formData.name}
                         onChange={handleInputChange}
                         style={{
@@ -114,7 +119,8 @@ const AddBpn = () => {
                         type="text"
                         name="bpn"
                         value={formData.bpn}
-                        className="form-control"
+                        className="form-control custom-form-contol "
+                        placeholder="BPNL000000000000"
                         onChange={handleInputChange}
                         style={{
                             borderColor: validationErrors.bpn ? "red" : "",
@@ -126,7 +132,8 @@ const AddBpn = () => {
                     <input
                         type="text"
                         name="edcUrl"
-                        className="form-control"
+                        placeholder="http://your-controlplane-host/api/v1/dsp"
+                        className="form-control custom-form-contol"
                         value={formData.edcUrl}
                         onChange={handleInputChange}
                         style={{
@@ -134,7 +141,7 @@ const AddBpn = () => {
                         }}
                     />
                 </div>
-                <button className="btn btn-primary w-100" onClick={handleSave}>
+                <button className="btn btn-primary primary-btn w-100" onClick={handleSave}>
                     Save
                 </button>
             </div>
