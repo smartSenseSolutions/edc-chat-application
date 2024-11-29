@@ -106,7 +106,6 @@ html {
     margin: 10px 0;
 }
 .edcLogo {
-    position: absolute;
     display: flex;
     align-items: center;
     font-weight: bolder;
@@ -114,8 +113,6 @@ html {
     color: white;
     font-family: "Manrope", sans-serif;
     font-size: 28px;
-    top: 16px;
-    left: 16px;
     gap: 10px;
     padding: 16px;
 }

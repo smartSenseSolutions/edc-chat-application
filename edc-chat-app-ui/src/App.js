@@ -17,9 +17,9 @@ function App() {
                         <img src={"/edclogo.svg"} width={"44"} height={"42"} />
                         <span>Eclipse Tractus-X</span>
                     </Link>
-
-                    <h1 className="text-center">Chat Application using EDC</h1>
                 </div>
+                <h1 className="text-center">Chat Application using EDC</h1>
+
                 <div className="content">
                     <Routes>
                         <Route path="/" element={<Home />} />

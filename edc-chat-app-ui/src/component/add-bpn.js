@@ -104,6 +104,7 @@ const AddBpn = () => {
                     <input
                         type="text"
                         name="name"
+                        placeholder="Your company name"
                         className="form-control custom-form-contol "
                         value={formData.name}
                         onChange={handleInputChange}
@@ -119,6 +120,7 @@ const AddBpn = () => {
                         name="bpn"
                         value={formData.bpn}
                         className="form-control custom-form-contol "
+                        placeholder="BPNL000000000000"
                         onChange={handleInputChange}
                         style={{
                             borderColor: validationErrors.bpn ? "red" : "",
@@ -130,6 +132,7 @@ const AddBpn = () => {
                     <input
                         type="text"
                         name="edcUrl"
+                        placeholder="http://your-controlplane-host/api/v1/dsp"
                         className="form-control custom-form-contol"
                         value={formData.edcUrl}
                         onChange={handleInputChange}
