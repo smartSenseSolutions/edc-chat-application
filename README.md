@@ -43,7 +43,7 @@ There will be some operator company(trusted issuer) which will host following co
 1. SSI Dim wallet stub application
 
 #### Note: 
-- We need to expose wallet stun on `https` URL as while verification of VP token EDC will resolve DID document on `https`. You can use `ngrok` or `tunnelmol` for this purpose.
+- We need to expose wallet stub on `https` URL as while verification of VP token, EDC will resolve DID document on `https`. You can use `ngrok` or `tunnelmol` for this purpose.
 - Alternatively, You can use hosted wallet stub application on https://wallet.learn.smartsenselabs.com for testing purpose.
 
 ### High level diagram 
