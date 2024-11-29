@@ -253,6 +253,9 @@ services:
       retries: 3
       start_period: 30s
 
+# Service to register a business partner in the backend application to avoid manual data creation.
+# This will register smartSense's EDC into the Catena-X backend and vice versa.
+# This could be automated using a central service, i.e., the EDC Discovery Service.
   bp-registration:
     image: alpine/curl
     container_name: bp-registration
@@ -295,6 +298,9 @@ services:
     networks:
       - edc-network
 
+# This script creates missing tables in the EDC database. 
+# Ideally, migrations should handle this, but due to an issue in EDC 0.7.7, some tables were not created. 
+# To save time, we added this script as a precaution; it will only create tables if they don't exist.
   smartsense-edc-migration:
     image: flyway/flyway:latest
     container_name: smartsense-edc-migration
