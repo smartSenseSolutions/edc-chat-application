@@ -73,23 +73,28 @@ const Home = () => {
     };
 
     return (
-        <div className="container mt-5">
-            <h1 className="text-center">Chat Application using EDC</h1>
+        <div className="form-container mt-5">
+            {/* <h1 className="text-center">Chat Application using EDC</h1> */}
 
             {bpn ? (
-                <div className="alert alert-info">
+                <div className="bpnInfo">
                     <strong>Your BPN: {bpn}</strong>
                 </div>
             ) : (
-                <div className="alert alert-warning">Fetching your BPN...</div>
+                <div className="bpnInfo">Fetching your BPN...</div>
             )}
 
-            {error && <div className="alert alert-danger">{error}</div>}
+            {error && <div className="bpnInfo error">{error}</div>}
 
-            <div className="card p-3">
+            <div className="card p-3 bgBlack" style={{ color: "white" }}>
                 <div className="mb-3">
                     <label>Select Business Partner to start chat</label>
-                    <select id="dropdown" className="form-control" value={selectedValue} onChange={handleSelectChange}>
+                    <select
+                        id="dropdown"
+                        className="form-control custom-select-form-control"
+                        value={selectedValue}
+                        onChange={handleSelectChange}
+                    >
                         <option value="">-- Select an Option --</option>
                         {dropdownData.map((item, index) => (
                             <option key={index} value={item.value}>
@@ -98,13 +103,13 @@ const Home = () => {
                         ))}
                     </select>
                 </div>
-                <button className="btn btn-primary w-100" onClick={handleStartChat} disabled={!bpn}>
+                <button className="btn btn-primary primary-btn w-100" onClick={handleStartChat} disabled={!bpn}>
                     Start Chat
                 </button>
 
                 <div className="text-center mt-3">OR</div>
 
-                <button className="btn btn-secondary w-100 mt-2" onClick={handleAddPartner}>
+                <button className="btn btn-secondary w-100 mt-2 outline-btn" onClick={handleAddPartner}>
                     Connect with New Business Partner
                 </button>
             </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Client } from "@stomp/stompjs";
+import { Link } from "react-router-dom";
 
 const Chat = () => {
     const location = useLocation();
@@ -47,6 +48,7 @@ const Chat = () => {
                     debugger;
                     if (newMessage.receiver == partnerBpn) {
                         if (newMessage.action === "add") {
+                            //message received
                             setMessages((prevMessages) => [
                                 ...prevMessages,
                                 {
@@ -57,6 +59,7 @@ const Chat = () => {
                                 },
                             ]);
                         } else {
+                            //update existing messages staus
                             setMessages((prevMessages) =>
                                 prevMessages.map((message) =>
                                     message.id === newMessage.id
@@ -186,10 +189,12 @@ const Chat = () => {
 
     return (
         <div className="container mt-5">
-            <h1 className="text-center">Welcome to EDC Chat</h1>
-
+            {/* <h1 className="text-center">Welcome to EDC Chat</h1> */}
+            <Link href="/" className="backBtn">
+                &lt;&nbsp;Back
+            </Link>
             {/* Display BPN */}
-            <div className="d-flex justify-content-between alert alert-info">
+            <div className="d-flex justify-content-between bpnInfo">
                 {selfBpn && (
                     <div className="text-start">
                         <strong>Your BPN: {selfBpn}</strong>
@@ -214,7 +219,7 @@ const Chat = () => {
                     const status = msg.status;
                     const showStatus = status && status !== "NONE";
                     const statusColor = status === "SENT" || status === "RECEIVED" ? "text-success" : "text-danger";
-                    const statusText = status === "SENT" ? "Sent" : status === "RECEIVED" ? "Received" : "Failed";
+                    const statusText = status === "SENT" ? "Sent" : status === "RECEIVED" ? "" : "Failed";
 
                     return (
                         <div
@@ -222,12 +227,12 @@ const Chat = () => {
                             className={`d-flex ${isCurrentUser ? "justify-content-end" : "justify-content-start"} mb-2`}
                         >
                             <div
-                                className={`p-2 rounded ${isCurrentUser ? "bg-light" : "bg-info text-white"}`}
+                                className={`p-2 rounded ${isCurrentUser ? "chatSecondary" : "chatPrimary"}`}
                                 onClick={() => handleMessageClick(msg)} // Add click handler
                                 style={{ cursor: status !== "SENT" && msg.errorMessage ? "pointer" : "default" }}
                             >
                                 <strong>{isCurrentUser ? "You" : msg.sender}: </strong> {msg.content || msg.text}
-                                <div className="text-muted small">{formattedTimestamp}</div>
+                                <div className="small">{formattedTimestamp}</div>
                                 {/* Conditionally render status */}
                                 {showStatus && <div className={`small ${statusColor}`}>{statusText}</div>}
                             </div>
@@ -239,7 +244,7 @@ const Chat = () => {
             {errorPopup.isVisible && (
                 <div
                     className="modal fade show d-block"
-                    style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+                    style={{ backgroundColor: "rgba(0, 0, 0, 0.5)", color: "black" }}
                     onClick={closePopup}
                 >
                     <div
@@ -255,7 +260,7 @@ const Chat = () => {
                                 <p>{errorPopup.errorMessage}</p>
                             </div>
                             <div className="modal-footer">
-                                <button className="btn btn-primary" onClick={closePopup}>
+                                <button className="btn btn-primary primary-btn" onClick={closePopup}>
                                     Close
                                 </button>
                             </div>
@@ -276,7 +281,7 @@ const Chat = () => {
                     rows={3}
                     onChange={(e) => setNewMessage(e.target.value)}
                 />
-                <button className="btn btn-primary" onClick={handleSendMessage}>
+                <button className="btn btn-primary primary-btn" onClick={handleSendMessage}>
                     Send
                 </button>
             </div>
