@@ -15,7 +15,7 @@ The following table lists Business Partner Numbers (BPNs) associated with differ
 | Catena-X        | BPNL00000CATENAX | Represents the BPN assigned to the Catena-X. We can also consider as receier/consumer. |
 | Tractus-X       | BPNL0000TRACTUSX | Dataspace operator or trusted issuer                                                   |
 
-*Note: This is just to set the context of the application, you can transfer data vice versa(smartSense to Catena-X or Catena-X to smartSense).* 
+*Note: This is just to set the context of the application, you can transfer data vice versa(smartSense to Catena-X or Catena-X to smartSense) and You can also register a third participant (EDC).* 
 
 ## Tools and technology
 - Java - Spring boot
@@ -43,7 +43,7 @@ There will be some operator company(trusted issuer) which will host following co
 1. SSI Dim wallet stub application
 
 #### Note: 
-- We need to expose wallet stun on `https` URL as while verification of VP token EDC will resolve DID document on `https`. You can use `ngrok` or `tunnelmol` for this purpose.
+- We need to expose wallet stub on `https` URL as while verification of VP token, EDC will resolve DID document on `https`. You can use `ngrok` or `tunnelmol` for this purpose.
 - Alternatively, You can use hosted wallet stub application on https://wallet.learn.smartsenselabs.com for testing purpose.
 
 ### High level diagram 
@@ -69,7 +69,8 @@ Please refer [technical.md](docs/technical.md)
 
 ## Demo
 
-WIP
+<a href="https://drive.google.com/file/d/1siHmY9dEJ-3U7j8p2KTnltMvW37X01Bv/view?usp=drive_link" target="_blank">Chat application using EDC demo</a>
+
 
 ## Out of scope
 - Any authentication and authorization 
