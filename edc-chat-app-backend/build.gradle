@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'

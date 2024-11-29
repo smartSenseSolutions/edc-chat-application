@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.web.apidocs;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,12 +37,12 @@ public class EDCChatApiDocs {
                                       }
                                     """)
                     })
-            }) })
+            })})
     public @interface EDCChatReceive {
     }
 
 
-    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @Target({ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(description = "Send Chat message to selected partner", summary = "Send Chat message to selected partner")
     @RequestBody(content = {
@@ -62,11 +66,11 @@ public class EDCChatApiDocs {
                                               "timestamp": 1700654400
                                           }
                                     """)
-                    }) }) })
+                    })})})
     public @interface Chat {
     }
 
-    @Target({ ElementType.TYPE, ElementType.METHOD })
+    @Target({ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @Operation(description = "Get Chat history", summary = "Get Chat history")
     @ApiResponses(value = {
@@ -92,7 +96,7 @@ public class EDCChatApiDocs {
                                         }
                                     ]
                                     """)
-                    }) }) })
+                    })})})
     public @interface GetChatHistory {
     }
 }

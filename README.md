@@ -67,12 +67,17 @@ Please refer [README.md](deployment/README.md)
 
 Please refer [technical.md](docs/technical.md)
 
+## Demo
+
+WIP
+
 ## Out of scope
 - Any authentication and authorization 
 - EDC discovery service, each participant need to register partner's BPN and EDC DSP URL to start chat
 - Fancy UI/UX
 - Deployment using helm
 - Negative scenarios
+- Any kind of Unit test in code
 
 ## Note
-- There we be latency in transfer chat message due to contract negotiation and transfer process of the EDC 
+- There will be latency in transfer chat message due to contract negotiation and transfer process of the EDC 

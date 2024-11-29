@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.edc;
 
 import com.smartsense.chat.dao.entity.ChatMessage;
@@ -96,6 +100,7 @@ public class EDCService {
      */
     @Async
     public void initProcess(ChatRequest chatRequest, ChatMessage chatMessage, String receiverBpnl, String receiverDspUrl) {
+        String errorMessage = "";
         try {
             EdcOfferDetails edcOfferDetails = edcOfferDetailsService.getOfferDetails(receiverBpnl);
             if (Objects.isNull(edcOfferDetails)) {
@@ -110,8 +115,9 @@ public class EDCService {
                 // Query the catalog for chat asset
                 String offerId = queryCatalogService.queryCatalog(receiverDspUrl, receiverBpnl, chatMessage);
                 if (!StringUtils.hasText(offerId)) {
+                    errorMessage = String.format("Not able to create and retrieve the offerId from EDC %s ", receiverDspUrl);
                     log.error("Not able to create and retrieve the offerId from EDC {}, please check manually.", receiverDspUrl);
-                    Validate.isTrue(true).launch(String.format("Not able to create and retrieve the offerId from EDC %s ", receiverDspUrl));
+                    Validate.isTrue(true).launch(errorMessage);
                     return;
                 }
                 edcOfferDetails.setOfferId(offerId);
@@ -122,7 +128,8 @@ public class EDCService {
             String offerId = edcOfferDetails.getOfferId();
             String negotiationId = contractNegotiationService.initNegotiation(receiverDspUrl, receiverBpnl, offerId, chatMessage);
             if (!StringUtils.hasText(negotiationId)) {
-                log.error("Not able to initiate the negotiation for EDC {} and offerId {}, please check manually.", receiverDspUrl, offerId);
+                errorMessage = String.format("Not able to initiate the negotiation for EDC %s and offerId %s, please check manually.", receiverDspUrl, offerId);
+                log.error(errorMessage);
                 return;
             }
             chatMessageService.setAndSaveEdcState("NegotiationId", negotiationId, chatMessage);
@@ -130,7 +137,8 @@ public class EDCService {
             // Get agreement Id based on the negotiationId
             String agreementId = agreementService.getAgreement(negotiationId, chatMessage);
             if (!StringUtils.hasText(agreementId)) {
-                log.error("Not able to get the agreement for offerId {} and negotiationId {}, please check manually.", offerId, negotiationId);
+                errorMessage = String.format("Not able to get the agreement for offerId %s and negotiationId %s, please check manually.", offerId, negotiationId);
+                log.error(errorMessage);
                 return;
             }
             chatMessageService.setAndSaveEdcState("AgreementId", agreementId, chatMessage);
@@ -138,7 +146,8 @@ public class EDCService {
             // Initiate the transfer process
             String transferProcessId = transferProcessService.initiateTransfer(agreementId, chatMessage);
             if (!StringUtils.hasText(transferProcessId)) {
-                log.error("Not able to get the agreement for transferProcessId {}, please check manually.", transferProcessId);
+                errorMessage = String.format("Not able to get the agreement for transferProcessId %s, please check manually.", transferProcessId);
+                log.error(errorMessage);
                 return;
             }
             chatMessageService.setAndSaveEdcState("TransferId", transferProcessId, chatMessage);
@@ -150,10 +159,11 @@ public class EDCService {
                 chatMessageService.updateChat(chatMessage, edcOfferDetails, true);
             }
         } catch (Exception e) {
+            errorMessage = "Message sending OR EDC process failed. error" + e.getMessage();
             throw new IllegalStateException("Message sending OR EDC process failed.", e);
         } finally {
             ChatHistoryResponse chatResponse = new ChatHistoryResponse(chatMessage.getId(), chatRequest.receiverBpn(), appConfig.bpn(),
-                    chatRequest.message(), findStatus(chatMessage), chatMessage.getCreatedAt().getTime(), null, "update");
+                    chatRequest.message(), findStatus(chatMessage), chatMessage.getCreatedAt().getTime(), errorMessage, "update");
             messagingTemplate.convertAndSend("/topic/messages", chatResponse);
         }
     }

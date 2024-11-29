@@ -1,9 +1,18 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.utils.exception;
 
 import com.smartsense.chat.utils.constant.ContField;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
@@ -13,10 +22,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Global exception handler
@@ -67,7 +72,6 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(com.smartsense.chat.utils.exception.BadDataException.class)
     ProblemDetail handleBadDataException(com.smartsense.chat.utils.exception.BadDataException e) {
-        String errorMsg = ExceptionUtils.getMessage(e);
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
         problemDetail.setTitle(e.getMessage());
         problemDetail.setProperty(ContField.TIMESTAMP, System.currentTimeMillis());

@@ -1,3 +1,5 @@
+#  Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+
 # Docker Compose configuration for running Chat application using EDC
 # This setup includes PostgreSQL, EDC control planes, data planes, backend application and UI for sender and receiver,
 # HashiCorp Vault and wallet stub service for operator company(Trusted issuer)
@@ -19,7 +21,7 @@ services:
       # Script to create multiple databases
       - ./deployment/env/postgres/create_database.sh:/docker-entrypoint-initdb.d/create_databases.sh
     ports:
-      - "5432:5432"
+      - "5434:5432"
     restart: no
     networks:
       - edc-network

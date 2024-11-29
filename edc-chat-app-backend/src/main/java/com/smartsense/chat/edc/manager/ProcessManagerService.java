@@ -1,9 +1,13 @@
-package com.smartsense.chat.edc.manager;
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
 
-import org.springframework.stereotype.Component;
+package com.smartsense.chat.edc.manager;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.stereotype.Component;
 
 @Component
 public class ProcessManagerService {

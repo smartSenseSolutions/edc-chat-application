@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.service;
 
 import com.smartsense.chat.dao.entity.ChatMessage;
@@ -59,7 +63,7 @@ public class ChatMessageService extends BaseService<ChatMessage, Long> {
         chatMessage.setEdcOfferDetails(edcOfferDetails);
         create(chatMessage);
     }
-    
+
 
     /**
      * Asynchronously sets a specific EDC state field on a ChatMessage and saves the updated message.

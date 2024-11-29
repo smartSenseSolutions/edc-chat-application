@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.web.apidocs;
 
 import io.swagger.v3.oas.annotations.Operation;

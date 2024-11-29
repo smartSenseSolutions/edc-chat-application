@@ -1,9 +1,13 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.utils.exception;
+
+import java.io.Serial;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.io.Serial;
 
 @NoArgsConstructor
 @Getter

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.web;
 
 import com.smartsense.chat.edc.settings.AppConfig;
@@ -66,7 +70,7 @@ public class BusinessPartnerResource {
         return businessPartnerService.createBusinessPartner(request);
     }
 
-    
+
     /**
      * Retrieves a list of all business partners.
      * <p>

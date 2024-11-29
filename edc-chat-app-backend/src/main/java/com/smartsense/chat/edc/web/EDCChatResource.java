@@ -1,3 +1,7 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.edc.web;
 
 import com.smartsense.chat.dao.entity.ChatMessage;

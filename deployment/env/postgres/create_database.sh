@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+#
+
 set -e
 set -u
 

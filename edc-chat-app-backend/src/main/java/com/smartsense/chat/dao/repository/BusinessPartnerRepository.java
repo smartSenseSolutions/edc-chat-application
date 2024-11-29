@@ -1,12 +1,17 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.dao.repository;
 
 import com.smartsense.chat.dao.entity.BusinessPartner;
 import com.smartsensesolutions.commons.dao.base.BaseRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BusinessPartnerRepository extends BaseRepository<BusinessPartner, UUID> {
