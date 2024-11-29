@@ -69,7 +69,7 @@ Please refer [technical.md](docs/technical.md)
 
 ## Demo
 
-[![Watch the video](https://i.sstatic.net/Vp2cE.png)](https://drive.google.com/file/d/1siHmY9dEJ-3U7j8p2KTnltMvW37X01Bv/view?usp=drive_link)
+[Chat application using EDC demo](docs/EDC_demo_compressed.mp4)
 
 
 ## Out of scope
