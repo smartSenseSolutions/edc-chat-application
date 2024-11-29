@@ -72,9 +72,11 @@ includes multiple components working together for real-time messaging and data t
 
 ### **Steps to Deploy**
 
+*Note: below steps are tested with `Docker version 27.3.1`*
+
 1. Run the following command to start the deployment:
    ```bash
-   docker-compose up --build
+   docker compose up --build
 
 2. After the deployment the stack will look like below:
    ![img.png](../docs/images/deployment/deployment-stack.png)
@@ -102,7 +104,7 @@ includes multiple components working together for real-time messaging and data t
     4. catena-x-ui
 2. After commenting this, use the below commands which will deploy the Edc and it's relevant services.
    ```bash
-   docker-compose up -d
+   docker compose up -d
 
 ---
 
@@ -112,10 +114,10 @@ includes multiple components working together for real-time messaging and data t
 1. remove the `postgres_data` folder from the root path of the code.
 2. Once removal is done, execute the below command.
     ```bash
-   docker-compose down -v
+   docker compose down -v
 3. After removing the data and all, we will run the whole stack again with below command.
     ```bash
-   docker-compose up -d
+   docker compose up -d
 
 ---
 
@@ -132,4 +134,4 @@ If you want to deploy the wallet-stub service in your local environment, follow 
 4. Expose port `80` with ngrok and update the above host with the ngrok url.
 5. Run the Docker Compose command to start the services:
    ```bash
-   docker-compose up -d
+   docker compose up -d
