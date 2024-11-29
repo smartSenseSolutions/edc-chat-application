@@ -126,6 +126,9 @@ includes multiple components working together for real-time messaging and data t
 The **wallet-stub** service is currently deployed in our shared environment
 at:[wallet-stub](https://wallet.learn.smartsenselabs.com/ui/swagger-ui/index.html).
 
+- Make sure your wallet is created in [Wallet stub application](https://wallet.learn.smartsenselabs.com/ui/swagger-ui/index.html) if you are changing or register new BPNs before starting data transfer/chat.
+- You can create wallets just by calling ``https://wallet.learn.smartsenselabs.com/yourBPN/did.json`` URL in the browser.
+
 If you want to deploy the wallet-stub service in your local environment, follow these steps:
 
 1. Open the `docker-compose.yaml` file in your project directory.

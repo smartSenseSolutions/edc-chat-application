@@ -69,7 +69,7 @@ Please refer [technical.md](docs/technical.md)
 
 ## Demo
 
-WIP
+[EDC_demo_compressed.mp4](docs/EDC_demo_compressed.mp4)
 
 ## Out of scope
 - Any authentication and authorization 
