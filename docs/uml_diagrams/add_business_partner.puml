@@ -1,0 +1,20 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+title Add Business partner
+
+participant "Chat UI" as s_ui order 1
+participant "Chat Backend" as s_be order 5
+database "DB" as s_db order 10
+autonumber
+s_ui -> s_be : Add business partner request
+note left
+{
+    "name":"Company A",
+    "bpn":"BPNL000000000000",
+    "edcUrl":"http://localhost:8195/api/v1/dsp"
+}
+end note
+s_be -> s_db : store information
+s_be --> s_ui : Partner successfully registered
+
+@enduml

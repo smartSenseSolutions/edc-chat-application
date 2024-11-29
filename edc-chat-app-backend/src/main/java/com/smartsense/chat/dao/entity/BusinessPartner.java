@@ -1,11 +1,30 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.dao.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.*;
+import com.smartsensesolutions.commons.dao.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 import java.util.Date;
 import java.util.UUID;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -13,8 +32,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "raw_data_master")
-public class BusinessPartner {
+@Table(name = "business_partner")
+public class BusinessPartner implements BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -41,11 +60,11 @@ public class BusinessPartner {
 
     @PrePersist
     void createdAt() {
-        this.createdAt = new Date();
+        createdAt = new Date();
     }
 
     @PreUpdate
     void updatedAt() {
-        this.updatedAt = new Date();
+        updatedAt = new Date();
     }
 }

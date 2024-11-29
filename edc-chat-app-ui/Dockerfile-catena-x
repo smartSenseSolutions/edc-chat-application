@@ -2,22 +2,22 @@
 FROM node:16 as build
 
 # Set the maintainer information
-LABEL maintainer="Your Name <your.email@example.com>"
+LABEL maintainer="smartSense"
 
 # Set working directory inside the container
 WORKDIR /app
 
 # Copy package.json and package-lock.json
-COPY package*.json ./
+COPY ./edc-chat-app-ui/package*.json ./
 
 # Install dependencies
 RUN npm install
 
 # Copy the rest of the application files
-COPY . .
+COPY ./edc-chat-app-ui/ .
 
 # Build the React application for production
-RUN npm run build
+RUN REACT_APP_API_BASE_URL=http://localhost:8181 REACT_APP_WEBSOCKET_URL=ws://localhost:8181  npm run build
 
 # Stage 2: Serve the application using nginx (non-root)
 FROM nginx:alpine

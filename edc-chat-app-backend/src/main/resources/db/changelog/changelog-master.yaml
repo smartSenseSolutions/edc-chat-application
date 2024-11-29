@@ -1,3 +1,3 @@
 databaseChangeLog:
   - include:
-      file: db/changelog/changes/1-initial-table-structure.sql
+      file: db/changelog/changes/init.sql

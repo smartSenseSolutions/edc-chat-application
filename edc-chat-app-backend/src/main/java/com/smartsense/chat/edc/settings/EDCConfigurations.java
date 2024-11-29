@@ -1,8 +1,20 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.edc.settings;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import java.net.URI;
 
-@ConfigurationProperties("chat.edc")
-public record EDCConfigurations(String authCode,
-                                String assetId) {
+public record EDCConfigurations(String edcUrl,
+                                String authCode,
+                                String assetId,
+                                String contractDefinitionId,
+                                String policyId,
+                                String agreementWaitTime,
+                                int agreementRetryLimit) {
+
+    public URI edcUri() {
+        return URI.create(edcUrl);
+    }
 }

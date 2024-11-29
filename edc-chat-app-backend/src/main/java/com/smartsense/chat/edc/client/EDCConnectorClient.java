@@ -1,16 +1,44 @@
-package com.smartsense.chat.edc.client;
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
 
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
+package com.smartsense.chat.edc.client;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.cloud.openfeign.FeignClient;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "edc", url = "http://localhost:8182")
 public interface EDCConnectorClient {
+
+    @PostMapping(value = "/management/v3/assets", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    void createAsset(URI baseUri,
+                     @RequestBody Map<String, Object> request,
+                     @RequestHeader("X-Api-Key") String auth);
+
+    @GetMapping(value = "/management/v3/assets/{assetId}", produces = APPLICATION_JSON_VALUE)
+    ResponseEntity<Object> getAsset(URI baseUri,
+                                    @PathVariable("assetId") String assetId,
+                                    @RequestHeader("X-Api-Key") String auth);
+
+    @PostMapping(value = "/management/v2/policydefinitions", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    void createPolicy(URI baseUri,
+                      @RequestBody Map<String, Object> request,
+                      @RequestHeader("X-Api-Key") String auth);
+
+    @PostMapping(value = "/management/v2/contractdefinitions", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    void createContractDefinition(URI baseUri,
+                                  @RequestBody Map<String, Object> request,
+                                  @RequestHeader("X-Api-Key") String auth);
 
     @PostMapping(value = "/management/v2/catalog/request", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     Map<String, Object> queryCatalog(URI baseUri,

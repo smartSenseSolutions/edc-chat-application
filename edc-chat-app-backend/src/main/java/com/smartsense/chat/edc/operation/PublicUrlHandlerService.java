@@ -1,29 +1,37 @@
+/*
+ * Copyright (c)  2024 smartSense Consulting Solutions Pvt. Ltd.
+ */
+
 package com.smartsense.chat.edc.operation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
-import com.smartsense.chat.utils.request.ChatMessage;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import com.smartsense.chat.edc.settings.AppConfig;
+import com.smartsense.chat.service.ChatMessageService;
+import com.smartsense.chat.utils.request.ChatRequest;
 
 import java.net.URI;
 import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PublicUrlHandlerService {
+
+    private final ChatMessageService chatMessageService;
     private final EDCConnectorClient edc;
     private final ObjectMapper mapper;
-    @Value("${edc.auth.code:password}")
-    private String authCode;
+    private final AppConfig config;
 
-    public void getAuthCodeAndPublicUrl(URI edcUri, String transferProcessId, ChatMessage message) {
+    public void getAuthCodeAndPublicUrl(String transferProcessId, ChatRequest message, ChatMessage chatMessage) {
         try {
-            log.info("Initiate to get auth code based on transfer process id " + transferProcessId);
-            Map<String, Object> response = edc.getAuthCodeAndPublicUrl(edcUri, transferProcessId, authCode);
+            log.info("Initiate to get auth code based on transfer process id {}", transferProcessId);
+            Map<String, Object> response = edc.getAuthCodeAndPublicUrl(config.edc().edcUri(), transferProcessId, config.edc().authCode());
             log.info("Auth code and public url response -> {}", response);
 
             // Retrieve public path and authorization code
@@ -35,6 +43,8 @@ public class PublicUrlHandlerService {
 
             log.info("Initiate to get auth code based on transfer process id {} is done.", transferProcessId);
         } catch (Exception ex) {
+            chatMessage.setErrorDetail(String.format("Error occurred in get auth code based on transfer process id %s and exception: %s", transferProcessId, ex.getMessage()));
+            chatMessageService.create(chatMessage);
             log.error("Error occurred in get auth code based on transfer process id {} ", transferProcessId, ex);
         }
     }
