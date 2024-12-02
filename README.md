@@ -15,6 +15,7 @@ The following table lists Business Partner Numbers (BPNs) associated with differ
 | Catena-X        | BPNL00000CATENAX | Represents the BPN assigned to the Catena-X. We can also consider as receier/consumer. |
 | Tractus-X       | BPNL0000TRACTUSX | Dataspace operator or trusted issuer                                                   |
 
+
 *Note: This is just to set the context of the application, you can transfer data vice versa(smartSense to Catena-X or Catena-X to smartSense) and You can also register a third participant (EDC).* 
 
 ## Tools and technology
@@ -45,6 +46,7 @@ There will be some operator company(trusted issuer) which will host following co
 #### Note: 
 - We need to expose wallet stub on `https` URL as while verification of VP token, EDC will resolve DID document on `https`. You can use `ngrok` or `tunnelmol` for this purpose.
 - Alternatively, You can use hosted wallet stub application on https://wallet.learn.smartsenselabs.com for testing purpose.
+- Wallets have been generated for BPN BPNL00SMARTSENSE, BPNL00000CATENAX, and BPNL0000TRACTUSX, accessible at https://wallet.learn.smartsenselabs.com
 
 ### High level diagram 
 
