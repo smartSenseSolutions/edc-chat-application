@@ -8,15 +8,14 @@ import com.smartsense.chat.dao.entity.ChatMessage;
 import com.smartsense.chat.edc.client.EDCConnectorClient;
 import com.smartsense.chat.edc.settings.AppConfig;
 import com.smartsense.chat.service.ChatMessageService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -58,7 +57,7 @@ public class ContractNegotiationService {
         negotiationRequest.put("edc:counterPartyAddress", receiverDspUrl);
         negotiationRequest.put("edc:protocol", "dataspace-protocol-http");
         negotiationRequest.put("edc:counterPartyId", receiverBpnL);
-        negotiationRequest.put("edc:policy", prepareNegotiationPolicy(receiverBpnL, offerId));
+        negotiationRequest.put("edc:policy", prepareNegotiationMembershipPolicy(receiverBpnL, offerId));
         log.info("Negotiation request looks like: {}", negotiationRequest);
         return negotiationRequest;
     }
@@ -68,6 +67,17 @@ public class ContractNegotiationService {
         negotiationPolicy.put("@id", offerId);
         negotiationPolicy.put("@type", "Offer");
         negotiationPolicy.put("permission", List.of(Map.of("action", "use")));
+        negotiationPolicy.put("target", config.edc().assetId());
+        negotiationPolicy.put("assigner", receiverBpnL);
+        return negotiationPolicy;
+    }
+
+    private Map<String, Object> prepareNegotiationMembershipPolicy(String receiverBpnL, String offerId) {
+        Map<String, Object> negotiationPolicy = new HashMap<>();
+        negotiationPolicy.put("@id", offerId);
+        negotiationPolicy.put("@type", "Offer");
+        negotiationPolicy.put("permission", List.of(Map.of("action", "use",
+                "constraint", Map.of("and", List.of(Map.of("leftOperand", "Membership", "operator", "eq", "rightOperand", "active"))))));
         negotiationPolicy.put("target", config.edc().assetId());
         negotiationPolicy.put("assigner", receiverBpnL);
         return negotiationPolicy;

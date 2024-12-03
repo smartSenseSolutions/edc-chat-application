@@ -9,6 +9,9 @@ successful chat flow:
 - a Postgres database to store other Business Partners' information and chat history.
 - a simple UI to send messages to and receive messages from other Business Partners.
 
+**NOTE:** When the backend application starts, it will create the Asset, Policy, and Contract Definition. However, if
+the assetId as an **edc-chat-app** is already in the edc database, it’ll skip this process.
+
 ## Packages Overview
 
 The backend application consists of the below packages:
@@ -68,8 +71,6 @@ server. The [WebSocketConfig.java](src/main/java/com/smartsense/chat/config/WebS
 | `AGREEMENT_WAIT_MILLI`  | Wait time in millisecond till contract finalized |
 | `AGREEMENT_RETRY_LIMIT` | Max retry check for contract to be finalized     |
 | `APP_HOST_URL`          | Application host url to add in asset             |
-
-
 
 - Run the application by executing the following command:
    ```bash
