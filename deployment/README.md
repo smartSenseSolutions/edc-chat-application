@@ -56,6 +56,13 @@ includes multiple components working together for real-time messaging and data t
     - Communicates with the UI application.
 - **Setup**: A separate backend application is deployed for each EDC instance.
 
+**NOTE:**
+ 
+- When the backend application starts, it will create the Asset with id `edc-chat-app`, Policy, and Contract Definition. Please refer `EDCService.initializePreEdcProcess()` for more details
+- However, if the assetId as an `edc-chat-app` is already in the edc database, it’ll skip this process.
+- Policy is created to check `Membership` credential of  participant. Each participate needs to present `Membership` credential to start data negotiation.
+
+
 ### **UI Application**
 
 - **Purpose**: Provides a WebSocket-enabled interface for real-time chat.
