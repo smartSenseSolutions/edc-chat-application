@@ -9,8 +9,10 @@ successful chat flow:
 - a Postgres database to store other Business Partners' information and chat history.
 - a simple UI to send messages to and receive messages from other Business Partners.
 
-**NOTE:** When the backend application starts, it will create the Asset, Policy, and Contract Definition. However, if
-the assetId as an **edc-chat-app** is already in the edc database, it’ll skip this process.
+**NOTE:** 
+- When the backend application starts, it will create the Asset with id `edc-chat-app`, Policy, and Contract Definition. Please refer `EDCService.initializePreEdcProcess()` for more details
+- However, if the assetId as an `edc-chat-app` is already in the edc database, it’ll skip this process.
+- Policy is created to check `Membership` credential of  participant. Each participate needs to present `Membership` credential to start data negotiation.
 
 ## Packages Overview
 
