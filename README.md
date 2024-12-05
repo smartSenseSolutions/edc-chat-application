@@ -75,7 +75,7 @@ Please refer [technical.md](docs/technical.md)
 
 
 ## Out of scope
-- Any authentication and authorization 
+- Any authentication and authorization to access chat UI application and to start chat
 - EDC discovery service, each participant need to register partner's BPN and EDC DSP URL to start chat
 - Fancy UI/UX
 - Deployment using helm
