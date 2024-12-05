@@ -19,7 +19,7 @@ on:
 
 
 jobs:
-  build-docker-images-backend:
+  build-docker-images-frontend:
     runs-on: ubuntu-latest
     permissions:
       packages: write
